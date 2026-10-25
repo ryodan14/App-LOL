@@ -63,10 +63,6 @@ export const useAppStore = create<AppState>((set, get) => ({
           disposeData()
           disposeSnapshot()
         }
-
-        if (data.status !== 'ready') {
-          void get().refreshData()
-        }
       } catch (error) {
         set({
           initialized: true,

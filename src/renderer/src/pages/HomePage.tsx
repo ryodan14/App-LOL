@@ -28,7 +28,7 @@ import { RoleMark } from '@renderer/components/lol/RoleMark'
 import { ROLE_ORDER } from '@shared/constants'
 import { cn } from '@renderer/lib/cn'
 
-const FEATURED_IDS = ['Ahri', 'Yasuo', 'Jinx', 'Thresh', 'Darius', 'LeeSin', 'Kaisa', 'Lux']
+const FEATURED_IDS = ['Jinx', 'Ahri', 'Yasuo', 'Thresh', 'Darius', 'LeeSin', 'Kaisa', 'Lux']
 
 const features = [
   {
@@ -107,11 +107,11 @@ export function HomePage(): React.JSX.Element {
               <img
                 src={championSplashUrl(heroChampion.id)}
                 alt=""
-                className="h-full w-full scale-[1.06] object-cover object-[50%_18%] opacity-55"
+                className="h-full w-full scale-[1.04] object-cover object-[50%_22%] opacity-80"
                 draggable={false}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-base-900 via-base-900/70 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-base-950/80 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-base-900 via-base-900/55 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-base-950/75 via-transparent to-transparent" />
             </div>
           )}
           <div className="pointer-events-none absolute -left-24 -top-28 h-72 w-72 rounded-full bg-gold-400/10 blur-3xl" />
