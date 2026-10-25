@@ -2,6 +2,7 @@ export type Role = 'TOP' | 'JUNGLE' | 'MIDDLE' | 'BOTTOM' | 'UTILITY' | 'UNKNOWN
 
 export type ClientPhase =
   | 'Offline'
+  | 'Online'
   | 'Lobby'
   | 'Matchmaking'
   | 'ReadyCheck'
@@ -202,6 +203,7 @@ export interface ChampSelectState {
 }
 
 export interface LivePlayer {
+  championId: string
   championName: string
   rawChampionName: string
   riotId: string

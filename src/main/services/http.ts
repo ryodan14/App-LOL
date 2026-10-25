@@ -1,6 +1,16 @@
 import https from 'node:https'
 import { URL } from 'node:url'
 
+export class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string
+  ) {
+    super(message)
+    this.name = 'HttpError'
+  }
+}
+
 interface JsonOptions {
   timeoutMs?: number
   auth?: string
@@ -51,7 +61,12 @@ export function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T>
         if (status < 200 || status >= 300) {
           response.resume()
           settled = true
-          reject(new Error(`HTTP ${status} al solicitar ${parsed.hostname}${parsed.pathname}`))
+          reject(
+            new HttpError(
+              status,
+              `HTTP ${status} al solicitar ${parsed.hostname}${parsed.pathname}`
+            )
+          )
           return
         }
 
