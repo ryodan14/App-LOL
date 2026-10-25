@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
+import { promises as fs } from 'node:fs'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { getSettings, updateSettings } from './services/settings'
+import { StaticDataService } from './services/staticData'
 import { createMainWindow, getMainWindow } from './window'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
@@ -8,6 +10,8 @@ const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
   app.quit()
 }
+
+let dataService: StaticDataService | null = null
 
 function registerIpc(): void {
   ipcMain.handle('app:version', () => app.getVersion())
@@ -21,8 +25,15 @@ function registerIpc(): void {
     return settings
   })
 
-  ipcMain.handle('static-data:get', (): DataResult => ({ data: null, status: 'loading' }))
-  ipcMain.handle('static-data:refresh', (): DataResult => ({ data: null, status: 'loading' }))
+  ipcMain.handle(
+    'static-data:get',
+    (): DataResult => dataService?.get() ?? { data: null, status: 'loading' }
+  )
+  ipcMain.handle(
+    'static-data:refresh',
+    async (): Promise<DataResult> =>
+      dataService?.refresh(true) ?? { data: null, status: 'error', error: 'Servicio no disponible' }
+  )
   ipcMain.handle('snapshot:get', (): Snapshot => emptySnapshot())
   ipcMain.handle('snapshot:refresh', (): Snapshot => emptySnapshot())
   ipcMain.handle('snapshot:reconnect', (): Snapshot => emptySnapshot())
@@ -86,8 +97,37 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  dataService = new StaticDataService()
+  dataService.subscribe((result) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      window.webContents.send('static-data:updated', result)
+    }
+  })
+
   registerIpc()
-  createMainWindow(settings.alwaysOnTop)
+  const window = createMainWindow(settings.alwaysOnTop)
+  void dataService.init()
+
+  const screenshotArg = process.argv.find((arg) => arg.startsWith('--app-lol-screenshot='))
+  const screenshotPath =
+    screenshotArg?.slice('--app-lol-screenshot='.length) ?? process.env['APP_LOL_SCREENSHOT']
+  if (screenshotPath) {
+    window.webContents.once('did-finish-load', () => {
+      setTimeout(async () => {
+        try {
+          const hash = await window.webContents.executeJavaScript('window.location.hash')
+          console.log(`[screenshot] URL: ${window.webContents.getURL()} hash: ${hash}`)
+          const image = await window.webContents.capturePage()
+          await fs.writeFile(screenshotPath, image.toPNG())
+          console.log(`[screenshot] Guardado en ${screenshotPath}`)
+        } catch (error) {
+          console.error('[screenshot] Error', error)
+        } finally {
+          app.quit()
+        }
+      }, 7000)
+    })
+  }
 })
 
 app.on('second-instance', () => {

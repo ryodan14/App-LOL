@@ -14,7 +14,7 @@ export function RuneIcon({
   className?: string
 }): React.JSX.Element {
   const [failed, setFailed] = useState(false)
-  const src = icon && !failed ? runeIconUrl(icon) : ''
+  const src = icon && !failed ? (icon.startsWith('http') ? icon : runeIconUrl(icon)) : ''
   const dimensions = {
     xs: 'h-5 w-5',
     sm: 'h-7 w-7',
