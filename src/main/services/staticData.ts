@@ -128,6 +128,23 @@ interface RawSummonerSpell {
   cooldown: number[]
 }
 
+interface RawRuneRecommendation {
+  position: string
+  mapId: number
+  isDefaultPosition: boolean
+  perkIds: number[]
+  primaryPerkStyleId: number
+  secondaryPerkStyleId: number
+  summonerSpellIds: number[]
+  recommendationId: string
+}
+
+interface RawRuneRecommendationGroup {
+  championId: number
+  isOverride: boolean
+  runeRecommendations: RawRuneRecommendation[]
+}
+
 interface RawChampionFull {
   data: Record<string, RawChampion>
 }
@@ -204,6 +221,27 @@ function transformItems(raw: RawItems): Item[] {
   return items.sort((a, b) => a.name.localeCompare(b.name, 'es'))
 }
 
+function transformRuneRecommendations(
+  raw: RawRuneRecommendationGroup[],
+  knownChampionIds: Set<number>
+): RuneRecommendation[] {
+  return raw
+    .filter((group) => knownChampionIds.has(group.championId))
+    .flatMap((group) =>
+      (group.runeRecommendations ?? []).map((recommendation) => ({
+        championId: group.championId,
+        position: recommendation.position,
+        mapId: recommendation.mapId,
+        isDefaultPosition: recommendation.isDefaultPosition,
+        perkIds: recommendation.perkIds,
+        primaryPerkStyleId: recommendation.primaryPerkStyleId,
+        secondaryPerkStyleId: recommendation.secondaryPerkStyleId,
+        summonerSpellIds: recommendation.summonerSpellIds,
+        recommendationId: recommendation.recommendationId
+      }))
+    )
+}
+
 function transformSummonerSpells(raw: RawSummonerSpells): SummonerSpell[] {
   return Object.values(raw.data)
     .map((spell) => ({
@@ -227,14 +265,14 @@ export async function fetchStaticData(version: string): Promise<StaticData> {
     fetchJson<RawItems>(`${DDRAGON}/cdn/${version}/data/${language}/item.json`),
     fetchJson<RawSummonerSpells>(`${DDRAGON}/cdn/${version}/data/${language}/summoner.json`),
     fetchJson<RawRuneTree[]>(`${DDRAGON}/cdn/${version}/data/${language}/runesReforged.json`),
-    fetchJson<RuneRecommendation[]>(`${CDRAGON}/champion-rune-recommendations.json`)
+    fetchJson<RawRuneRecommendationGroup[]>(
+      `${CDRAGON}/champion-rune-recommendations.json`
+    )
   ])
 
   const champions = transformChampions(championRaw)
   const knownChampionIds = new Set(champions.map((champion) => champion.key))
-  const runeRecs = runeRecsRaw.filter((recommendation) =>
-    knownChampionIds.has(recommendation.championId)
-  )
+  const runeRecs = transformRuneRecommendations(runeRecsRaw, knownChampionIds)
 
   return {
     patch: version,
@@ -250,7 +288,7 @@ export async function fetchStaticData(version: string): Promise<StaticData> {
 }
 
 function cachePath(): string {
-  return join(app.getPath('userData'), 'cache', `static-data-${DATA_LANGUAGE}.json`)
+  return join(app.getPath('userData'), 'cache', `static-data-v2-${DATA_LANGUAGE}.json`)
 }
 
 function isValidCache(value: unknown): value is StaticData {
@@ -265,6 +303,13 @@ function isValidCache(value: unknown): value is StaticData {
     data.items.length > 0 &&
     Array.isArray(data.runeTrees) &&
     Array.isArray(data.runeRecs) &&
+    data.runeRecs.every(
+      (recommendation) =>
+        typeof recommendation.championId === 'number' &&
+        typeof recommendation.position === 'string' &&
+        Array.isArray(recommendation.perkIds) &&
+        recommendation.perkIds.length > 0
+    ) &&
     Array.isArray(data.summonerSpells)
   )
 }
