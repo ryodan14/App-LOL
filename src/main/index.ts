@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
 import { promises as fs } from 'node:fs'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { getSettings, updateSettings } from './services/settings'
+import { SnapshotService } from './services/snapshot'
 import { StaticDataService } from './services/staticData'
 import { createMainWindow, getMainWindow } from './window'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
@@ -12,6 +13,7 @@ if (!gotLock) {
 }
 
 let dataService: StaticDataService | null = null
+let snapshotService: SnapshotService | null = null
 
 function registerIpc(): void {
   ipcMain.handle('app:version', () => app.getVersion())
@@ -21,6 +23,15 @@ function registerIpc(): void {
     const settings = await updateSettings(patch)
     if (typeof patch.alwaysOnTop === 'boolean') {
       getMainWindow()?.setAlwaysOnTop(settings.alwaysOnTop)
+    }
+    if (
+      'pollIntervalMs' in patch ||
+      'autoDetectClient' in patch ||
+      'customLcuPath' in patch ||
+      'manualLcuPort' in patch ||
+      'manualLcuToken' in patch
+    ) {
+      snapshotService?.restart()
     }
     return settings
   })
@@ -34,10 +45,16 @@ function registerIpc(): void {
     async (): Promise<DataResult> =>
       dataService?.refresh(true) ?? { data: null, status: 'error', error: 'Servicio no disponible' }
   )
-  ipcMain.handle('snapshot:get', (): Snapshot => emptySnapshot())
-  ipcMain.handle('snapshot:refresh', (): Snapshot => emptySnapshot())
-  ipcMain.handle('snapshot:reconnect', (): Snapshot => emptySnapshot())
-  ipcMain.handle('account:get', () => null)
+  ipcMain.handle('snapshot:get', (): Snapshot => snapshotService?.get() ?? emptySnapshot())
+  ipcMain.handle(
+    'snapshot:refresh',
+    async (): Promise<Snapshot> => snapshotService?.refresh() ?? emptySnapshot()
+  )
+  ipcMain.handle(
+    'snapshot:reconnect',
+    async (): Promise<Snapshot> => snapshotService?.reconnect() ?? emptySnapshot()
+  )
+  ipcMain.handle('account:get', async () => snapshotService?.getAccount() ?? null)
 
   ipcMain.on('window:minimize', () => getMainWindow()?.minimize())
   ipcMain.on('window:toggle-maximize', () => {
@@ -104,6 +121,14 @@ app.whenReady().then(async () => {
     }
   })
 
+  snapshotService = new SnapshotService()
+  snapshotService.subscribe((snapshot) => {
+    for (const window of BrowserWindow.getAllWindows()) {
+      window.webContents.send('snapshot:updated', snapshot)
+    }
+  })
+  snapshotService.start()
+
   registerIpc()
   const window = createMainWindow(settings.alwaysOnTop)
   void dataService.init()
@@ -141,6 +166,10 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     void getSettings().then((settings) => createMainWindow(settings.alwaysOnTop))
   }
+})
+
+app.on('before-quit', () => {
+  snapshotService?.stop()
 })
 
 app.on('window-all-closed', () => {
