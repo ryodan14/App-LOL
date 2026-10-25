@@ -1,0 +1,32 @@
+appId: com.ryodan14.applol
+productName: App-LOL
+directories:
+  buildResources: build
+  output: release
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+asarUnpack:
+  - resources/**
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-${arch}.${ext}
+  icon: build/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  shortcutName: App-LOL
+linux:
+  target:
+    - AppImage
+  category: Game
+  icon: build/icon.png
+  artifactName: ${productName}-${version}-${arch}.${ext}
