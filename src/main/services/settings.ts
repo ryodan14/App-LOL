@@ -2,8 +2,10 @@ import { app } from 'electron'
 import { promises as fs } from 'node:fs'
 import { dirname, join } from 'node:path'
 import {
+  DEFAULT_OVERLAY_OPACITY,
   DEFAULT_OVERLAY_SCALE,
   DEFAULT_SETTINGS,
+  OVERLAY_CORNER_OPTIONS,
   OVERLAY_SCALE_OPTIONS,
   POLL_INTERVAL_OPTIONS
 } from '@shared/constants'
@@ -24,10 +26,20 @@ function sanitize(value: Partial<AppSettings>): AppSettings {
   const allowedOverlayScale = OVERLAY_SCALE_OPTIONS.includes(
     merged.overlayScale as (typeof OVERLAY_SCALE_OPTIONS)[number]
   )
+  const allowedOverlayCorner = OVERLAY_CORNER_OPTIONS.includes(merged.overlayCorner)
+  const overlayOpacity = Number(merged.overlayOpacity)
   return {
     ...merged,
     overlayEnabled: Boolean(merged.overlayEnabled),
     overlayScale: allowedOverlayScale ? merged.overlayScale : DEFAULT_OVERLAY_SCALE,
+    overlayOpacity: Number.isFinite(overlayOpacity)
+      ? Math.round(Math.min(1, Math.max(0.35, overlayOpacity)) * 100) / 100
+      : DEFAULT_OVERLAY_OPACITY,
+    overlayCorner: allowedOverlayCorner ? merged.overlayCorner : 'top-right',
+    overlayShowGold: Boolean(merged.overlayShowGold),
+    overlayShowObjectives: Boolean(merged.overlayShowObjectives),
+    overlayShowChampSelect: Boolean(merged.overlayShowChampSelect),
+    overlayGoldOnDemand: Boolean(merged.overlayGoldOnDemand),
     startWithWindows: Boolean(merged.startWithWindows),
     showWithLeague: Boolean(merged.showWithLeague),
     pollIntervalMs: allowedInterval ? merged.pollIntervalMs : DEFAULT_SETTINGS.pollIntervalMs,

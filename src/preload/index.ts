@@ -44,7 +44,15 @@ const api: AppApi = {
     minimize: () => ipcRenderer.send('window:minimize'),
     toggleMaximize: () => ipcRenderer.send('window:toggle-maximize'),
     close: () => ipcRenderer.send('window:close'),
-    setAlwaysOnTop: (value: boolean) => ipcRenderer.invoke('window:set-always-on-top', value)
+    setAlwaysOnTop: (value: boolean) => ipcRenderer.invoke('window:set-always-on-top', value),
+    moveToSecondary: () => ipcRenderer.send('window:move-to-secondary')
+  },
+  overlay: {
+    onGoldToggle: (callback: () => void) => {
+      const listener = (): void => callback()
+      ipcRenderer.on('overlay:gold-toggle', listener)
+      return () => ipcRenderer.removeListener('overlay:gold-toggle', listener)
+    }
   },
   external: {
     open: (url: string) => ipcRenderer.invoke('external:open', url)

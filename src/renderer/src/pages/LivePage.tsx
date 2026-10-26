@@ -403,7 +403,7 @@ export function LivePage(): React.JSX.Element {
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Swords className="h-3.5 w-3.5" />
-          Overlay: Ctrl+Shift+O
+          Overlay: Ctrl+Shift+O · Oro: Ctrl+Shift+G
         </span>
       </div>
     </div>

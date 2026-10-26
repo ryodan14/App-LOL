@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, session, shell } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell } from 'electron'
 import { promises as fs } from 'node:fs'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { getSettings, updateSettings } from './services/settings'
@@ -9,7 +9,7 @@ import {
   closeOverlay,
   createOverlayWindow,
   getOverlayWindow,
-  setOverlayScale,
+  setOverlayLayout,
   syncOverlay
 } from './overlay'
 import { createPreviewAccount, createPreviewSnapshot } from './preview'
@@ -104,8 +104,8 @@ function registerIpc(): void {
   ipcMain.handle('settings:update', async (_event, patch: Partial<AppSettings>) => {
     const settings = await updateSettings(patch)
     applySettingsRuntime(settings)
-    if (typeof patch.overlayScale === 'number') {
-      setOverlayScale(settings.overlayScale)
+    if ('overlayScale' in patch || 'overlayCorner' in patch) {
+      setOverlayLayout(settings.overlayScale, settings.overlayCorner)
     }
     if (typeof patch.alwaysOnTop === 'boolean') {
       getMainWindow()?.setAlwaysOnTop(settings.alwaysOnTop)
@@ -156,6 +156,19 @@ function registerIpc(): void {
   ipcMain.on('window:close', () => getMainWindow()?.close())
   ipcMain.handle('window:set-always-on-top', (_event, value: boolean) => {
     getMainWindow()?.setAlwaysOnTop(Boolean(value))
+  })
+  ipcMain.on('window:move-to-secondary', () => {
+    const window = getMainWindow()
+    if (!window) return
+    const current = screen.getDisplayMatching(window.getBounds())
+    const target = screen.getAllDisplays().find((display) => display.id !== current.id)
+    if (!target) return
+    const bounds = window.getBounds()
+    window.setPosition(
+      target.workArea.x + Math.round((target.workArea.width - bounds.width) / 2),
+      target.workArea.y + Math.round((target.workArea.height - bounds.height) / 2)
+    )
+    window.show()
   })
 
   ipcMain.handle('external:open', async (_event, url: string) => {
@@ -240,7 +253,7 @@ app.whenReady().then(async () => {
     const match = windowSizeArg.slice('--app-lol-window='.length).match(/^(\d+)x(\d+)$/)
     if (match) window.setSize(Number(match[1]), Number(match[2]))
   }
-  createOverlayWindow(settings.overlayScale)
+  createOverlayWindow(settings.overlayScale, settings.overlayCorner)
   syncOverlayFromSnapshot(emptySnapshot())
   window.on('close', (event) => {
     if (!isQuitting && activeSettings?.startWithWindows) {
@@ -326,6 +339,11 @@ app.whenReady().then(async () => {
     void toggleOverlay()
   })
   if (!hotkey) console.warn('[overlay] No se pudo registrar Ctrl+Shift+O')
+
+  const goldHotkey = globalShortcut.register('CommandOrControl+Shift+G', () => {
+    getOverlayWindow()?.webContents.send('overlay:gold-toggle')
+  })
+  if (!goldHotkey) console.warn('[overlay] No se pudo registrar Ctrl+Shift+G')
 
   void dataService.init()
 

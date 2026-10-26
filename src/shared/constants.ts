@@ -1,7 +1,16 @@
-import type { AppSettings, Role } from './types'
+import type { AppSettings, OverlayCorner, Role } from './types'
 
-export const OVERLAY_SCALE_OPTIONS = [0.7, 0.8, 1] as const
+export const OVERLAY_SCALE_OPTIONS = [0.6, 0.7, 0.8, 0.9, 1] as const
 export const DEFAULT_OVERLAY_SCALE = 0.8
+export const DEFAULT_OVERLAY_OPACITY = 0.75
+export const OVERLAY_CORNER_OPTIONS: OverlayCorner[] = [
+  'top-right',
+  'top-left',
+  'bottom-right',
+  'bottom-left',
+  'right-center',
+  'left-center'
+]
 
 export const DEFAULT_SETTINGS: AppSettings = {
   alwaysOnTop: false,
@@ -14,6 +23,12 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showSplashArt: true,
   overlayEnabled: true,
   overlayScale: DEFAULT_OVERLAY_SCALE,
+  overlayOpacity: DEFAULT_OVERLAY_OPACITY,
+  overlayCorner: 'top-right',
+  overlayShowGold: true,
+  overlayShowObjectives: true,
+  overlayShowChampSelect: true,
+  overlayGoldOnDemand: true,
   startWithWindows: true,
   showWithLeague: true
 }
