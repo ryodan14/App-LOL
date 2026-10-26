@@ -19,6 +19,8 @@ function sanitize(value: Partial<AppSettings>): AppSettings {
   return {
     ...merged,
     overlayEnabled: Boolean(merged.overlayEnabled),
+    startWithWindows: Boolean(merged.startWithWindows),
+    showWithLeague: Boolean(merged.showWithLeague),
     pollIntervalMs: allowedInterval ? merged.pollIntervalMs : DEFAULT_SETTINGS.pollIntervalMs,
     manualLcuPort:
       typeof merged.manualLcuPort === 'number' && merged.manualLcuPort > 0

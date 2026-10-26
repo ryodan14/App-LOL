@@ -145,6 +145,8 @@ export interface AppSettings {
   manualLcuToken: string
   showSplashArt: boolean
   overlayEnabled: boolean
+  startWithWindows: boolean
+  showWithLeague: boolean
 }
 
 export interface LcuSummoner {

@@ -9,7 +9,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
   manualLcuPort: null,
   manualLcuToken: '',
   showSplashArt: true,
-  overlayEnabled: true
+  overlayEnabled: true,
+  startWithWindows: true,
+  showWithLeague: true
 }
 
 export const DATA_LANGUAGE = 'es_ES'

@@ -224,6 +224,33 @@ export function SettingsPage(): React.JSX.Element {
       </div>
 
       <Card className="p-6">
+        <SectionHeading
+          eyebrow="Sistema"
+          title="Inicio y bandeja"
+          description="Dejá App-LOL lista antes de entrar al cliente. El inicio automático se aplica a la versión instalada."
+        />
+        <div className="mt-3 divide-y divide-line">
+          <Toggle
+            checked={settings.startWithWindows}
+            onChange={(value) => void updateSettings({ startWithWindows: value })}
+            label="Iniciar con Windows"
+            description="Abre la app en segundo plano al iniciar sesión y la deja en la bandeja."
+          />
+          <Toggle
+            checked={settings.showWithLeague}
+            onChange={(value) => void updateSettings({ showWithLeague: value })}
+            label="Mostrar al abrir League"
+            description="Saca la ventana de la bandeja cuando se detecta el cliente de League of Legends."
+          />
+        </div>
+        <p className="mt-3 rounded-lg border border-line bg-base-950/40 px-3 py-2 text-[0.68rem] leading-relaxed text-ink-500">
+          {settings.startWithWindows
+            ? 'Con el inicio automático activo, la X oculta la ventana en la bandeja. Para cerrar del todo, usá “Salir” en el icono de la bandeja.'
+            : 'Si desactivás el inicio automático, cerrar la ventana cierra la app.'}
+        </p>
+      </Card>
+
+      <Card className="p-6">
         <SectionHeading eyebrow="Acerca de" title="App-LOL" />
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Badge tone="gold">v{version || '0.1.0'}</Badge>

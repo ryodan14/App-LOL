@@ -7,6 +7,7 @@ import { StaticDataService } from './services/staticData'
 import { createMainWindow, getMainWindow } from './window'
 import { closeOverlay, createOverlayWindow, getOverlayWindow, syncOverlay } from './overlay'
 import { createPreviewSnapshot } from './preview'
+import { createAppTray, destroyAppTray, updateAppTray } from './tray'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
 const gotLock = app.requestSingleInstanceLock()
@@ -18,11 +19,55 @@ let dataService: StaticDataService | null = null
 let snapshotService: SnapshotService | null = null
 let activeSettings: AppSettings | null = null
 let overlayPreviewSnapshot: Snapshot | null = null
+let lastLcuConnected = false
+let isQuitting = false
 
 function broadcastSettings(settings: AppSettings): void {
   for (const window of BrowserWindow.getAllWindows()) {
     window.webContents.send('settings:updated', settings)
   }
+}
+
+function loginItemPath(): string {
+  return process.env['PORTABLE_EXECUTABLE_FILE'] ?? process.execPath
+}
+
+function applyLoginItemSettings(settings: AppSettings): void {
+  if (!app.isPackaged) return
+  try {
+    app.setLoginItemSettings({
+      openAtLogin: settings.startWithWindows,
+      path: loginItemPath(),
+      args: ['--hidden']
+    })
+  } catch (error) {
+    console.error('[startup] No se pudo configurar el inicio con Windows', error)
+  }
+}
+
+function applySettingsRuntime(settings: AppSettings): void {
+  activeSettings = settings
+  broadcastSettings(settings)
+  applyLoginItemSettings(settings)
+  updateAppTray(settings)
+}
+
+function showMainWindow(): void {
+  const window = getMainWindow()
+  if (!window || window.isDestroyed()) return
+  if (window.isMinimized()) window.restore()
+  window.show()
+  window.focus()
+}
+
+async function toggleSetting(key: 'startWithWindows' | 'showWithLeague'): Promise<void> {
+  const current = await getSettings()
+  const patch =
+    key === 'startWithWindows'
+      ? { startWithWindows: !current.startWithWindows }
+      : { showWithLeague: !current.showWithLeague }
+  const next = await updateSettings(patch)
+  applySettingsRuntime(next)
 }
 
 function syncOverlayFromSnapshot(snapshot: Snapshot): void {
@@ -37,8 +82,7 @@ function syncOverlayFromSnapshot(snapshot: Snapshot): void {
 async function toggleOverlay(): Promise<void> {
   const current = await getSettings()
   const next = await updateSettings({ overlayEnabled: !current.overlayEnabled })
-  activeSettings = next
-  broadcastSettings(next)
+  applySettingsRuntime(next)
   syncOverlayFromSnapshot(snapshotService?.get() ?? emptySnapshot())
 }
 
@@ -48,8 +92,7 @@ function registerIpc(): void {
   ipcMain.handle('settings:get', () => getSettings())
   ipcMain.handle('settings:update', async (_event, patch: Partial<AppSettings>) => {
     const settings = await updateSettings(patch)
-    activeSettings = settings
-    broadcastSettings(settings)
+    applySettingsRuntime(settings)
     if (typeof patch.alwaysOnTop === 'boolean') {
       getMainWindow()?.setAlwaysOnTop(settings.alwaysOnTop)
     }
@@ -123,6 +166,7 @@ app.whenReady().then(async () => {
 
   const settings = await getSettings()
   activeSettings = settings
+  applyLoginItemSettings(settings)
 
   if (!process.env['ELECTRON_RENDERER_URL']) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
@@ -158,11 +202,22 @@ app.whenReady().then(async () => {
       window.webContents.send('snapshot:updated', snapshot)
     }
     syncOverlayFromSnapshot(snapshot)
+
+    const shouldShow = Boolean(
+      snapshot.lcuConnected &&
+        !lastLcuConnected &&
+        activeSettings?.showWithLeague &&
+        !overlayPreviewSnapshot
+    )
+    lastLcuConnected = snapshot.lcuConnected
+    if (shouldShow) showMainWindow()
   })
-  snapshotService.start()
 
   registerIpc()
-  const window = createMainWindow(settings.alwaysOnTop)
+  const startHidden =
+    process.argv.includes('--hidden') &&
+    !process.argv.some((arg) => arg.startsWith('--app-lol-screenshot='))
+  const window = createMainWindow(settings.alwaysOnTop, startHidden)
   const windowSizeArg = process.argv.find((arg) => arg.startsWith('--app-lol-window='))
   if (windowSizeArg) {
     const match = windowSizeArg.slice('--app-lol-window='.length).match(/^(\d+)x(\d+)$/)
@@ -170,7 +225,24 @@ app.whenReady().then(async () => {
   }
   createOverlayWindow()
   syncOverlayFromSnapshot(emptySnapshot())
+  window.on('close', (event) => {
+    if (!isQuitting && activeSettings?.startWithWindows) {
+      event.preventDefault()
+      window.hide()
+    }
+  })
   window.on('closed', () => closeOverlay())
+  createAppTray(settings, {
+    show: showMainWindow,
+    toggleOverlay: () => void toggleOverlay(),
+    toggleStartWithWindows: () => void toggleSetting('startWithWindows'),
+    toggleShowWithLeague: () => void toggleSetting('showWithLeague'),
+    quit: () => {
+      isQuitting = true
+      app.quit()
+    }
+  })
+  snapshotService.start()
 
   const mainPreviewArg = process.argv.find((arg) => arg.startsWith('--app-lol-main-preview='))
   if (mainPreviewArg) {
@@ -273,10 +345,7 @@ app.whenReady().then(async () => {
 })
 
 app.on('second-instance', () => {
-  const window = getMainWindow()
-  if (!window) return
-  if (window.isMinimized()) window.restore()
-  window.focus()
+  showMainWindow()
 })
 
 app.on('activate', () => {
@@ -286,11 +355,13 @@ app.on('activate', () => {
 })
 
 app.on('before-quit', () => {
+  isQuitting = true
   snapshotService?.stop()
 })
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
+  destroyAppTray()
 })
 
 app.on('window-all-closed', () => {
