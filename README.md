@@ -99,6 +99,7 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 El overlay aparece en la esquina superior derecha del monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
 
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
+- **Tamaño**: en **Ajustes** podés elegir Chico, Normal o Grande. Por defecto usa Normal.
 - **Alcance**: counters durante champ select, diferencia de oro estimada por línea y timers de objetivos.
 - **Oro estimado**: se calcula con el tiempo de partida, CS, KDA y el valor de los objetos. No es el oro exacto del marcador, por eso se muestra con `≈`.
 - **Pantalla completa exclusiva**: el overlay puede no verse en ese modo. Usá League en pantalla completa sin bordes o en ventana.

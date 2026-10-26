@@ -1,6 +1,7 @@
 import { BrowserWindow, screen, shell } from 'electron'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
+import { DEFAULT_OVERLAY_SCALE } from '@shared/constants'
 import type { AppSettings, Snapshot } from '@shared/types'
 
 const OVERLAY_WIDTH = 416
@@ -13,20 +14,31 @@ export function getOverlayWindow(): BrowserWindow | null {
   return overlayWindow
 }
 
-function overlayBounds(): { x: number; y: number; width: number; height: number } {
+function overlayBounds(scale: number): { x: number; y: number; width: number; height: number } {
   const { workArea } = screen.getPrimaryDisplay()
+  const margin = Math.round(OVERLAY_MARGIN * scale)
+  const width = Math.round(OVERLAY_WIDTH * scale)
+  const height = Math.round(OVERLAY_HEIGHT * scale)
   return {
-    width: OVERLAY_WIDTH,
-    height: Math.min(OVERLAY_HEIGHT, workArea.height - OVERLAY_MARGIN * 2),
-    x: workArea.x + workArea.width - OVERLAY_WIDTH - OVERLAY_MARGIN,
-    y: workArea.y + OVERLAY_MARGIN
+    width,
+    height: Math.min(height, workArea.height - margin * 2),
+    x: workArea.x + workArea.width - width - margin,
+    y: workArea.y + margin
   }
 }
 
-export function createOverlayWindow(): BrowserWindow {
+export function setOverlayScale(scale: number): void {
+  if (!overlayWindow || overlayWindow.isDestroyed()) return
+  const safeScale = Number.isFinite(scale) ? Math.min(1, Math.max(0.6, scale)) : DEFAULT_OVERLAY_SCALE
+  overlayWindow.webContents.setZoomFactor(safeScale)
+  overlayWindow.setBounds(overlayBounds(safeScale))
+}
+
+export function createOverlayWindow(scale = DEFAULT_OVERLAY_SCALE): BrowserWindow {
   if (overlayWindow && !overlayWindow.isDestroyed()) return overlayWindow
 
-  const bounds = overlayBounds()
+  const safeScale = Number.isFinite(scale) ? Math.min(1, Math.max(0.6, scale)) : DEFAULT_OVERLAY_SCALE
+  const bounds = overlayBounds(safeScale)
   const window = new BrowserWindow({
     ...bounds,
     frame: false,
@@ -48,7 +60,8 @@ export function createOverlayWindow(): BrowserWindow {
       sandbox: false,
       contextIsolation: true,
       nodeIntegration: false,
-      spellcheck: false
+      spellcheck: false,
+      zoomFactor: safeScale
     }
   })
 

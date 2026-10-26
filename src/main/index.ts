@@ -5,7 +5,13 @@ import { getSettings, updateSettings } from './services/settings'
 import { SnapshotService } from './services/snapshot'
 import { StaticDataService } from './services/staticData'
 import { createMainWindow, getMainWindow } from './window'
-import { closeOverlay, createOverlayWindow, getOverlayWindow, syncOverlay } from './overlay'
+import {
+  closeOverlay,
+  createOverlayWindow,
+  getOverlayWindow,
+  setOverlayScale,
+  syncOverlay
+} from './overlay'
 import { createPreviewAccount, createPreviewSnapshot } from './preview'
 import { createAppTray, destroyAppTray, updateAppTray } from './tray'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
@@ -98,6 +104,9 @@ function registerIpc(): void {
   ipcMain.handle('settings:update', async (_event, patch: Partial<AppSettings>) => {
     const settings = await updateSettings(patch)
     applySettingsRuntime(settings)
+    if (typeof patch.overlayScale === 'number') {
+      setOverlayScale(settings.overlayScale)
+    }
     if (typeof patch.alwaysOnTop === 'boolean') {
       getMainWindow()?.setAlwaysOnTop(settings.alwaysOnTop)
     }
@@ -231,7 +240,7 @@ app.whenReady().then(async () => {
     const match = windowSizeArg.slice('--app-lol-window='.length).match(/^(\d+)x(\d+)$/)
     if (match) window.setSize(Number(match[1]), Number(match[2]))
   }
-  createOverlayWindow()
+  createOverlayWindow(settings.overlayScale)
   syncOverlayFromSnapshot(emptySnapshot())
   window.on('close', (event) => {
     if (!isQuitting && activeSettings?.startWithWindows) {

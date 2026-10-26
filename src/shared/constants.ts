@@ -1,5 +1,8 @@
 import type { AppSettings, Role } from './types'
 
+export const OVERLAY_SCALE_OPTIONS = [0.7, 0.8, 1] as const
+export const DEFAULT_OVERLAY_SCALE = 0.8
+
 export const DEFAULT_SETTINGS: AppSettings = {
   alwaysOnTop: false,
   reduceMotion: false,
@@ -10,6 +13,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   manualLcuToken: '',
   showSplashArt: true,
   overlayEnabled: true,
+  overlayScale: DEFAULT_OVERLAY_SCALE,
   startWithWindows: true,
   showWithLeague: true
 }

@@ -1,7 +1,12 @@
 import { app } from 'electron'
 import { promises as fs } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { DEFAULT_SETTINGS, POLL_INTERVAL_OPTIONS } from '@shared/constants'
+import {
+  DEFAULT_OVERLAY_SCALE,
+  DEFAULT_SETTINGS,
+  OVERLAY_SCALE_OPTIONS,
+  POLL_INTERVAL_OPTIONS
+} from '@shared/constants'
 import type { AppSettings } from '@shared/types'
 
 let cache: AppSettings | null = null
@@ -16,9 +21,13 @@ function sanitize(value: Partial<AppSettings>): AppSettings {
   const allowedInterval = POLL_INTERVAL_OPTIONS.includes(
     merged.pollIntervalMs as (typeof POLL_INTERVAL_OPTIONS)[number]
   )
+  const allowedOverlayScale = OVERLAY_SCALE_OPTIONS.includes(
+    merged.overlayScale as (typeof OVERLAY_SCALE_OPTIONS)[number]
+  )
   return {
     ...merged,
     overlayEnabled: Boolean(merged.overlayEnabled),
+    overlayScale: allowedOverlayScale ? merged.overlayScale : DEFAULT_OVERLAY_SCALE,
     startWithWindows: Boolean(merged.startWithWindows),
     showWithLeague: Boolean(merged.showWithLeague),
     pollIntervalMs: allowedInterval ? merged.pollIntervalMs : DEFAULT_SETTINGS.pollIntervalMs,
