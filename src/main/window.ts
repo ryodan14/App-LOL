@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 
 const DEFAULT_WIDTH = 1080
-const DEFAULT_HEIGHT = 760
+const DEFAULT_HEIGHT = 720
 const MIN_WIDTH = 480
 const MIN_HEIGHT = 540
 const SAVE_DELAY_MS = 250
@@ -96,6 +96,9 @@ export function getMainWindow(): BrowserWindow | null {
 
 export function createMainWindow(alwaysOnTop: boolean, startHidden = false): BrowserWindow {
   const state = loadWindowState()
+  const display = screen.getDisplayMatching(state)
+  state.width = Math.min(state.width, display.workArea.width)
+  state.height = Math.min(state.height, display.workArea.height)
   const hasSavedPosition = state.x !== 0 || state.y !== 0
 
   const window = new BrowserWindow({

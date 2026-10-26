@@ -33,7 +33,7 @@ function loginItemPath(): string {
 }
 
 function applyLoginItemSettings(settings: AppSettings): void {
-  if (!app.isPackaged) return
+  if (!app.isPackaged || process.env['APP_LOL_DISABLE_AUTOSTART'] === '1') return
   try {
     app.setLoginItemSettings({
       openAtLogin: settings.startWithWindows,
@@ -52,12 +52,16 @@ function applySettingsRuntime(settings: AppSettings): void {
   updateAppTray(settings)
 }
 
-function showMainWindow(): void {
+function showMainWindow(focus = true): void {
   const window = getMainWindow()
   if (!window || window.isDestroyed()) return
   if (window.isMinimized()) window.restore()
-  window.show()
-  window.focus()
+  if (focus) {
+    window.show()
+    window.focus()
+  } else {
+    window.showInactive()
+  }
 }
 
 async function toggleSetting(key: 'startWithWindows' | 'showWithLeague'): Promise<void> {
@@ -210,7 +214,7 @@ app.whenReady().then(async () => {
         !overlayPreviewSnapshot
     )
     lastLcuConnected = snapshot.lcuConnected
-    if (shouldShow) showMainWindow()
+    if (shouldShow) showMainWindow(false)
   })
 
   registerIpc()
@@ -232,16 +236,21 @@ app.whenReady().then(async () => {
     }
   })
   window.on('closed', () => closeOverlay())
-  createAppTray(settings, {
-    show: showMainWindow,
-    toggleOverlay: () => void toggleOverlay(),
-    toggleStartWithWindows: () => void toggleSetting('startWithWindows'),
-    toggleShowWithLeague: () => void toggleSetting('showWithLeague'),
-    quit: () => {
-      isQuitting = true
-      app.quit()
-    }
-  })
+  try {
+    createAppTray(settings, {
+      show: () => showMainWindow(),
+      toggleOverlay: () => void toggleOverlay(),
+      toggleStartWithWindows: () => void toggleSetting('startWithWindows'),
+      toggleShowWithLeague: () => void toggleSetting('showWithLeague'),
+      quit: () => {
+        isQuitting = true
+        app.quit()
+      }
+    })
+  } catch (error) {
+    console.error('[tray] No se pudo crear el icono de la bandeja', error)
+    if (startHidden) showMainWindow()
+  }
   snapshotService.start()
 
   const mainPreviewArg = process.argv.find((arg) => arg.startsWith('--app-lol-main-preview='))
