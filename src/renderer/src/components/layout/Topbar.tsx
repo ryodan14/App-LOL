@@ -48,7 +48,7 @@ export function Topbar(): React.JSX.Element {
     : (subtitles[location.pathname] ?? 'League of Legends, más claro')
 
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-base-950/70 px-6 py-4 backdrop-blur-xl lg:px-8">
+    <header className="sticky top-0 z-20 border-b border-line bg-base-950/70 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4 lg:px-8">
       <div className="mx-auto flex max-w-[1480px] flex-wrap items-center justify-between gap-4">
         <div className="min-w-0">
           <h1 className="font-display truncate text-[1.15rem] font-semibold tracking-tight text-ink-100">

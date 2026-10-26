@@ -163,6 +163,11 @@ app.whenReady().then(async () => {
 
   registerIpc()
   const window = createMainWindow(settings.alwaysOnTop)
+  const windowSizeArg = process.argv.find((arg) => arg.startsWith('--app-lol-window='))
+  if (windowSizeArg) {
+    const match = windowSizeArg.slice('--app-lol-window='.length).match(/^(\d+)x(\d+)$/)
+    if (match) window.setSize(Number(match[1]), Number(match[2]))
+  }
   createOverlayWindow()
   syncOverlayFromSnapshot(emptySnapshot())
   window.on('closed', () => closeOverlay())
