@@ -145,6 +145,7 @@ export interface AppSettings {
   manualLcuToken: string
   showSplashArt: boolean
   overlayEnabled: boolean
+  overlayScale: number
   startWithWindows: boolean
   showWithLeague: boolean
 }

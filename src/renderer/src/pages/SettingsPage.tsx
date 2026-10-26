@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Database, ExternalLink, Info, MonitorCog, MonitorUp, RefreshCw, Wifi } from 'lucide-react'
-import { POLL_INTERVAL_OPTIONS } from '@shared/constants'
+import { OVERLAY_SCALE_OPTIONS, POLL_INTERVAL_OPTIONS } from '@shared/constants'
 import { formatRelativeTime } from '@renderer/lib/format'
 import { phaseLabel } from '@renderer/lib/phases'
 import { useAppStore } from '@renderer/store/useAppStore'
@@ -9,6 +9,12 @@ import { Button } from '@renderer/components/ui/Button'
 import { Toggle } from '@renderer/components/ui/Toggle'
 import { Badge } from '@renderer/components/ui/Badge'
 import { Spinner } from '@renderer/components/ui/EmptyState'
+
+const OVERLAY_SCALE_LABELS: Record<number, string> = {
+  0.7: 'Chico',
+  0.8: 'Normal',
+  1: 'Grande'
+}
 
 export function SettingsPage(): React.JSX.Element {
   const settings = useAppStore((state) => state.settings)
@@ -199,6 +205,25 @@ export function SettingsPage(): React.JSX.Element {
               label="Overlay de partida"
               description="Muestra counters en champ select, diferencia de oro estimada por línea y timers sobre el juego. Se oculta fuera de partida."
             />
+            <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <div>
+                <p className="text-[0.86rem] font-semibold text-ink-100">Tamaño del overlay</p>
+                <p className="text-[0.76rem] text-ink-400">Achicá el panel para que tape menos la partida.</p>
+              </div>
+              <select
+                className="input select w-32"
+                value={settings.overlayScale}
+                onChange={(event) =>
+                  void updateSettings({ overlayScale: Number(event.target.value) })
+                }
+              >
+                {OVERLAY_SCALE_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {OVERLAY_SCALE_LABELS[value]}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="flex items-center justify-between gap-3 py-3">
               <span className="inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
                 <MonitorUp className="h-3.5 w-3.5 text-gold-300/80" /> Atajo para mostrar/ocultar
