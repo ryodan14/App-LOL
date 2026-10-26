@@ -4,6 +4,8 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 > Proyecto personal, no afiliado ni respaldado por Riot Games. League of Legends y sus activos son propiedad de Riot Games, Inc.
 
+**[Descargar el instalador para Windows](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe)** · [Todas las versiones](https://github.com/ryodan14/App-LOL/releases)
+
 ## Características
 
 - **Datos oficiales**: campeones, objetos, hechizos, runas y recomendaciones desde Data Dragon y Community Dragon. El parche se detecta automáticamente y se guarda en caché local.
@@ -34,8 +36,10 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependés de tenerlos solo en el Escritorio.
 
-- **Instalador**: `App-LOL-Setup-0.1.0-x64.exe`.
-- **Portable**: `App-LOL-Portable-0.1.0-x64.exe`.
+- **Instalador recomendado**: [App-LOL-Setup-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe). Instala la app, crea accesos directos en el Escritorio y el menú Inicio, y la abre al terminar.
+- **Portable**: [App-LOL-Portable-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-0.1.0-x64.exe). No requiere instalación.
+
+Al abrir la app por primera vez, queda configurada para iniciar con Windows y aparecer cuando abrís League of Legends. Podés cambiar ambas opciones en **Ajustes → Sistema**.
 
 ## Instalación en Windows
 
