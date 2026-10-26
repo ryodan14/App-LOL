@@ -9,6 +9,9 @@ files:
   - '!**/*.map'
 asarUnpack:
   - resources/**
+extraResources:
+  - from: build/icon.png
+    to: icon.png
 win:
   target:
     - target: nsis
@@ -17,13 +20,17 @@ win:
     - target: portable
       arch:
         - x64
-  artifactName: ${productName}-${version}-${arch}.${ext}
   icon: build/icon.ico
 nsis:
+  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
+  createStartMenuShortcut: true
+  runAfterFinish: true
   shortcutName: App-LOL
+portable:
+  artifactName: ${productName}-Portable-${version}-${arch}.${ext}
 linux:
   target:
     - AppImage
