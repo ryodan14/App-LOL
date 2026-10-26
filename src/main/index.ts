@@ -6,7 +6,7 @@ import { SnapshotService } from './services/snapshot'
 import { StaticDataService } from './services/staticData'
 import { createMainWindow, getMainWindow } from './window'
 import { closeOverlay, createOverlayWindow, getOverlayWindow, syncOverlay } from './overlay'
-import { createPreviewSnapshot } from './preview'
+import { createPreviewAccount, createPreviewSnapshot } from './preview'
 import { createAppTray, destroyAppTray, updateAppTray } from './tray'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
@@ -37,6 +37,7 @@ function applyLoginItemSettings(settings: AppSettings): void {
   try {
     app.setLoginItemSettings({
       openAtLogin: settings.startWithWindows,
+      name: 'App-LOL',
       path: loginItemPath(),
       args: ['--hidden']
     })
@@ -131,7 +132,10 @@ function registerIpc(): void {
     'snapshot:reconnect',
     async (): Promise<Snapshot> => snapshotService?.reconnect() ?? emptySnapshot()
   )
-  ipcMain.handle('account:get', async () => snapshotService?.getAccount() ?? null)
+  ipcMain.handle('account:get', async () => {
+    if (process.argv.includes('--app-lol-account-preview')) return createPreviewAccount()
+    return snapshotService?.getAccount() ?? null
+  })
 
   ipcMain.on('window:minimize', () => getMainWindow()?.minimize())
   ipcMain.on('window:toggle-maximize', () => {

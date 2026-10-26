@@ -1,8 +1,7 @@
-import { Link } from 'react-router-dom'
 import { Compass } from 'lucide-react'
 import { Card } from '@renderer/components/ui/Card'
 import { EmptyState } from '@renderer/components/ui/EmptyState'
-import { Button } from '@renderer/components/ui/Button'
+import { ButtonLink } from '@renderer/components/ui/ButtonLink'
 
 export function NotFoundPage(): React.JSX.Element {
   return (
@@ -12,9 +11,9 @@ export function NotFoundPage(): React.JSX.Element {
         title="Página no encontrada"
         description="La ruta que buscás no existe o fue movida."
         action={
-          <Link to="/">
-            <Button variant="primary">Volver al inicio</Button>
-          </Link>
+          <ButtonLink to="/" variant="primary">
+            Volver al inicio
+          </ButtonLink>
         }
       />
     </Card>

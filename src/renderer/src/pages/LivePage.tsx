@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { ButtonLink } from '@renderer/components/ui/ButtonLink'
 import {
   Crosshair,
+  MonitorOff,
   MonitorPlay,
   MonitorUp,
   Radio,
@@ -29,7 +31,7 @@ import { formatCompact, formatDuration, formatNumber } from '@renderer/lib/forma
 import { Card } from '@renderer/components/ui/Card'
 import { Badge } from '@renderer/components/ui/Badge'
 import { Button } from '@renderer/components/ui/Button'
-import { EmptyState } from '@renderer/components/ui/EmptyState'
+import { EmptyState, Spinner } from '@renderer/components/ui/EmptyState'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { BuildPanel } from '@renderer/components/analysis/BuildPanel'
 import { RunePanel } from '@renderer/components/analysis/RunePanel'
@@ -50,9 +52,29 @@ function mySlot(slots: ChampSelectSlot[], cellId: number): ChampSelectSlot | und
   return slots.find((slot) => slot.cellId === cellId)
 }
 
+function OverlayToggle(): React.JSX.Element {
+  const enabled = useAppStore((state) => state.settings.overlayEnabled)
+  const updateSettings = useAppStore((state) => state.updateSettings)
+  return (
+    <Button
+      size="sm"
+      variant={enabled ? 'ghost' : 'quiet'}
+      icon={enabled ? <MonitorUp className="h-4 w-4" /> : <MonitorOff className="h-4 w-4" />}
+      onClick={() => void updateSettings({ overlayEnabled: !enabled })}
+      aria-pressed={enabled}
+      className={enabled ? 'border-teal-400/30 text-teal-200' : ''}
+      title={enabled ? 'Ocultar overlay de partida' : 'Mostrar overlay de partida'}
+    >
+      {enabled ? 'Overlay activo' : 'Overlay oculto'}
+    </Button>
+  )
+}
+
 export function LivePage(): React.JSX.Element {
   const snapshot = useAppStore((state) => state.snapshot)
   const reconnect = useAppStore((state) => state.reconnect)
+  const data = useAppStore((state) => state.data)
+  const refreshData = useAppStore((state) => state.refreshData)
   const index = useGameData()
 
   const model = useMemo(() => {
@@ -132,7 +154,28 @@ export function LivePage(): React.JSX.Element {
   if (!index) {
     return (
       <Card>
-        <div className="py-16 text-center text-sm text-ink-400">Cargando datos de Riot…</div>
+        <EmptyState
+          icon={<MonitorPlay className="h-6 w-6" />}
+          title={data.status === 'error' ? 'No pudieron cargar los datos de Riot' : 'Cargando datos de Riot'}
+          description={
+            data.status === 'error'
+              ? 'Sin los datos del parche no podemos identificar campeones, objetos ni runas.'
+              : 'Estamos preparando campeones, objetos y runas para analizar la partida.'
+          }
+          action={
+            data.status === 'error' ? (
+              <Button
+                variant="primary"
+                icon={<RefreshCw className="h-4 w-4" />}
+                onClick={() => void refreshData()}
+              >
+                Reintentar
+              </Button>
+            ) : (
+              <Spinner />
+            )
+          }
+        />
       </Card>
     )
   }
@@ -153,9 +196,9 @@ export function LivePage(): React.JSX.Element {
               >
                 Buscar cliente
               </Button>
-              <Link to="/ajustes">
-                <Button variant="ghost">Configurar detección</Button>
-              </Link>
+              <ButtonLink to="/ajustes" variant="ghost">
+                Configurar detección
+              </ButtonLink>
             </div>
           }
         />
@@ -182,11 +225,7 @@ export function LivePage(): React.JSX.Element {
               <Radio className="h-3 w-3" /> En selección
             </Badge>
             {timer && <Badge tone="teal">{Math.ceil(timer.remainingMs / 1000)} s</Badge>}
-            <Link to="/ajustes">
-              <Button size="sm" variant="quiet" icon={<MonitorUp className="h-4 w-4" />}>
-                Overlay
-              </Button>
-            </Link>
+            <OverlayToggle />
           </div>
         </div>
 
@@ -255,11 +294,7 @@ export function LivePage(): React.JSX.Element {
             <Radio className="h-3 w-3" /> LIVE
           </Badge>
           <Badge>{live.mapName || 'Grieta del Invocador'}</Badge>
-          <Link to="/ajustes">
-            <Button size="sm" variant="quiet" icon={<MonitorUp className="h-4 w-4" />}>
-              Overlay
-            </Button>
-          </Link>
+          <OverlayToggle />
         </div>
       </div>
 

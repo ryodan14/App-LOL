@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom'
-import { Pin, RefreshCw } from 'lucide-react'
+import { MonitorOff, MonitorUp, Pin, RefreshCw } from 'lucide-react'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { useGameData } from '@renderer/lib/gameData'
 import { phaseLabel, phaseTone } from '@renderer/lib/phases'
@@ -94,6 +94,21 @@ export function Topbar(): React.JSX.Element {
             <RefreshCw
               className={cn('h-4 w-4', snapshot.phase === 'InProgress' && 'text-teal-300')}
             />
+          </Button>
+          <Button
+            variant={settings.overlayEnabled ? 'ghost' : 'quiet'}
+            size="icon"
+            onClick={() => void updateSettings({ overlayEnabled: !settings.overlayEnabled })}
+            title={settings.overlayEnabled ? 'Ocultar overlay' : 'Mostrar overlay'}
+            aria-label={settings.overlayEnabled ? 'Ocultar overlay' : 'Mostrar overlay'}
+            aria-pressed={settings.overlayEnabled}
+            className={settings.overlayEnabled ? 'border-teal-400/30 text-teal-300' : ''}
+          >
+            {settings.overlayEnabled ? (
+              <MonitorUp className="h-4 w-4" />
+            ) : (
+              <MonitorOff className="h-4 w-4" />
+            )}
           </Button>
           <Button
             variant={settings.alwaysOnTop ? 'ghost' : 'quiet'}

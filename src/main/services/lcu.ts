@@ -232,12 +232,15 @@ export class LcuClient {
       }
     }
 
-    if (!settings.autoDetectClient && settings.customLcuPath) {
-      const custom = settings.customLcuPath.trim()
-      const lock = custom.toLowerCase().endsWith('lockfile')
-        ? await readLockfile(custom)
-        : await readLockfile(join(custom, 'lockfile'))
-      if (lock) return lock
+    if (!settings.autoDetectClient) {
+      if (settings.customLcuPath) {
+        const custom = settings.customLcuPath.trim()
+        const lock = custom.toLowerCase().endsWith('lockfile')
+          ? await readLockfile(custom)
+          : await readLockfile(join(custom, 'lockfile'))
+        if (lock) return lock
+      }
+      return null
     }
 
     for (const install of DEFAULT_INSTALLS) {

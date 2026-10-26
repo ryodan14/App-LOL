@@ -1,4 +1,4 @@
-import type { ChampSelectSlot, LiveEvent, LivePlayer, Snapshot } from '@shared/types'
+import type { ChampSelectSlot, LcuAccount, LiveEvent, LivePlayer, Snapshot } from '@shared/types'
 
 function player(
   team: 'ORDER' | 'CHAOS',
@@ -118,5 +118,48 @@ export function createPreviewSnapshot(mode: 'live' | 'champ'): Snapshot {
       events
     },
     updatedAt: now
+  }
+}
+
+
+export function createPreviewAccount(): LcuAccount {
+  const now = Date.now()
+  return {
+    summoner: {
+      displayName: 'Tester#LAS',
+      summonerLevel: 387,
+      profileIconId: 5887,
+      puuid: 'preview-account'
+    },
+    ranks: [
+      {
+        queueType: 'RANKED_SOLO_5x5',
+        tier: 'GOLD',
+        division: 'II',
+        leaguePoints: 74,
+        wins: 128,
+        losses: 119,
+        hotStreak: true
+      },
+      {
+        queueType: 'RANKED_FLEX_SR',
+        tier: 'PLATINUM',
+        division: 'IV',
+        leaguePoints: 21,
+        wins: 42,
+        losses: 39
+      }
+    ],
+    mastery: [
+      { championId: 222, championLevel: 12, championPoints: 1284500, lastPlayTime: now - 2 * 60 * 60 * 1000 },
+      { championId: 103, championLevel: 10, championPoints: 890300, lastPlayTime: now - 26 * 60 * 60 * 1000 },
+      { championId: 64, championLevel: 9, championPoints: 645200, lastPlayTime: now - 3 * 24 * 60 * 60 * 1000 },
+      { championId: 412, championLevel: 8, championPoints: 512700, lastPlayTime: now - 5 * 24 * 60 * 60 * 1000 },
+      { championId: 122, championLevel: 7, championPoints: 388400, lastPlayTime: now - 8 * 24 * 60 * 60 * 1000 },
+      { championId: 157, championLevel: 7, championPoints: 301900, lastPlayTime: now - 12 * 24 * 60 * 60 * 1000 },
+      { championId: 238, championLevel: 6, championPoints: 210600, lastPlayTime: now - 16 * 24 * 60 * 60 * 1000 },
+      { championId: 350, championLevel: 6, championPoints: 188400, lastPlayTime: now - 20 * 24 * 60 * 60 * 1000 }
+    ],
+    fetchedAt: now
   }
 }

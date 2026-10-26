@@ -23,6 +23,7 @@ import { championSplashUrl } from '@renderer/lib/icons'
 import { Card, SectionHeading } from '@renderer/components/ui/Card'
 import { Badge, StatusDot } from '@renderer/components/ui/Badge'
 import { Button } from '@renderer/components/ui/Button'
+import { ButtonLink } from '@renderer/components/ui/ButtonLink'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
 import { ROLE_ORDER } from '@shared/constants'
@@ -139,16 +140,16 @@ export function HomePage(): React.JSX.Element {
             </div>
 
             <div className="mt-7 flex flex-wrap items-center gap-2.5">
-              <Link to="/partida">
-                <Button variant="primary" icon={<Swords className="h-4 w-4" />}>
-                  Abrir partida
-                </Button>
-              </Link>
-              <Link to="/campeones">
-                <Button variant="ghost" icon={<UsersRound className="h-4 w-4" />}>
-                  Explorar campeones
-                </Button>
-              </Link>
+              <ButtonLink to="/partida" variant="primary" icon={<Swords className="h-4 w-4" />}>
+                Abrir partida
+              </ButtonLink>
+              <ButtonLink
+                to="/campeones"
+                variant="ghost"
+                icon={<UsersRound className="h-4 w-4" />}
+              >
+                Explorar campeones
+              </ButtonLink>
               {snapshot.phase !== 'Offline' && (
                 <span className="ml-1 inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
                   <StatusDot tone={phaseTone(snapshot.phase)} pulse />
@@ -213,11 +214,14 @@ export function HomePage(): React.JSX.Element {
 
           <div className="mt-6 flex flex-col gap-2">
             {active ? (
-              <Link to="/partida">
-                <Button variant="primary" className="w-full" icon={<Swords className="h-4 w-4" />}>
-                  Ver {snapshot.phase === 'InProgress' ? 'partida en vivo' : 'champ select'}
-                </Button>
-              </Link>
+              <ButtonLink
+                to="/partida"
+                variant="primary"
+                className="w-full"
+                icon={<Swords className="h-4 w-4" />}
+              >
+                Ver {snapshot.phase === 'InProgress' ? 'partida en vivo' : 'champ select'}
+              </ButtonLink>
             ) : (
               <Button
                 variant="primary"

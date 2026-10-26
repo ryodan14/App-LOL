@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Info, Sparkles, Swords, UsersRound } from 'lucide-react'
+import { ArrowLeft, Info, RefreshCw, Sparkles, Swords, UsersRound } from 'lucide-react'
 import type { Champion, Role } from '@shared/types'
 import { ROLE_LABELS, ROLE_ORDER } from '@shared/constants'
 import { analyzeTeam, generateBuild, generateRunePlan } from '@shared/analysis'
@@ -12,6 +12,7 @@ import { cn } from '@renderer/lib/cn'
 import { Card, SectionHeading } from '@renderer/components/ui/Card'
 import { Badge } from '@renderer/components/ui/Badge'
 import { Button } from '@renderer/components/ui/Button'
+import { ButtonLink } from '@renderer/components/ui/ButtonLink'
 import { StatBar } from '@renderer/components/ui/StatBar'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
@@ -118,8 +119,15 @@ export function ChampionDetailPage(): React.JSX.Element {
   const { id } = useParams()
   const index = useGameData()
   const showSplashArt = useAppStore((state) => state.settings.showSplashArt)
+  const data = useAppStore((state) => state.data)
+  const refreshData = useAppStore((state) => state.refreshData)
   const [role, setRole] = useState<Role | null>(null)
   const [enemyIds, setEnemyIds] = useState<string[]>([])
+
+  useEffect(() => {
+    setRole(null)
+    setEnemyIds([])
+  }, [id])
 
   const champion = id && index ? (index.championById.get(id) ?? null) : null
   const recommended = useMemo(
@@ -149,7 +157,26 @@ export function ChampionDetailPage(): React.JSX.Element {
   if (!index) {
     return (
       <Card>
-        <div className="py-16 text-center text-sm text-ink-400">Cargando ficha del campeón…</div>
+        <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <p className="text-[0.9rem] font-semibold text-ink-200">
+            {data.status === 'error' ? 'No pudimos cargar los datos del campeón' : 'Cargando ficha del campeón…'}
+          </p>
+          <p className="mt-1.5 max-w-md text-[0.78rem] text-ink-500">
+            {data.status === 'error'
+              ? 'Revisá tu conexión y volvé a intentar.'
+              : 'Estamos preparando builds, runas y counters oficiales.'}
+          </p>
+          {data.status === 'error' && (
+            <Button
+              variant="primary"
+              className="mt-5"
+              icon={<RefreshCw className="h-4 w-4" />}
+              onClick={() => void refreshData()}
+            >
+              Reintentar
+            </Button>
+          )}
+        </div>
       </Card>
     )
   }
@@ -157,11 +184,14 @@ export function ChampionDetailPage(): React.JSX.Element {
   if (!champion || !build) {
     return (
       <div className="space-y-5">
-        <Link to="/campeones">
-          <Button variant="quiet" size="sm" icon={<ArrowLeft className="h-4 w-4" />}>
-            Volver a campeones
-          </Button>
-        </Link>
+        <ButtonLink
+          to="/campeones"
+          variant="quiet"
+          size="sm"
+          icon={<ArrowLeft className="h-4 w-4" />}
+        >
+          Volver a campeones
+        </ButtonLink>
         <Card>
           <div className="py-16 text-center text-sm text-ink-400">
             No encontramos ese campeón.
@@ -173,11 +203,14 @@ export function ChampionDetailPage(): React.JSX.Element {
 
   return (
     <div className="space-y-5">
-      <Link to="/campeones">
-        <Button variant="quiet" size="sm" icon={<ArrowLeft className="h-4 w-4" />}>
-          Volver a campeones
-        </Button>
-      </Link>
+      <ButtonLink
+        to="/campeones"
+        variant="quiet"
+        size="sm"
+        icon={<ArrowLeft className="h-4 w-4" />}
+      >
+        Volver a campeones
+      </ButtonLink>
 
       <section className="relative overflow-hidden rounded-[1.6rem] border border-line bg-base-900/60">
         {showSplashArt && (

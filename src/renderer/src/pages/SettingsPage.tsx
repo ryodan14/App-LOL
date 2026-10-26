@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Database, ExternalLink, Info, MonitorCog, MonitorUp, RefreshCw, Wifi } from 'lucide-react'
 import { POLL_INTERVAL_OPTIONS } from '@shared/constants'
 import { formatRelativeTime } from '@renderer/lib/format'
@@ -19,6 +19,38 @@ export function SettingsPage(): React.JSX.Element {
   const refreshData = useAppStore((state) => state.refreshData)
   const reconnect = useAppStore((state) => state.reconnect)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [customPath, setCustomPath] = useState(settings.customLcuPath)
+  const [manualPort, setManualPort] = useState(settings.manualLcuPort?.toString() ?? '')
+  const [manualToken, setManualToken] = useState(settings.manualLcuToken)
+  const [portError, setPortError] = useState<string | null>(null)
+
+  useEffect(() => setCustomPath(settings.customLcuPath), [settings.customLcuPath])
+  useEffect(
+    () => setManualPort(settings.manualLcuPort?.toString() ?? ''),
+    [settings.manualLcuPort]
+  )
+  useEffect(() => setManualToken(settings.manualLcuToken), [settings.manualLcuToken])
+
+  const commitPath = (): void => {
+    const value = customPath.trim()
+    if (value !== settings.customLcuPath) void updateSettings({ customLcuPath: value })
+  }
+
+  const commitPort = (): void => {
+    const raw = manualPort.trim()
+    const value = raw === '' ? null : Number(raw)
+    if (value !== null && (!Number.isInteger(value) || value < 1 || value > 65535)) {
+      setPortError('El puerto tiene que ser un número entre 1 y 65535.')
+      return
+    }
+    setPortError(null)
+    if (value !== settings.manualLcuPort) void updateSettings({ manualLcuPort: value })
+  }
+
+  const commitToken = (): void => {
+    const value = manualToken.trim()
+    if (value !== settings.manualLcuToken) void updateSettings({ manualLcuToken: value })
+  }
 
   return (
     <div className="space-y-5">
@@ -38,7 +70,7 @@ export function SettingsPage(): React.JSX.Element {
             checked={settings.autoDetectClient}
             onChange={(value) => void updateSettings({ autoDetectClient: value })}
             label="Detectar el cliente automáticamente"
-            description="Busca LeagueClientUx.exe y el archivo lockfile."
+            description="Busca LeagueClientUx.exe y el archivo lockfile. Apagalo para usar solo la ruta o el puerto manual."
           />
           {!settings.autoDetectClient && (
             <div className="space-y-3 py-4">
@@ -48,9 +80,13 @@ export function SettingsPage(): React.JSX.Element {
                 </span>
                 <input
                   className="input"
-                  value={settings.customLcuPath}
-                  onChange={(event) => void updateSettings({ customLcuPath: event.target.value })}
-                  placeholder="C:\\Riot Games\\League of Legends"
+                  value={customPath}
+                  onChange={(event) => setCustomPath(event.target.value)}
+                  onBlur={commitPath}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') event.currentTarget.blur()
+                  }}
+                  placeholder="C:\Riot Games\League of Legends"
                   spellCheck={false}
                 />
               </label>
@@ -58,16 +94,23 @@ export function SettingsPage(): React.JSX.Element {
                 <label className="block">
                   <span className="mb-1.5 block text-[0.78rem] font-semibold text-ink-200">Puerto LCU</span>
                   <input
-                    className="input"
+                    className={portError ? 'input border-danger-500/60' : 'input'}
                     inputMode="numeric"
-                    value={settings.manualLcuPort ?? ''}
-                    onChange={(event) =>
-                      void updateSettings({
-                        manualLcuPort: event.target.value ? Number(event.target.value) : null
-                      })
-                    }
+                    value={manualPort}
+                    onChange={(event) => {
+                      setManualPort(event.target.value)
+                      setPortError(null)
+                    }}
+                    onBlur={commitPort}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') event.currentTarget.blur()
+                    }}
                     placeholder="Ej. 54321"
+                    aria-invalid={Boolean(portError)}
                   />
+                  {portError && (
+                    <span className="mt-1 block text-[0.66rem] text-danger-400">{portError}</span>
+                  )}
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-[0.78rem] font-semibold text-ink-200">
@@ -76,13 +119,20 @@ export function SettingsPage(): React.JSX.Element {
                   <input
                     className="input"
                     type="password"
-                    value={settings.manualLcuToken}
-                    onChange={(event) => void updateSettings({ manualLcuToken: event.target.value })}
+                    value={manualToken}
+                    onChange={(event) => setManualToken(event.target.value)}
+                    onBlur={commitToken}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') event.currentTarget.blur()
+                    }}
                     placeholder="Token local del cliente"
                     spellCheck={false}
                   />
                 </label>
               </div>
+              <p className="text-[0.66rem] leading-relaxed text-ink-500">
+                Los cambios de conexión se guardan al salir de cada campo.
+              </p>
             </div>
           )}
           <div className="flex flex-wrap items-center justify-between gap-3 py-4">
@@ -227,7 +277,7 @@ export function SettingsPage(): React.JSX.Element {
         <SectionHeading
           eyebrow="Sistema"
           title="Inicio y bandeja"
-          description="Dejá App-LOL lista antes de entrar al cliente. El inicio automático se aplica a la versión instalada."
+          description="Dejá App-LOL lista antes de entrar al cliente. Funciona en la versión instalada y en la portable."
         />
         <div className="mt-3 divide-y divide-line">
           <Toggle

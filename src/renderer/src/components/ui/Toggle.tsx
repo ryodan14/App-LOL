@@ -14,23 +14,26 @@ export function Toggle({
   disabled?: boolean
 }): React.JSX.Element {
   return (
-    <label
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
       className={cn(
-        'flex cursor-pointer items-center justify-between gap-4 py-3',
+        'flex w-full cursor-pointer items-center justify-between gap-4 py-3 text-left',
         disabled && 'cursor-not-allowed opacity-50'
       )}
     >
       <span>
         <span className="block text-[0.86rem] font-semibold text-ink-100">{label}</span>
-        {description && <span className="mt-0.5 block text-[0.76rem] text-ink-400">{description}</span>}
+        {description && (
+          <span className="mt-0.5 block text-[0.76rem] text-ink-400">{description}</span>
+        )}
       </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        disabled={disabled}
-        onClick={() => onChange(!checked)}
+      <span
+        aria-hidden="true"
         className={cn(
           'relative h-6 w-11 shrink-0 rounded-full border transition-colors duration-200',
           checked
@@ -46,7 +49,7 @@ export function Toggle({
               : 'left-0.5 bg-ink-400'
           )}
         />
-      </button>
-    </label>
+      </span>
+    </button>
   )
 }

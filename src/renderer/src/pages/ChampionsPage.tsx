@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, SlidersHorizontal, UsersRound } from 'lucide-react'
+import { RefreshCw, Search, SlidersHorizontal, UsersRound } from 'lucide-react'
 import type { Role } from '@shared/types'
 import { ROLE_LABELS, ROLE_ORDER } from '@shared/constants'
 import { useGameData } from '@renderer/lib/gameData'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { Card, SectionHeading } from '@renderer/components/ui/Card'
 import { EmptyState, Spinner } from '@renderer/components/ui/EmptyState'
+import { Button } from '@renderer/components/ui/Button'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
 import { Badge } from '@renderer/components/ui/Badge'
@@ -33,6 +34,7 @@ function normalize(value: string): string {
 export function ChampionsPage(): React.JSX.Element {
   const index = useGameData()
   const data = useAppStore((state) => state.data)
+  const refreshData = useAppStore((state) => state.refreshData)
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<Role | 'ALL'>('ALL')
 
@@ -60,10 +62,22 @@ export function ChampionsPage(): React.JSX.Element {
           title="Cargando campeones"
           description={
             data.status === 'error'
-              ? 'No se pudieron cargar los datos oficiales. Revisá tu conexión y reintentá desde el inicio.'
+              ? 'No se pudieron cargar los datos oficiales. Revisá tu conexión e intentá de nuevo.'
               : 'Estamos preparando la lista completa con builds, runas y counters.'
           }
-          action={data.status === 'loading' ? <Spinner /> : undefined}
+          action={
+            data.status === 'error' ? (
+              <Button
+                variant="primary"
+                icon={<RefreshCw className="h-4 w-4" />}
+                onClick={() => void refreshData()}
+              >
+                Reintentar
+              </Button>
+            ) : (
+              <Spinner />
+            )
+          }
         />
       </Card>
     )

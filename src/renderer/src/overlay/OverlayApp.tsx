@@ -72,6 +72,7 @@ function Shell({
 
 function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React.JSX.Element {
   const snapshot = useAppStore((state) => state.snapshot)
+  const data = useAppStore((state) => state.data)
   const index = useGameData()
   const gameTime = live.gameTime + Math.max(0, (now - snapshot.updatedAt) / 1000)
   const mine = live.activeTeam === 'ORDER' ? 'azul' : 'rojo'
@@ -79,7 +80,11 @@ function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React
   if (!index) {
     return (
       <Shell mode="live" timer={formatDuration(gameTime)}>
-        <p className="py-10 text-center text-[0.72rem] text-ink-400">Cargando datos oficiales…</p>
+        <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
+          {data.status === 'error'
+            ? 'Datos no disponibles. Abrí App-LOL y reintentá la carga.'
+            : 'Cargando datos oficiales…'}
+        </p>
       </Shell>
     )
   }
@@ -133,6 +138,15 @@ function OverlayContent(): React.JSX.Element {
     return (
       <Shell mode="idle" timer="—">
         <p className="py-10 text-center text-[0.72rem] text-ink-400">Cargando App-LOL…</p>
+      </Shell>
+    )
+  }
+  if (data.status === 'error') {
+    return (
+      <Shell mode="idle" timer="—">
+        <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
+          No pudimos cargar los datos de Riot. Abrí App-LOL y reintentá desde Ajustes.
+        </p>
       </Shell>
     )
   }

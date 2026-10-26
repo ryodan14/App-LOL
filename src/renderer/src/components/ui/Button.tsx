@@ -1,8 +1,10 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '@renderer/lib/cn'
 
-type Variant = 'primary' | 'ghost' | 'quiet' | 'danger'
-type Size = 'sm' | 'md' | 'lg' | 'icon'
+export type ButtonVariant = 'primary' | 'ghost' | 'quiet' | 'danger'
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon'
+type Variant = ButtonVariant
+type Size = ButtonSize
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
@@ -24,6 +26,10 @@ const sizeClass: Record<Size, string> = {
   icon: 'h-9 w-9 p-0 rounded-xl'
 }
 
+export function buttonClass(variant: Variant, size: Size, className?: string): string {
+  return cn('btn', variantClass[variant], sizeClass[size], className)
+}
+
 export function Button({
   variant = 'ghost',
   size = 'md',
@@ -36,7 +42,7 @@ export function Button({
   return (
     <button
       type={type}
-      className={cn('btn', variantClass[variant], sizeClass[size], className)}
+      className={buttonClass(variant, size, className)}
       {...props}
     >
       {icon}
