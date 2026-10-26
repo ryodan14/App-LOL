@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Database, ExternalLink, Info, MonitorCog, RefreshCw, Wifi } from 'lucide-react'
+import { Database, ExternalLink, Info, MonitorCog, MonitorUp, RefreshCw, Wifi } from 'lucide-react'
 import { POLL_INTERVAL_OPTIONS } from '@shared/constants'
 import { formatRelativeTime } from '@renderer/lib/format'
 import { phaseLabel } from '@renderer/lib/phases'
@@ -143,6 +143,24 @@ export function SettingsPage(): React.JSX.Element {
               label="Mantener la ventana arriba"
               description="Útil para un segundo monitor o para consultar rápido."
             />
+            <Toggle
+              checked={settings.overlayEnabled}
+              onChange={(value) => void updateSettings({ overlayEnabled: value })}
+              label="Overlay de partida"
+              description="Muestra counters en champ select, diferencia de oro estimada por línea y timers sobre el juego. Se oculta fuera de partida."
+            />
+            <div className="flex items-center justify-between gap-3 py-3">
+              <span className="inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
+                <MonitorUp className="h-3.5 w-3.5 text-gold-300/80" /> Atajo para mostrar/ocultar
+              </span>
+              <kbd className="rounded-md border border-line bg-base-950/50 px-2 py-1 font-mono text-[0.62rem] text-ink-300">
+                Ctrl + Shift + O
+              </kbd>
+            </div>
+            <p className="pb-3 text-[0.64rem] leading-relaxed text-ink-500">
+              El overlay es click-through y no roba foco. En pantalla completa exclusiva puede no
+              verse; usá el juego en ventana sin bordes.
+            </p>
             <Toggle
               checked={settings.showSplashArt}
               onChange={(value) => void updateSettings({ showSplashArt: value })}

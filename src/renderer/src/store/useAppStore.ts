@@ -59,9 +59,14 @@ export const useAppStore = create<AppState>((set, get) => ({
         const disposeSnapshot = window.api.snapshot.onUpdate((next) => {
           set({ snapshot: next })
         })
+        const disposeSettings = window.api.settings.onUpdate((next) => {
+          applyVisualSettings(next)
+          set({ settings: next })
+        })
         disposeListeners = () => {
           disposeData()
           disposeSnapshot()
+          disposeSettings()
         }
       } catch (error) {
         set({

@@ -8,7 +8,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   customLcuPath: '',
   manualLcuPort: null,
   manualLcuToken: '',
-  showSplashArt: true
+  showSplashArt: true,
+  overlayEnabled: true
 }
 
 export const DATA_LANGUAGE = 'es_ES'

@@ -144,6 +144,7 @@ export interface AppSettings {
   manualLcuPort: number | null
   manualLcuToken: string
   showSplashArt: boolean
+  overlayEnabled: boolean
 }
 
 export interface LcuSummoner {
@@ -208,6 +209,7 @@ export interface LivePlayer {
   rawChampionName: string
   riotId: string
   team: 'ORDER' | 'CHAOS'
+  position: Role
   level: number
   kills: number
   deaths: number
@@ -264,6 +266,7 @@ export interface AppApi {
   settings: {
     get: () => Promise<AppSettings>
     update: (patch: Partial<AppSettings>) => Promise<AppSettings>
+    onUpdate: (callback: (settings: AppSettings) => void) => () => void
   }
   staticData: {
     get: () => Promise<DataResult>

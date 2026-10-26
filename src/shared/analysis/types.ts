@@ -136,3 +136,48 @@ export interface AnalysisIndex {
   recommendationsByChampion: Map<number, RuneRecommendation[]>
   rolesByChampion: Map<number, Role[]>
 }
+
+
+export interface GoldEstimate {
+  total: number
+  itemValue: number
+  csGold: number
+  killGold: number
+  passiveGold: number
+}
+
+export type ObjectiveKind = 'DRAGON' | 'BARON' | 'INHIBITOR'
+export type ObjectiveStatus = 'countdown' | 'active' | 'ready'
+
+export interface ObjectiveTimer {
+  id: string
+  kind: ObjectiveKind
+  label: string
+  shortLabel: string
+  respawnAt: number
+  remaining: number
+  status: ObjectiveStatus
+  team?: 'ORDER' | 'CHAOS'
+  lane?: 'TOP' | 'MIDDLE' | 'BOTTOM'
+  dragonType?: string
+}
+
+export interface CounterSuggestion {
+  champion: Champion
+  score: number
+  reasons: string[]
+  curated: boolean
+}
+
+export interface LaneCounterReport {
+  enemy: Champion
+  role: Role
+  suggestions: CounterSuggestion[]
+  note: string
+}
+
+export interface RoleEntry<T> {
+  role: Role
+  champion: Champion | null
+  data: T
+}

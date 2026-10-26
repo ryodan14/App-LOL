@@ -452,3 +452,18 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+html.overlay-mode,
+html.overlay-mode body,
+html.overlay-mode #root {
+  background: transparent !important;
+}
+
+html.overlay-mode body::before,
+html.overlay-mode body::after {
+  display: none !important;
+}
+
+html.overlay-mode body {
+  overflow: hidden;
+}

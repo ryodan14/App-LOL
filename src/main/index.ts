@@ -1,10 +1,12 @@
-import { app, BrowserWindow, ipcMain, session, shell } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain, session, shell } from 'electron'
 import { promises as fs } from 'node:fs'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { getSettings, updateSettings } from './services/settings'
 import { SnapshotService } from './services/snapshot'
 import { StaticDataService } from './services/staticData'
 import { createMainWindow, getMainWindow } from './window'
+import { closeOverlay, createOverlayWindow, getOverlayWindow, syncOverlay } from './overlay'
+import { createPreviewSnapshot } from './preview'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
 const gotLock = app.requestSingleInstanceLock()
@@ -14,6 +16,31 @@ if (!gotLock) {
 
 let dataService: StaticDataService | null = null
 let snapshotService: SnapshotService | null = null
+let activeSettings: AppSettings | null = null
+let overlayPreviewSnapshot: Snapshot | null = null
+
+function broadcastSettings(settings: AppSettings): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    window.webContents.send('settings:updated', settings)
+  }
+}
+
+function syncOverlayFromSnapshot(snapshot: Snapshot): void {
+  if (!activeSettings) return
+  if (overlayPreviewSnapshot) {
+    syncOverlay(overlayPreviewSnapshot, activeSettings)
+    return
+  }
+  syncOverlay(snapshot, activeSettings)
+}
+
+async function toggleOverlay(): Promise<void> {
+  const current = await getSettings()
+  const next = await updateSettings({ overlayEnabled: !current.overlayEnabled })
+  activeSettings = next
+  broadcastSettings(next)
+  syncOverlayFromSnapshot(snapshotService?.get() ?? emptySnapshot())
+}
 
 function registerIpc(): void {
   ipcMain.handle('app:version', () => app.getVersion())
@@ -21,6 +48,8 @@ function registerIpc(): void {
   ipcMain.handle('settings:get', () => getSettings())
   ipcMain.handle('settings:update', async (_event, patch: Partial<AppSettings>) => {
     const settings = await updateSettings(patch)
+    activeSettings = settings
+    broadcastSettings(settings)
     if (typeof patch.alwaysOnTop === 'boolean') {
       getMainWindow()?.setAlwaysOnTop(settings.alwaysOnTop)
     }
@@ -33,6 +62,7 @@ function registerIpc(): void {
     ) {
       snapshotService?.restart()
     }
+    syncOverlayFromSnapshot(snapshotService?.get() ?? emptySnapshot())
     return settings
   })
 
@@ -92,6 +122,7 @@ app.whenReady().then(async () => {
   electronApp.setAppUserModelId('com.ryodan14.applol')
 
   const settings = await getSettings()
+  activeSettings = settings
 
   if (!process.env['ELECTRON_RENDERER_URL']) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
@@ -126,22 +157,103 @@ app.whenReady().then(async () => {
     for (const window of BrowserWindow.getAllWindows()) {
       window.webContents.send('snapshot:updated', snapshot)
     }
+    syncOverlayFromSnapshot(snapshot)
   })
   snapshotService.start()
 
   registerIpc()
   const window = createMainWindow(settings.alwaysOnTop)
+  createOverlayWindow()
+  syncOverlayFromSnapshot(emptySnapshot())
+  window.on('closed', () => closeOverlay())
+
+  const mainPreviewArg = process.argv.find((arg) => arg.startsWith('--app-lol-main-preview='))
+  if (mainPreviewArg) {
+    const mode = mainPreviewArg.endsWith('champ') ? 'champ' : 'live'
+    const main = getMainWindow()
+    const send = (): void => {
+      setTimeout(() => {
+        main?.webContents.send('snapshot:updated', createPreviewSnapshot(mode))
+      }, 2200)
+    }
+    if (main?.webContents.isLoading()) main.webContents.once('did-finish-load', send)
+    else send()
+  }
+
+  const overlayPreviewArg = process.argv.find((arg) => arg.startsWith('--app-lol-overlay-preview='))
+  const overlayScreenshotArg = process.argv.find((arg) =>
+    arg.startsWith('--app-lol-overlay-screenshot=')
+  )
+  const overlayDumpArg = process.argv.find((arg) => arg.startsWith('--app-lol-overlay-dump='))
+  if (overlayPreviewArg) {
+    const mode = overlayPreviewArg.endsWith('champ') ? 'champ' : 'live'
+    overlayPreviewSnapshot = createPreviewSnapshot(mode)
+    const overlay = getOverlayWindow()
+    const activate = (): void => {
+      setTimeout(async () => {
+        const preview = overlayPreviewSnapshot as Snapshot
+        overlay?.webContents.send('snapshot:updated', preview)
+        syncOverlayFromSnapshot(preview)
+        if (overlayDumpArg && overlay) {
+          const dumpPath = overlayDumpArg.slice('--app-lol-overlay-dump='.length)
+          const text = await overlay.webContents.executeJavaScript('document.body.innerText')
+          await fs.writeFile(dumpPath, text)
+        }
+        if (!overlayScreenshotArg) return
+        setTimeout(async () => {
+          try {
+            const image = await overlay?.webContents.capturePage()
+            if (image) {
+              const path = overlayScreenshotArg.slice('--app-lol-overlay-screenshot='.length)
+              await fs.writeFile(path, image.toPNG())
+              console.log(`[overlay] Captura guardada en ${path}`)
+            }
+          } catch (error) {
+            console.error('[overlay] Error de captura', error)
+          } finally {
+            app.quit()
+          }
+        }, 4000)
+      }, 3500)
+    }
+    if (overlay?.webContents.isLoading()) {
+      overlay.webContents.once('did-finish-load', activate)
+    } else {
+      activate()
+    }
+  }
+
+  const hotkey = globalShortcut.register('CommandOrControl+Shift+O', () => {
+    void toggleOverlay()
+  })
+  if (!hotkey) console.warn('[overlay] No se pudo registrar Ctrl+Shift+O')
+
   void dataService.init()
 
   const screenshotArg = process.argv.find((arg) => arg.startsWith('--app-lol-screenshot='))
   const screenshotPath =
     screenshotArg?.slice('--app-lol-screenshot='.length) ?? process.env['APP_LOL_SCREENSHOT']
+  const routeArg = process.argv.find((arg) => arg.startsWith('--app-lol-route='))
+  const screenshotRoute = routeArg?.slice('--app-lol-route='.length)
+  const dumpArg = process.argv.find((arg) => arg.startsWith('--app-lol-dump='))
+  const dumpPath = dumpArg?.slice('--app-lol-dump='.length)
   if (screenshotPath) {
     window.webContents.once('did-finish-load', () => {
       setTimeout(async () => {
         try {
+          if (screenshotRoute) {
+            await window.webContents.executeJavaScript(
+              `window.location.hash = ${JSON.stringify(screenshotRoute)}`
+            )
+            await new Promise((resolve) => setTimeout(resolve, 900))
+          }
           const hash = await window.webContents.executeJavaScript('window.location.hash')
           console.log(`[screenshot] URL: ${window.webContents.getURL()} hash: ${hash}`)
+          if (dumpPath) {
+            const bodyText = await window.webContents.executeJavaScript('document.body.innerText')
+            await fs.writeFile(dumpPath, bodyText)
+            console.log(`[screenshot] DOM guardado en ${dumpPath}`)
+          }
           const image = await window.webContents.capturePage()
           await fs.writeFile(screenshotPath, image.toPNG())
           console.log(`[screenshot] Guardado en ${screenshotPath}`)
@@ -170,6 +282,10 @@ app.on('activate', () => {
 
 app.on('before-quit', () => {
   snapshotService?.stop()
+})
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
 })
 
 app.on('window-all-closed', () => {

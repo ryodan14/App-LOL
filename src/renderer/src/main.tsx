@@ -4,9 +4,22 @@ import './styles/global.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { OverlayRoot } from './overlay/OverlayApp'
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-)
+const overlay = new URLSearchParams(window.location.search).get('overlay') === '1'
+const root = createRoot(document.getElementById('root') as HTMLElement)
+
+if (overlay) {
+  document.documentElement.classList.add('overlay-mode')
+  root.render(
+    <StrictMode>
+      <OverlayRoot />
+    </StrictMode>
+  )
+} else {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  )
+}

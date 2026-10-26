@@ -1,4 +1,5 @@
-import type { LiveEvent, LiveGameState, LivePlayer } from '@shared/types'
+import { ROLE_FROM_LCU } from '@shared/constants'
+import type { LiveEvent, LiveGameState, LivePlayer, Role } from '@shared/types'
 import { fetchJson } from './http'
 
 const LIVE_URL = 'https://127.0.0.1:2999/liveclientdata/allgamedata'
@@ -11,6 +12,7 @@ interface RawPlayer {
   riotIdTagLine?: string
   summonerName?: string
   team?: string
+  position?: string
   level?: number
   isDead?: boolean
   respawnTimer?: number
@@ -77,6 +79,23 @@ function championIdFromRaw(rawChampionName: string, championName: string): strin
   return match?.[1] ?? championName.replace(/[^A-Za-z0-9]/g, '')
 }
 
+function rawPositionToRole(value?: string): Role {
+  const normalized = (value ?? '').trim().toLowerCase()
+  return (
+    ROLE_FROM_LCU[normalized] ??
+    ({
+      mid: 'MIDDLE',
+      adc: 'BOTTOM',
+      bot: 'BOTTOM',
+      support: 'UTILITY',
+      sup: 'UTILITY',
+      top: 'TOP',
+      jungle: 'JUNGLE'
+    }[normalized] as Role | undefined) ??
+    'UNKNOWN'
+  )
+}
+
 function normalizePlayer(player: RawPlayer): LivePlayer {
   const championName = player.championName ?? ''
   const rawChampionName = player.rawChampionName ?? ''
@@ -91,6 +110,7 @@ function normalizePlayer(player: RawPlayer): LivePlayer {
     rawChampionName,
     riotId,
     team: player.team === 'CHAOS' ? 'CHAOS' : 'ORDER',
+    position: rawPositionToRole(player.position),
     level: player.level ?? 0,
     kills: player.scores?.kills ?? 0,
     deaths: player.scores?.deaths ?? 0,
@@ -144,7 +164,7 @@ export async function fetchLiveGame(): Promise<LiveGameState | null> {
       .filter((event) => event.EventName && RELEVANT_EVENTS.has(event.EventName))
       .map(normalizeEvent)
       .sort((a, b) => a.time - b.time)
-      .slice(-30)
+      .slice(-150)
 
     return {
       gameTime: Math.max(0, raw.gameData?.gameTime ?? 0),

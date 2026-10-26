@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type {
   Champion,
   Item,
+  LiveGameState,
+  LivePlayer,
   RuneRecommendation,
   RuneTree,
   StaticData,
@@ -10,11 +12,17 @@ import type {
 import {
   analyzeChampion,
   analyzeTeam,
+  assignRoles,
   classifyArchetype,
+  compareLaneGold,
+  computeObjectiveTimers,
   createAnalysisIndex,
+  estimatePlayerGold,
   generateBuild,
   generateCounterTips,
-  generateRunePlan
+  generateRunePlan,
+  inferChampionRole,
+  suggestLaneCounters
 } from './index'
 
 function champion(
@@ -258,5 +266,104 @@ describe('counters', () => {
     expect(ids).toContain('threat-TANK')
     const ccTip = tips.find((tip) => tip.id === 'threat-HARD_CC')
     expect(ccTip?.items.some((tipItem) => tipItem.id === 3140)).toBe(true)
+  })
+})
+
+
+function livePlayer(extra: Partial<LivePlayer> = {}): LivePlayer {
+  return {
+    championId: 'Jinx',
+    championName: 'Jinx',
+    rawChampionName: 'game_character_displayname_Jinx',
+    riotId: 'Tester#LAS',
+    team: 'ORDER',
+    position: 'BOTTOM',
+    level: 10,
+    kills: 2,
+    deaths: 1,
+    assists: 3,
+    cs: 100,
+    wardScore: 10,
+    items: [3031, 3047],
+    summonerSpells: { one: 'Destello', two: 'Barrera' },
+    isDead: false,
+    respawnTimer: 0,
+    ...extra
+  }
+}
+
+function liveGame(extra: Partial<LiveGameState> = {}): LiveGameState {
+  return {
+    gameTime: 600,
+    mapName: 'Map11',
+    gameMode: 'CLASSIC',
+    activePlayerRiotId: 'Tester#LAS',
+    activeChampionName: 'Jinx',
+    activeTeam: 'ORDER',
+    players: [livePlayer()],
+    events: [],
+    ...extra
+  }
+}
+
+describe('oro estimado', () => {
+  it('suma objetos, CS, KDA y oro pasivo', () => {
+    const estimate = estimatePlayerGold(livePlayer(), 600, index)
+    expect(estimate.itemValue).toBe(4600)
+    expect(estimate.total).toBeGreaterThan(5000)
+  })
+
+  it('compara dos líneas y marca al líder', () => {
+    const ally = livePlayer()
+    const enemy = livePlayer({ championId: 'Caitlyn', championName: 'Caitlyn', cs: 40, items: [3006] })
+    const result = compareLaneGold(ally, enemy, 600, index)
+    expect(result.leader).toBe('ALLY')
+    expect(result.difference).toBeGreaterThan(0)
+  })
+})
+
+describe('objetivos', () => {
+  it('calcula primeros spawns y respawns', () => {
+    const early = computeObjectiveTimers(liveGame({ gameTime: 100 }), 100)
+    expect(early.find((timer) => timer.id === 'dragon')?.remaining).toBe(200)
+    expect(early.find((timer) => timer.id === 'baron')?.remaining).toBe(1100)
+
+    const game = liveGame({
+      gameTime: 800,
+      events: [
+        { id: 1, name: 'DragonKill', time: 500, dragonType: 'Fire' },
+        { id: 2, name: 'BaronKill', time: 1300 },
+        { id: 3, name: 'InhibKilled', time: 600, turret: 'Turret_T2_L_03_A' }
+      ]
+    })
+    const timers = computeObjectiveTimers(game, 700)
+    expect(timers.find((timer) => timer.id === 'dragon')?.remaining).toBe(100)
+    expect(timers.find((timer) => timer.id === 'baron')?.remaining).toBe(960)
+    expect(timers.find((timer) => timer.id.startsWith('inhibitor'))?.label).toContain('top rojo')
+  })
+})
+
+describe('línea y counters', () => {
+  it('infiere el rol y asigna carriles', () => {
+    expect(inferChampionRole(index, champions[3])).toBe('BOTTOM')
+    const assignments = assignRoles(
+      [
+        { role: 'TOP', champion: champions[2], data: 'top' },
+        { role: 'UTILITY', champion: champions[6], data: 'support' },
+        { role: 'BOTTOM', champion: champions[3], data: 'adc' }
+      ],
+      index
+    )
+    expect(assignments.get('TOP')).toBe('top')
+    expect(assignments.get('UTILITY')).toBe('support')
+    expect(assignments.get('BOTTOM')).toBe('adc')
+    expect(assignments.size).toBe(3)
+  })
+
+  it('sugiere counters por kit para el rival de línea', () => {
+    const report = suggestLaneCounters(champions[0], 'MIDDLE', index)
+    expect(report.enemy.id).toBe('Ahri')
+    expect(report.suggestions.some((entry) => entry.champion.id === 'Zed')).toBe(true)
+    expect(report.note.length).toBeGreaterThan(0)
   })
 })

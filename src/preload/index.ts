@@ -8,7 +8,13 @@ const api: AppApi = {
   },
   settings: {
     get: () => ipcRenderer.invoke('settings:get'),
-    update: (patch: Partial<AppSettings>) => ipcRenderer.invoke('settings:update', patch)
+    update: (patch: Partial<AppSettings>) => ipcRenderer.invoke('settings:update', patch),
+    onUpdate: (callback: (settings: AppSettings) => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, settings: AppSettings): void =>
+        callback(settings)
+      ipcRenderer.on('settings:updated', listener)
+      return () => ipcRenderer.removeListener('settings:updated', listener)
+    }
   },
   staticData: {
     get: () => ipcRenderer.invoke('static-data:get'),
