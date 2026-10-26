@@ -135,6 +135,14 @@ export interface DataResult {
   error?: string
 }
 
+export type OverlayCorner =
+  | 'top-right'
+  | 'top-left'
+  | 'bottom-right'
+  | 'bottom-left'
+  | 'right-center'
+  | 'left-center'
+
 export interface AppSettings {
   alwaysOnTop: boolean
   reduceMotion: boolean
@@ -146,6 +154,12 @@ export interface AppSettings {
   showSplashArt: boolean
   overlayEnabled: boolean
   overlayScale: number
+  overlayOpacity: number
+  overlayCorner: OverlayCorner
+  overlayShowGold: boolean
+  overlayShowObjectives: boolean
+  overlayShowChampSelect: boolean
+  overlayGoldOnDemand: boolean
   startWithWindows: boolean
   showWithLeague: boolean
 }
@@ -290,6 +304,10 @@ export interface AppApi {
     toggleMaximize: () => void
     close: () => void
     setAlwaysOnTop: (value: boolean) => Promise<void>
+    moveToSecondary: () => void
+  }
+  overlay: {
+    onGoldToggle: (callback: () => void) => () => void
   }
   external: {
     open: (url: string) => Promise<void>

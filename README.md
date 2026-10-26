@@ -10,7 +10,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 - **Análisis de builds**: build recomendada por campeón y rol, runas, hechizos de invocador y counters directos.
 - **Champ select**: composición aliada y enemiga, picks, bans, counters y temporizador.
 - **Partida en vivo**: KDA, CS, objetos, nivel, diferencias por línea y timers de objetivos.
-- **Overlay click-through**: se muestra solo en champ select, partida o reconexión. No roba foco ni clics.
+- **Overlay click-through y personalizable**: se muestra solo en champ select, partida o reconexión. No roba foco ni clics; podés cambiar tamaño, transparencia, posición y secciones visibles.
 - **Mi cuenta**: perfil, nivel, icono, rangos de Solo/Dúo y Flex, LP, winrate y maestría de campeones.
 - **Inicio automático**: arranca con Windows, queda en la bandeja y aparece al abrir League.
 - **Sin credenciales**: usa únicamente las APIs locales del cliente. No hay login, cuentas ni servidores propios.
@@ -29,6 +29,13 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 - Node.js 22 o superior.
 - npm 10 o superior.
 - Git.
+
+## Descarga
+
+Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependés de tenerlos solo en el Escritorio.
+
+- **Instalador**: `App-LOL-Setup-0.1.0-x64.exe`.
+- **Portable**: `App-LOL-Portable-0.1.0-x64.exe`.
 
 ## Instalación en Windows
 
@@ -90,16 +97,21 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 - Detección automática del cliente o conexión manual por ruta, puerto y token.
 - Frecuencia de actualización.
-- Ventana siempre arriba, overlay, splash arts y reducción de animaciones.
+- Ventana siempre arriba, envío al segundo monitor, overlay, splash arts y reducción de animaciones.
 - Inicio con Windows y aparición al abrir League.
 - Estado de la caché y actualización de datos.
 
 ## Overlay
 
-El overlay aparece en la esquina superior derecha del monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
+El overlay aparece sobre el monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
 
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
-- **Tamaño**: en **Ajustes** podés elegir Chico, Normal o Grande. Por defecto usa Normal.
+- **Tamaño**: en **Ajustes** podés elegir entre 60% y 100%. Por defecto usa 80%.
+- **Transparencia**: el fondo va de 35% (casi transparente) a 100% (sólido). Por defecto usa 75%.
+- **Posición**: arriba o abajo, a la izquierda o derecha, o al centro lateral. La posición centrada sirve para acercar los timers al minimapa.
+- **Segundo monitor**: en **Ajustes → Ventana y apariencia** podés enviar la ventana principal al otro monitor y dejar el overlay sobre el juego.
+- **Secciones**: podés activar o desactivar el oro por línea, los timers de objetivos y el overlay durante champ select.
+- **Oro con atajo**: si activás “Oro solo con Ctrl+Shift+G”, el panel de oro empieza oculto y lo mostrás u ocultás con ese atajo. No se puede detectar la tecla Tab del juego desde la API.
 - **Alcance**: counters durante champ select, diferencia de oro estimada por línea y timers de objetivos.
 - **Oro estimado**: se calcula con el tiempo de partida, CS, KDA y el valor de los objetos. No es el oro exacto del marcador, por eso se muestra con `≈`.
 - **Pantalla completa exclusiva**: el overlay puede no verse en ese modo. Usá League en pantalla completa sin bordes o en ventana.
@@ -209,9 +221,10 @@ build/             Iconos y personalización del instalador
 ### El overlay no aparece
 
 - Activá el overlay en **Ajustes** o con `Ctrl + Shift + O`.
-- El overlay solo se muestra en champ select, partida o reconexión.
+- El overlay solo se muestra en champ select, partida o reconexión. Verificá que “Mostrar en champ select” esté activo si no aparece al elegir campeón.
+- Si el oro no aparece, usá `Ctrl + Shift + G` o desactivá “Oro solo con Ctrl+Shift+G” en Ajustes.
 - En pantalla completa exclusiva puede quedar oculto. Probá con pantalla completa sin bordes.
-- Si otro programa usa `Ctrl + Shift + O`, cambiá el foco y volvé a intentar.
+- Si otro programa usa `Ctrl + Shift + O` o `Ctrl + Shift + G`, cambiá el foco y volvé a intentar.
 
 ### Windows bloquea el ejecutable
 

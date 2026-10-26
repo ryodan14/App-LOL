@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Database, ExternalLink, Info, MonitorCog, MonitorUp, RefreshCw, Wifi } from 'lucide-react'
-import { OVERLAY_SCALE_OPTIONS, POLL_INTERVAL_OPTIONS } from '@shared/constants'
+import {
+  OVERLAY_CORNER_OPTIONS,
+  OVERLAY_SCALE_OPTIONS,
+  POLL_INTERVAL_OPTIONS
+} from '@shared/constants'
 import { formatRelativeTime } from '@renderer/lib/format'
 import { phaseLabel } from '@renderer/lib/phases'
 import { useAppStore } from '@renderer/store/useAppStore'
@@ -11,9 +15,20 @@ import { Badge } from '@renderer/components/ui/Badge'
 import { Spinner } from '@renderer/components/ui/EmptyState'
 
 const OVERLAY_SCALE_LABELS: Record<number, string> = {
+  0.6: 'Muy chico',
   0.7: 'Chico',
   0.8: 'Normal',
-  1: 'Grande'
+  0.9: 'Grande',
+  1: 'Muy grande'
+}
+
+const OVERLAY_CORNER_LABELS: Record<string, string> = {
+  'top-right': 'Arriba derecha',
+  'top-left': 'Arriba izquierda',
+  'bottom-right': 'Abajo derecha',
+  'bottom-left': 'Abajo izquierda',
+  'right-center': 'Derecha al centro',
+  'left-center': 'Izquierda al centro'
 }
 
 export function SettingsPage(): React.JSX.Element {
@@ -199,43 +214,21 @@ export function SettingsPage(): React.JSX.Element {
               label="Mantener la ventana arriba"
               description="Útil para un segundo monitor o para consultar rápido."
             />
-            <Toggle
-              checked={settings.overlayEnabled}
-              onChange={(value) => void updateSettings({ overlayEnabled: value })}
-              label="Overlay de partida"
-              description="Muestra counters en champ select, diferencia de oro estimada por línea y timers sobre el juego. Se oculta fuera de partida."
-            />
-            <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 py-4">
               <div>
-                <p className="text-[0.86rem] font-semibold text-ink-100">Tamaño del overlay</p>
-                <p className="text-[0.76rem] text-ink-400">Achicá el panel para que tape menos la partida.</p>
+                <p className="text-[0.86rem] font-semibold text-ink-100">Segundo monitor</p>
+                <p className="text-[0.76rem] text-ink-400">
+                  Mové la ventana al otro monitor para dejar solo el overlay sobre el juego.
+                </p>
               </div>
-              <select
-                className="input select w-32"
-                value={settings.overlayScale}
-                onChange={(event) =>
-                  void updateSettings({ overlayScale: Number(event.target.value) })
-                }
+              <Button
+                variant="ghost"
+                icon={<MonitorCog className="h-4 w-4" />}
+                onClick={() => window.api.window.moveToSecondary()}
               >
-                {OVERLAY_SCALE_OPTIONS.map((value) => (
-                  <option key={value} value={value}>
-                    {OVERLAY_SCALE_LABELS[value]}
-                  </option>
-                ))}
-              </select>
+                Mover al otro monitor
+              </Button>
             </div>
-            <div className="flex items-center justify-between gap-3 py-3">
-              <span className="inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
-                <MonitorUp className="h-3.5 w-3.5 text-gold-300/80" /> Atajo para mostrar/ocultar
-              </span>
-              <kbd className="rounded-md border border-line bg-base-950/50 px-2 py-1 font-mono text-[0.62rem] text-ink-300">
-                Ctrl + Shift + O
-              </kbd>
-            </div>
-            <p className="pb-3 text-[0.64rem] leading-relaxed text-ink-500">
-              El overlay es click-through y no roba foco. En pantalla completa exclusiva puede no
-              verse; usá el juego en ventana sin bordes.
-            </p>
             <Toggle
               checked={settings.showSplashArt}
               onChange={(value) => void updateSettings({ showSplashArt: value })}
@@ -297,6 +290,134 @@ export function SettingsPage(): React.JSX.Element {
           </div>
         </Card>
       </div>
+
+      <Card className="p-6">
+        <SectionHeading
+          eyebrow="Overlay"
+          title="Panel de partida"
+          description="Ajustá tamaño, transparencia, posición y qué información querés ver sobre el juego."
+          action={
+            <Badge tone={settings.overlayEnabled ? 'teal' : 'neutral'}>
+              {settings.overlayEnabled ? 'Activo' : 'Oculto'}
+            </Badge>
+          }
+        />
+        <div className="mt-3 divide-y divide-line">
+          <Toggle
+            checked={settings.overlayEnabled}
+            onChange={(value) => void updateSettings({ overlayEnabled: value })}
+            label="Overlay de partida"
+            description="Muestra counters en champ select, diferencia de oro estimada por línea y timers sobre el juego. Se oculta fuera de partida."
+          />
+          <div className="grid gap-4 py-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1.5 block text-[0.78rem] font-semibold text-ink-200">
+                Tamaño
+              </span>
+              <select
+                className="input select w-full"
+                value={settings.overlayScale}
+                onChange={(event) =>
+                  void updateSettings({ overlayScale: Number(event.target.value) })
+                }
+              >
+                {OVERLAY_SCALE_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {OVERLAY_SCALE_LABELS[value]} · {Math.round(value * 100)}%
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block text-[0.78rem] font-semibold text-ink-200">
+                Posición
+              </span>
+              <select
+                className="input select w-full"
+                value={settings.overlayCorner}
+                onChange={(event) =>
+                  void updateSettings({ overlayCorner: event.target.value as typeof settings.overlayCorner })
+                }
+              >
+                {OVERLAY_CORNER_OPTIONS.map((value) => (
+                  <option key={value} value={value}>
+                    {OVERLAY_CORNER_LABELS[value]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="sm:col-span-2">
+              <div className="mb-1.5 flex items-center justify-between gap-3">
+                <span className="text-[0.78rem] font-semibold text-ink-200">
+                  Transparencia del fondo
+                </span>
+                <span className="font-mono text-[0.72rem] text-ink-400">
+                  {Math.round(settings.overlayOpacity * 100)}%
+                </span>
+              </div>
+              <input
+                type="range"
+                min={35}
+                max={100}
+                step={5}
+                value={Math.round(settings.overlayOpacity * 100)}
+                onChange={(event) =>
+                  void updateSettings({ overlayOpacity: Number(event.target.value) / 100 })
+                }
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-line accent-gold-400"
+                aria-label="Transparencia del fondo del overlay"
+              />
+              <p className="mt-1.5 text-[0.66rem] leading-relaxed text-ink-500">
+                35% deja ver casi todo el juego; 100% es un fondo sólido.
+              </p>
+            </div>
+          </div>
+          <Toggle
+            checked={settings.overlayShowGold}
+            onChange={(value) => void updateSettings({ overlayShowGold: value })}
+            label="Mostrar diferencia de oro"
+            description="Incluye la estimación de oro por línea en la partida."
+          />
+          {settings.overlayShowGold && (
+            <Toggle
+              checked={settings.overlayGoldOnDemand}
+              onChange={(value) => void updateSettings({ overlayGoldOnDemand: value })}
+              label="Oro solo con Ctrl+Shift+G"
+              description="El panel de oro empieza oculto y lo mostrás u ocultás con el atajo. No podemos leer la tecla Tab del juego."
+            />
+          )}
+          <Toggle
+            checked={settings.overlayShowObjectives}
+            onChange={(value) => void updateSettings({ overlayShowObjectives: value })}
+            label="Mostrar timers de objetivos"
+            description="Dragón, barón, heraldo e inhibidores estimados."
+          />
+          <Toggle
+            checked={settings.overlayShowChampSelect}
+            onChange={(value) => void updateSettings({ overlayShowChampSelect: value })}
+            label="Mostrar en champ select"
+            description="Muestra los counters por kit mientras elegís campeón."
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <span className="inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
+              <MonitorUp className="h-3.5 w-3.5 text-gold-300/80" /> Atajos globales
+            </span>
+            <div className="flex flex-wrap gap-2">
+              <kbd className="rounded-md border border-line bg-base-950/50 px-2 py-1 font-mono text-[0.62rem] text-ink-300">
+                Ctrl + Shift + O
+              </kbd>
+              <kbd className="rounded-md border border-line bg-base-950/50 px-2 py-1 font-mono text-[0.62rem] text-ink-300">
+                Ctrl + Shift + G oro
+              </kbd>
+            </div>
+          </div>
+          <p className="py-3 text-[0.64rem] leading-relaxed text-ink-500">
+            El overlay es click-through y no roba foco. En pantalla completa exclusiva puede no
+            verse; usá el juego en ventana sin bordes. La posición “al centro” sirve para acercar
+            los timers al minimapa sin taparlo del todo.
+          </p>
+        </div>
+      </Card>
 
       <Card className="p-6">
         <SectionHeading

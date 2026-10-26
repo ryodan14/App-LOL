@@ -21,15 +21,23 @@ function useNow(): number {
 function Shell({
   mode,
   timer,
+  opacity,
+  footerLeft,
   children
 }: {
   mode: 'live' | 'champ-select' | 'idle'
   timer: string
+  opacity: number
+  footerLeft: string
   children: React.ReactNode
 }): React.JSX.Element {
+  const alpha = Math.min(1, Math.max(0.35, opacity)).toFixed(2)
   return (
     <div className="w-full p-2">
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#060a12]/95 shadow-[0_24px_80px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+      <div
+        className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.8)] backdrop-blur-xl"
+        style={{ backgroundColor: `rgba(6, 10, 18, ${alpha})` }}
+      >
         <div className="flex items-center justify-between gap-3 border-b border-white/[0.07] px-3 py-2">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-gold-400/30 bg-gold-400/10">
@@ -57,13 +65,9 @@ function Shell({
           </div>
         </div>
         <div className="space-y-2.5 p-3">{children}</div>
-        <div className="flex items-center justify-between border-t border-white/[0.06] px-3 py-1.5 text-[0.5rem] text-ink-600">
-          <span>
-            {mode === 'champ-select'
-              ? 'Counters por kit · no son winrates'
-              : 'Oro estimado · no lee memoria del juego'}
-          </span>
-          <span className="font-mono">Ctrl+Shift+O</span>
+        <div className="flex items-center justify-between gap-2 border-t border-white/[0.06] px-3 py-1.5 text-[0.5rem] text-ink-600">
+          <span>{footerLeft}</span>
+          <span className="shrink-0 font-mono">Ctrl+Shift+O</span>
         </div>
       </div>
     </div>
@@ -73,13 +77,36 @@ function Shell({
 function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React.JSX.Element {
   const snapshot = useAppStore((state) => state.snapshot)
   const data = useAppStore((state) => state.data)
+  const settings = useAppStore((state) => state.settings)
   const index = useGameData()
+  const [goldVisible, setGoldVisible] = useState(() => !settings.overlayGoldOnDemand)
   const gameTime = live.gameTime + Math.max(0, (now - snapshot.updatedAt) / 1000)
   const mine = live.activeTeam === 'ORDER' ? 'azul' : 'rojo'
+  const showGold = settings.overlayShowGold && goldVisible
+  const showObjectives = settings.overlayShowObjectives
+  const footerLeft = !settings.overlayShowGold
+    ? 'Oro desactivado en Ajustes'
+    : showGold
+      ? 'Oro estimado · no lee memoria del juego'
+      : 'Oro oculto · Ctrl+Shift+G'
+
+  useEffect(() => {
+    setGoldVisible(!settings.overlayGoldOnDemand)
+  }, [settings.overlayGoldOnDemand])
+
+  useEffect(
+    () => window.api.overlay.onGoldToggle(() => setGoldVisible((current) => !current)),
+    []
+  )
 
   if (!index) {
     return (
-      <Shell mode="live" timer={formatDuration(gameTime)}>
+      <Shell
+        mode="live"
+        timer={formatDuration(gameTime)}
+        opacity={settings.overlayOpacity}
+        footerLeft="Cargando datos oficiales"
+      >
         <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
           {data.status === 'error'
             ? 'Datos no disponibles. Abrí App-LOL y reintentá la carga.'
@@ -90,21 +117,39 @@ function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React
   }
 
   return (
-    <Shell mode="live" timer={formatDuration(gameTime)}>
-      <div className="flex items-center justify-between px-0.5">
-        <p className="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gold-300">
-          Diferencia por línea
+    <Shell
+      mode="live"
+      timer={formatDuration(gameTime)}
+      opacity={settings.overlayOpacity}
+      footerLeft={footerLeft}
+    >
+      {showGold && (
+        <>
+          <div className="flex items-center justify-between px-0.5">
+            <p className="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gold-300">
+              Diferencia por línea
+            </p>
+            <span className="text-[0.55rem] text-ink-500">Equipo {mine}</span>
+          </div>
+          <LaneGoldBoard live={live} gameTime={gameTime} compact />
+        </>
+      )}
+      {showObjectives && (
+        <>
+          <div className="flex items-center gap-1.5 px-0.5 pt-1">
+            <TimerReset className="h-3 w-3 text-teal-300" />
+            <p className="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-teal-300">
+              Objetivos
+            </p>
+          </div>
+          <ObjectiveTimerList live={live} gameTime={gameTime} compact />
+        </>
+      )}
+      {!showGold && !showObjectives && (
+        <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
+          No hay secciones activas. Configuralas en Ajustes.
         </p>
-        <span className="text-[0.55rem] text-ink-500">Equipo {mine}</span>
-      </div>
-      <LaneGoldBoard live={live} gameTime={gameTime} compact />
-      <div className="flex items-center gap-1.5 px-0.5 pt-1">
-        <TimerReset className="h-3 w-3 text-teal-300" />
-        <p className="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-teal-300">
-          Objetivos
-        </p>
-      </div>
-      <ObjectiveTimerList live={live} gameTime={gameTime} compact />
+      )}
     </Shell>
   )
 }
@@ -117,11 +162,17 @@ function ChampSelectOverlay({
   now: number
 }): React.JSX.Element {
   const snapshot = useAppStore((state) => state.snapshot)
+  const settings = useAppStore((state) => state.settings)
   const remaining = champSelect.timer
     ? Math.max(0, champSelect.timer.remainingMs - (now - snapshot.updatedAt))
     : 0
   return (
-    <Shell mode="champ-select" timer={champSelect.timer ? formatTimer(remaining) : '—'}>
+    <Shell
+      mode="champ-select"
+      timer={champSelect.timer ? formatTimer(remaining) : '—'}
+      opacity={settings.overlayOpacity}
+      footerLeft="Counters por kit · no son winrates"
+    >
       <ChampSelectBoard champSelect={champSelect} compact />
     </Shell>
   )
@@ -130,20 +181,31 @@ function ChampSelectOverlay({
 function OverlayContent(): React.JSX.Element {
   const snapshot = useAppStore((state) => state.snapshot)
   const data = useAppStore((state) => state.data)
+  const settings = useAppStore((state) => state.settings)
   const now = useNow()
 
   if (snapshot.live) return <LiveOverlay live={snapshot.live} now={now} />
   if (snapshot.champSelect) return <ChampSelectOverlay champSelect={snapshot.champSelect} now={now} />
   if (data.status === 'loading') {
     return (
-      <Shell mode="idle" timer="—">
+      <Shell
+        mode="idle"
+        timer="—"
+        opacity={settings.overlayOpacity}
+        footerLeft="Cargando App-LOL"
+      >
         <p className="py-10 text-center text-[0.72rem] text-ink-400">Cargando App-LOL…</p>
       </Shell>
     )
   }
   if (data.status === 'error') {
     return (
-      <Shell mode="idle" timer="—">
+      <Shell
+        mode="idle"
+        timer="—"
+        opacity={settings.overlayOpacity}
+        footerLeft="Datos no disponibles"
+      >
         <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
           No pudimos cargar los datos de Riot. Abrí App-LOL y reintentá desde Ajustes.
         </p>
@@ -151,7 +213,12 @@ function OverlayContent(): React.JSX.Element {
     )
   }
   return (
-    <Shell mode="idle" timer="—">
+    <Shell
+      mode="idle"
+      timer="—"
+      opacity={settings.overlayOpacity}
+      footerLeft="Sin partida activa"
+    >
       <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
         Abrí League of Legends y entrá a champ select o a una partida.
       </p>
@@ -174,7 +241,10 @@ export function OverlayRoot(): React.JSX.Element {
   if (!initialized) {
     return (
       <div className="p-2">
-        <div className="rounded-2xl border border-white/10 bg-[#060a12]/95 p-6 text-center text-[0.7rem] text-ink-400">
+        <div
+          className="rounded-2xl border border-white/10 p-6 text-center text-[0.7rem] text-ink-400 backdrop-blur-xl"
+          style={{ backgroundColor: 'rgba(6, 10, 18, 0.75)' }}
+        >
           Cargando overlay…
         </div>
       </div>
