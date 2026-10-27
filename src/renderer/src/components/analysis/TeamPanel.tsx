@@ -103,7 +103,7 @@ export function TeamPanel({ team }: { team: TeamAnalysis }): React.JSX.Element {
 
       <div className="grid gap-2 sm:grid-cols-2">
         <Score label={t('CC')} value={team.ccScore} icon={<ShieldAlert className="h-3 w-3" />} />
-        <Score label={t('Sustain')} value={team.sustainScore} icon={<Droplets className="h-3 w-3" />} />
+        <Score label={t('Sostenibilidad')} value={team.sustainScore} icon={<Droplets className="h-3 w-3" />} />
         <Score label={t('Engage')} value={team.engageScore} icon={<Activity className="h-3 w-3" />} />
         <Score label={t('Poke')} value={team.pokeScore} icon={<Crosshair className="h-3 w-3" />} />
       </div>

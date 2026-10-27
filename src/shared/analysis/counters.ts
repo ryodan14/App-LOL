@@ -66,7 +66,7 @@ const TIP_TEXT: Record<ThreatTag, { title: string; description: string }> = {
   },
   POKE: {
     title: 'Aguanta el poke',
-    description: '{name} hace daño desde lejos. Usa sustain, escudos y busca peleas cortas; no regales vida antes del objetivo.'
+    description: '{name} hace daño desde lejos. Usa sostenibilidad, escudos y busca peleas cortas; no regales vida antes del objetivo.'
   },
   MAX_HP: {
     title: 'Daño porcentual',
