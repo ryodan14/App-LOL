@@ -316,6 +316,7 @@ Es un binario sin firma digital. Usa **Más información → Ejecutar de todas f
 App-LOL está en desarrollo activo. Algunas limitaciones conocidas:
 
 - El oro exacto de los diez jugadores no está expuesto por la API oficial; se estima y se muestra como aproximado.
+- Riot no publica una lista completa de builds por campeón en Data Dragon. El orden de objetos es una recomendación heurística basada en estadísticas, arquetipo, rol y amenazas enemigas.
 - No hay OCR ni lectura de pantalla.
 - El overlay puede no funcionar en pantalla completa exclusiva.
 - Los ejecutables no están firmados, por lo que SmartScreen puede advertir.
