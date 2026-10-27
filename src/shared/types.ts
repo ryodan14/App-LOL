@@ -145,6 +145,27 @@ export type OverlayCorner =
   | 'right-center'
   | 'left-center'
 
+export type UpdateStatus =
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'downloading'
+  | 'downloaded'
+  | 'up-to-date'
+  | 'error'
+  | 'unsupported'
+
+export type UpdateReason = 'development' | 'portable' | 'platform'
+
+export interface UpdateState {
+  status: UpdateStatus
+  currentVersion: string
+  version?: string
+  progress?: number
+  error?: string
+  reason?: UpdateReason
+}
+
 export interface AppSettings {
   language: Locale
   alwaysOnTop: boolean
@@ -301,6 +322,12 @@ export interface AppApi {
   }
   account: {
     get: () => Promise<LcuAccount | null>
+  }
+  updates: {
+    get: () => Promise<UpdateState>
+    check: () => Promise<UpdateState>
+    restart: () => Promise<void>
+    onUpdate: (callback: (state: UpdateState) => void) => () => void
   }
   window: {
     minimize: () => void

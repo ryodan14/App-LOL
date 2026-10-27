@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppApi, AppSettings, DataResult, Snapshot } from '@shared/types'
+import type { AppApi, AppSettings, DataResult, Snapshot, UpdateState } from '@shared/types'
 
 const api: AppApi = {
   app: {
@@ -39,6 +39,17 @@ const api: AppApi = {
   },
   account: {
     get: () => ipcRenderer.invoke('account:get')
+  },
+  updates: {
+    get: () => ipcRenderer.invoke('updates:get'),
+    check: () => ipcRenderer.invoke('updates:check'),
+    restart: () => ipcRenderer.invoke('updates:restart'),
+    onUpdate: (callback: (state: UpdateState) => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, state: UpdateState): void =>
+        callback(state)
+      ipcRenderer.on('updates:updated', listener)
+      return () => ipcRenderer.removeListener('updates:updated', listener)
+    }
   },
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),
