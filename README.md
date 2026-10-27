@@ -235,16 +235,24 @@ release/latest.yml
 
 ### Publicar una versión
 
-1. Sube la versión: `npm version patch` (o `minor`/`major`).
-2. Publica con un token de GitHub con permiso sobre el repositorio:
+La forma recomendada es dejar que GitHub Actions compile y publique la release:
+
+1. Sube la versión y crea el tag: `npm version patch` (o `minor`/`major`).
+2. Sube el commit y el tag:
+
+```bash
+git push origin main --follow-tags
+```
+
+3. La workflow `.github/workflows/release.yml` compila en Windows, ejecuta los tests y publica el instalador, `latest.yml` y el `.blockmap`.
+
+También puedes publicar desde un Windows con un token con permiso sobre el repositorio:
 
 ```bash
 GH_TOKEN=tu_token npm run release:win
 ```
 
-3. Comprueba que la release incluye el instalador, `latest.yml` y el `.blockmap`.
-
-El token no se guarda en el repositorio. Para que las actualizaciones funcionen, la release debe ser pública y no quedar en borrador.
+El token no se guarda en el repositorio. Para que las actualizaciones funcionen, la release debe ser pública y no quedar en borrador. La versión de `package.json` debe coincidir con el tag.
 
 ### Estructura
 
