@@ -140,6 +140,30 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 - Inicio con Windows y aparición al abrir League.
 - Estado de la caché y actualización de datos.
 
+## Builds y orden de objetos
+
+App-LOL no usa una lista fija: cruza el campeón, el rol, el arquetipo y la composición enemiga para proponer una compra.
+
+La ficha de build se divide en:
+
+- **Salida de línea**: Doran + poción, World Atlas + pociones si eres soporte, o mascota de jungla + poción si jungleas. Se adapta al poke y al arquetipo.
+- **Primer objeto completado**: el que más ayuda a ganar el intercambio inicial. No siempre es el más caro: se penalizan la penetración porcentual, la anti-curación y los objetos acumulativos como primera compra.
+- **Botas**: se eligen según el daño y el control de masas enemigo.
+- **Núcleo**: tres objetos completados que definen tu pico de poder.
+- **Situacionales**: dos objetos para responder a curación, tanques, escudos, CC o daño dominante.
+- **Orden de compra**: numera la secuencia desde el primer completado; las botas aparecen después para no tapar el primer pico de poder.
+- **Habilidades**: prioridad Q/W/E/R y niveles de la definitiva según el kit y el rol.
+
+La selección de objetos combina:
+
+- Estadísticas oficiales de Data Dragon.
+- Etiquetas de arquetipo y rol.
+- Bonus por objetos de arranque habituales de cada clase.
+- Amenazas enemigas: curación, tanques, escudos, CC, poke y daño físico o mágico.
+- Penalizaciones para compras tardías o situacionales demasiado pronto.
+
+> Riot no publica una lista completa de builds por campeón en Data Dragon ni en Community Dragon. El orden es una recomendación heurística de App-LOL, no una lista oficial ni un winrate. No se usan APIs de terceros.
+
 ## Overlay
 
 El overlay aparece sobre el monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
