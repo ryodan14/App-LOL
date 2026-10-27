@@ -1,4 +1,5 @@
 import type { Champion } from '../types'
+import { t } from '../i18n'
 import { analyzeChampion } from './champion'
 import type {
   CounterNeed,
@@ -70,11 +71,11 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (heal > 0) {
     addNeed({
       id: 'antiheal',
-      label: 'Anti-curación',
+      label: t('Anti-curación'),
       description:
         heal >= 2
-          ? 'Varios campeones enemigos se curan. Compra anti-curación temprano.'
-          : 'El enemigo tiene curación o robo de vida. Suma anti-curación antes de las peleas largas.',
+          ? t('Varios campeones enemigos se curan. Compra anti-curación temprano.')
+          : t('El enemigo tiene curación o robo de vida. Suma anti-curación antes de las peleas largas.'),
       priority: priorityFor(heal, 2, 1),
       itemIds: [3165, 6609, 3033, 3075, 3011]
     })
@@ -83,10 +84,10 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (shield > 0) {
     addNeed({
       id: 'antishield',
-      label: 'Anti-escudos',
+      label: t('Anti-escudos'),
       description: shield >= 2
-        ? 'Hay varios escudos en el equipo enemigo. Rómpelos antes de comprometerte.'
-        : 'El enemigo puede absorber daño con escudos. Considera rompe-escudos.',
+        ? t('Hay varios escudos en el equipo enemigo. Rómpelos antes de comprometerte.')
+        : t('El enemigo puede absorber daño con escudos. Considera rompe-escudos.'),
       priority: priorityFor(shield, 2, 1),
       itemIds: [6695, 4645]
     })
@@ -95,11 +96,11 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (weightedAd >= 2 || damage.AD > damage.AP) {
     addNeed({
       id: 'armor',
-      label: 'Armadura',
+      label: t('Armadura'),
       description:
         weightedAd >= 3
-          ? 'La composición enemiga es mayoritariamente física. La armadura es prioridad.'
-          : 'El enemigo tiene daño físico relevante. Suma armadura a tu build.',
+          ? t('La composición enemiga es mayoritariamente física. La armadura es prioridad.')
+          : t('El enemigo tiene daño físico relevante. Suma armadura a tu build.'),
       priority: priorityFor(weightedAd, 3, 2),
       itemIds: [3075, 3143, 3110, 3742]
     })
@@ -108,11 +109,11 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (weightedAp >= 2 || damage.AP > damage.AD) {
     addNeed({
       id: 'mr',
-      label: 'Resistencia mágica',
+      label: t('Resistencia mágica'),
       description:
         weightedAp >= 3
-          ? 'La composición enemiga es mayoritariamente mágica. La RM es prioridad.'
-          : 'El enemigo tiene daño mágico relevante. Suma resistencia mágica.',
+          ? t('La composición enemiga es mayoritariamente mágica. La RM es prioridad.')
+          : t('El enemigo tiene daño mágico relevante. Suma resistencia mágica.'),
       priority: priorityFor(weightedAp, 3, 2),
       itemIds: [3065, 2504, 4401, 3091, 3156]
     })
@@ -121,11 +122,11 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (tank >= 2 || maxHp > 0) {
     addNeed({
       id: 'antitank',
-      label: 'Daño porcentual',
+      label: t('Daño porcentual'),
       description:
         tank >= 2
-          ? 'Hay varios tanques enemigos. Necesitas penetración y daño porcentual.'
-          : 'El enemigo castiga objetivos con mucha vida. El daño porcentual ayuda.',
+          ? t('Hay varios tanques enemigos. Necesitas penetración y daño porcentual.')
+          : t('El enemigo castiga objetivos con mucha vida. El daño porcentual ayuda.'),
       priority: priorityFor(tank, 2, 1),
       itemIds: [3036, 3135, 3153, 6653]
     })
@@ -134,11 +135,11 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (hardCc >= 2) {
     addNeed({
       id: 'tenacity',
-      label: 'Tenacidad',
+      label: t('Tenacidad'),
       description:
         hardCc >= 3
-          ? 'Mucho CC enemigo. La tenacidad y un cleanup son casi obligatorios.'
-          : 'El CC enemigo puede encadenarte. Considera tenacidad o limpieza de CC.',
+          ? t('Mucho CC enemigo. La tenacidad y un cleanup son casi obligatorios.')
+          : t('El CC enemigo puede encadenarte. Considera tenacidad o limpieza de CC.'),
       priority: priorityFor(hardCc, 3, 2),
       itemIds: [3111, 3140, 6035, 3091]
     })
@@ -147,8 +148,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (autoAttack >= 2) {
     addNeed({
       id: 'antiauto',
-      label: 'Contra ataques básicos',
-      description: 'Varios enemigos dependen de ataques básicos. Randuin o Frozen Heart reducen su daño.',
+      label: t('Contra ataques básicos'),
+      description: t('Varios enemigos dependen de ataques básicos. Randuin o Frozen Heart reducen su daño.'),
       priority: priorityFor(autoAttack, 2, 1),
       itemIds: [3143, 3110, 3075]
     })
@@ -157,8 +158,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (stealth > 0) {
     addNeed({
       id: 'antistealth',
-      label: 'Control de visión',
-      description: 'El enemigo puede invisibilizarse. Wardea y lleva control de visión.',
+      label: t('Control de visión'),
+      description: t('El enemigo puede invisibilizarse. Wardea y lleva control de visión.'),
       priority: 'MEDIA',
       itemIds: [3364, 2056]
     })
@@ -167,8 +168,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (poke >= 2) {
     addNeed({
       id: 'antipoke',
-      label: 'Sustain contra poke',
-      description: 'El enemigo hace daño desde lejos. Prioriza sustain y peleas cortas.',
+      label: t('Sustain contra poke'),
+      description: t('El enemigo hace daño desde lejos. Prioriza sustain y peleas cortas.'),
       priority: priorityFor(poke, 2, 1),
       itemIds: [1054, 3065, 3107, 3222]
     })
@@ -177,8 +178,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (burst >= 2) {
     addNeed({
       id: 'antiburts',
-      label: 'Defensa contra burst',
-      description: 'Hay varias amenazas de burst. Un objeto defensivo puede salvarte la pelea.',
+      label: t('Defensa contra burst'),
+      description: t('Hay varias amenazas de burst. Un objeto defensivo puede salvarte la pelea.'),
       priority: priorityFor(burst, 2, 1),
       itemIds: [3157, 3026, 3156, 3102, 3053]
     })
@@ -187,8 +188,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (execute > 0) {
     addNeed({
       id: 'antiexecute',
-      label: 'Contra ejecución',
-      description: 'El enemigo remata objetivos con poca vida. No te quedes bajo y usa escudos.',
+      label: t('Contra ejecución'),
+      description: t('El enemigo remata objetivos con poca vida. No te quedes bajo y usa escudos.'),
       priority: 'MEDIA',
       itemIds: [3157, 3026, 3053]
     })
@@ -197,8 +198,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (slow > 1) {
     addNeed({
       id: 'antislow',
-      label: 'Contra ralentizaciones',
-      description: 'El enemigo encadena ralentizaciones. La tenacidad y movilidad ayudan.',
+      label: t('Contra ralentizaciones'),
+      description: t('El enemigo encadena ralentizaciones. La tenacidad y movilidad ayudan.'),
       priority: 'BAJA',
       itemIds: [3111, 3009, 3091]
     })
@@ -219,14 +220,14 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
     .slice(0, 3)
 
   const summaryParts = [
-    `Composición ${DAMAGE_ADJECTIVE[primaryDamage]} con ${enemies.length} campeones.`
+    t('Composición {damage} con {count} campeones.', { damage: t(DAMAGE_ADJECTIVE[primaryDamage]), count: enemies.length })
   ]
-  if (tanks > 0) summaryParts.push(`${tanks} tanque${tanks === 1 ? '' : 's'}.`)
-  if (assassins > 0) summaryParts.push(`${assassins} asesino${assassins === 1 ? '' : 's'}.`)
+  if (tanks > 0) summaryParts.push(`${tanks} ${tanks === 1 ? t('tanque') : t('tanques')}.`)
+  if (assassins > 0) summaryParts.push(`${assassins} ${assassins === 1 ? t('asesino') : t('asesinos')}.`)
   if (priorityNeeds.length > 0) {
-    summaryParts.push(`Prioriza ${priorityNeeds.join(', ').toLowerCase()}.`)
+    summaryParts.push(t('Prioriza {needs}.', { needs: priorityNeeds.join(', ').toLocaleLowerCase() }))
   } else {
-    summaryParts.push('Sin amenazas críticas detectadas: build estándar.')
+    summaryParts.push(t('Sin amenazas críticas detectadas: build estándar.'))
   }
 
   return {

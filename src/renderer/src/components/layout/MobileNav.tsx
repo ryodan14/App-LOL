@@ -1,12 +1,13 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@renderer/lib/cn'
 import { navigation } from './navigation'
+import { t } from '@shared/i18n'
 
 export function MobileNav(): React.JSX.Element {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-base-950/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
-      aria-label="Navegación principal"
+      aria-label={t('Navegación principal')}
     >
       {navigation.map(({ to, label, icon: Icon, end }) => (
         <NavLink
@@ -30,7 +31,7 @@ export function MobileNav(): React.JSX.Element {
               >
                 <Icon className="h-4 w-4" strokeWidth={1.8} />
               </span>
-              <span className="w-full truncate text-center">{label}</span>
+              <span className="w-full truncate text-center">{t(label)}</span>
             </>
           )}
         </NavLink>

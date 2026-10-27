@@ -12,6 +12,7 @@ import { AccountPage } from '@renderer/pages/AccountPage'
 import { SettingsPage } from '@renderer/pages/SettingsPage'
 import { NotFoundPage } from '@renderer/pages/NotFoundPage'
 import { Button } from '@renderer/components/ui/Button'
+import { t } from '@shared/i18n'
 
 function BootScreen({ error }: { error?: string | null }): React.JSX.Element {
   return (
@@ -30,12 +31,12 @@ function BootScreen({ error }: { error?: string | null }): React.JSX.Element {
               className="mt-5"
               onClick={() => window.location.reload()}
             >
-              Reintentar
+              {t('Reintentar')}
             </Button>
           </>
         ) : (
           <>
-            <p className="mt-2 text-sm text-ink-400">Cargando datos oficiales de Riot…</p>
+            <p className="mt-2 text-sm text-ink-400">{t('Cargando datos oficiales de Riot…')}</p>
             <div className="mt-6 h-1 w-40 overflow-hidden rounded-full bg-base-700">
               <div className="h-full w-1/2 animate-[shimmer_1.2s_infinite] rounded-full bg-gradient-to-r from-gold-600 to-gold-300" />
             </div>
@@ -50,6 +51,7 @@ export default function App(): React.JSX.Element {
   const initialize = useAppStore((state) => state.initialize)
   const initialized = useAppStore((state) => state.initialized)
   const initError = useAppStore((state) => state.initError)
+  const language = useAppStore((state) => state.settings.language)
 
   useEffect(() => {
     void initialize()
@@ -59,8 +61,8 @@ export default function App(): React.JSX.Element {
   if (initError) return <BootScreen error={initError} />
 
   return (
-    <GameDataProvider>
-      <HashRouter>
+    <GameDataProvider key={language}>
+      <HashRouter key={language}>
         <Routes>
           <Route element={<AppShell />}>
             <Route index element={<HomePage />} />

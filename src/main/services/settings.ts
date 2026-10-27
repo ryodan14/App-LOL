@@ -9,6 +9,7 @@ import {
   OVERLAY_SCALE_OPTIONS,
   POLL_INTERVAL_OPTIONS
 } from '@shared/constants'
+import { DEFAULT_LOCALE, isLocale } from '@shared/i18n'
 import type { AppSettings } from '@shared/types'
 
 let cache: AppSettings | null = null
@@ -30,6 +31,7 @@ function sanitize(value: Partial<AppSettings>): AppSettings {
   const overlayOpacity = Number(merged.overlayOpacity)
   return {
     ...merged,
+    language: isLocale(merged.language) ? merged.language : DEFAULT_LOCALE,
     overlayEnabled: Boolean(merged.overlayEnabled),
     overlayScale: allowedOverlayScale ? merged.overlayScale : DEFAULT_OVERLAY_SCALE,
     overlayOpacity: Number.isFinite(overlayOpacity)

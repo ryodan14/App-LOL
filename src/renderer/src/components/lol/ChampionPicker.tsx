@@ -5,6 +5,7 @@ import { useGameData } from '@renderer/lib/gameData'
 import { ChampionIcon } from './ChampionIcon'
 import { Button } from '@renderer/components/ui/Button'
 import { Card } from '@renderer/components/ui/Card'
+import { t } from '@shared/i18n'
 
 function normalize(value: string): string {
   return value
@@ -77,7 +78,7 @@ export function ChampionPicker({
               type="button"
               onClick={() => remove(champion.id)}
               className="flex h-4 w-4 items-center justify-center rounded-full text-ink-500 hover:bg-base-700 hover:text-ink-100"
-              aria-label={`Quitar a ${champion.name}`}
+              aria-label={t('Quitar a {name}', { name: champion.name })}
             >
               <X className="h-3 w-3" />
             </button>
@@ -90,12 +91,12 @@ export function ChampionPicker({
             icon={<Plus className="h-3.5 w-3.5" />}
             onClick={() => setOpen((current) => !current)}
           >
-            {label} ({value.length}/{max})
+            {t(label)} ({value.length}/{max})
           </Button>
         )}
         {value.length > 0 && (
           <Button size="sm" variant="quiet" onClick={() => onChange([])}>
-            Limpiar
+            {t('Limpiar')}
           </Button>
         )}
       </div>
@@ -107,7 +108,7 @@ export function ChampionPicker({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar campeón…"
+              placeholder={t('Buscar campeón…')}
               className="h-9 flex-1 bg-transparent text-[0.78rem] text-ink-100 outline-none placeholder:text-ink-500"
               autoFocus
             />
@@ -116,7 +117,7 @@ export function ChampionPicker({
               onClick={() => setOpen(false)}
               className="text-[0.68rem] font-semibold text-gold-300 hover:text-gold-200"
             >
-              Listo
+              {t('Listo')}
             </button>
           </div>
 
@@ -145,7 +146,7 @@ export function ChampionPicker({
             })}
             {filtered.length === 0 && (
               <p className="col-span-full py-6 text-center text-[0.72rem] text-ink-500">
-                No encontramos campeones con esa búsqueda.
+                {t('No encontramos campeones con esa búsqueda.')}
               </p>
             )}
           </div>

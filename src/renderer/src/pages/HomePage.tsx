@@ -28,6 +28,7 @@ import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
 import { ROLE_ORDER } from '@shared/constants'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 const FEATURED_IDS = ['Jinx', 'Ahri', 'Yasuo', 'Thresh', 'Darius', 'LeeSin', 'Kaisa', 'Lux']
 
@@ -97,7 +98,7 @@ export function HomePage(): React.JSX.Element {
     <div className="space-y-7">
       {initError && (
         <div className="rounded-xl border border-danger-500/30 bg-danger-500/10 px-4 py-3 text-sm text-danger-400">
-          No se pudo iniciar la app: {initError}
+          {t('No se pudo iniciar la app: {error}', { error: initError })}
         </div>
       )}
 
@@ -122,33 +123,32 @@ export function HomePage(): React.JSX.Element {
             <div className="max-w-xl">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone="gold">
-                  <Sparkles className="h-3 w-3" /> Sin publicidad
+                  <Sparkles className="h-3 w-3" /> {t('Sin publicidad')}
                 </Badge>
-                <Badge>Datos oficiales de Riot</Badge>
+                <Badge>{t('Datos oficiales de Riot')}</Badge>
               </div>
               <h2 className="font-display mt-5 text-[2.15rem] font-semibold leading-[1.06] tracking-tight text-ink-100 sm:text-[2.6rem]">
-                Tu partida,
+                {t('Tu partida,')}
                 <br />
                 <span className="text-glow-gold bg-gradient-to-r from-gold-200 via-gold-300 to-gold-500 bg-clip-text text-transparent">
-                  más clara.
+                  {t('más clara.')}
                 </span>
               </h2>
               <p className="mt-4 max-w-lg text-[0.88rem] leading-relaxed text-ink-300">
-                Builds adaptadas, counters y análisis de la composición enemiga mientras eliges
-                campeón o juegas. Sin publicidad y sin perder tiempo.
+                {t('Builds adaptadas, counters y análisis de la composición enemiga mientras eliges campeón o juegas. Sin publicidad y sin perder tiempo.')}
               </p>
             </div>
 
             <div className="mt-7 flex flex-wrap items-center gap-2.5">
               <ButtonLink to="/partida" variant="primary" icon={<Swords className="h-4 w-4" />}>
-                Abrir partida
+                {t('Abrir partida')}
               </ButtonLink>
               <ButtonLink
                 to="/campeones"
                 variant="ghost"
                 icon={<UsersRound className="h-4 w-4" />}
               >
-                Explorar campeones
+                {t('Explorar campeones')}
               </ButtonLink>
               {snapshot.phase !== 'Offline' && (
                 <span className="ml-1 inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
@@ -163,7 +163,7 @@ export function HomePage(): React.JSX.Element {
         <Card className="flex flex-col justify-between p-6">
           <div>
             <div className="flex items-center justify-between">
-              <p className="eyebrow">Estado en vivo</p>
+              <p className="eyebrow">{t('Estado en vivo')}</p>
               <StatusDot tone={phaseTone(snapshot.phase)} pulse={snapshot.phase !== 'Offline'} />
             </div>
             <div className="mt-4 flex items-center gap-3">
@@ -182,7 +182,7 @@ export function HomePage(): React.JSX.Element {
                   {phaseLabel(snapshot.phase)}
                 </p>
                 <p className="text-[0.72rem] text-ink-500">
-                  {snapshot.lcuConnected ? 'Cliente de League of Legends detectado' : 'Esperando al cliente'}
+                  {snapshot.lcuConnected ? t('Cliente de League of Legends detectado') : t('Esperando al cliente')}
                 </p>
               </div>
             </div>
@@ -190,23 +190,23 @@ export function HomePage(): React.JSX.Element {
             <div className="mt-5 space-y-2.5">
               <StatusRow
                 icon={<UserRound className="h-3.5 w-3.5" />}
-                label="Invocador"
+                label={t('Invocador')}
                 value={snapshot.summoner?.displayName ?? '—'}
               />
               <StatusRow
                 icon={<Database className="h-3.5 w-3.5" />}
-                label="Datos"
+                label={t('Datos')}
                 value={
                   data.status === 'ready'
-                    ? `Parche ${data.data?.patch}`
+                    ? t('Parche {patch}', { patch: data.data?.patch ?? '' })
                     : data.status === 'error'
-                      ? 'No disponibles'
-                      : 'Cargando…'
+                      ? t('No disponibles')
+                      : t('Cargando…')
                 }
               />
               <StatusRow
                 icon={<Clock className="h-3.5 w-3.5" />}
-                label="Actualizado"
+                label={t('Actualizado')}
                 value={formatRelativeTime(snapshot.updatedAt)}
               />
             </div>
@@ -220,7 +220,7 @@ export function HomePage(): React.JSX.Element {
                 className="w-full"
                 icon={<Swords className="h-4 w-4" />}
               >
-                Ver {snapshot.phase === 'InProgress' ? 'partida en vivo' : 'champ select'}
+                {t('Ver {mode}', { mode: snapshot.phase === 'InProgress' ? t('partida en vivo') : t('champ select') })}
               </ButtonLink>
             ) : (
               <Button
@@ -229,12 +229,12 @@ export function HomePage(): React.JSX.Element {
                 icon={<Wifi className="h-4 w-4" />}
                 onClick={() => void reconnect()}
               >
-                Buscar cliente
+                {t('Buscar cliente')}
               </Button>
             )}
             {data.status === 'error' && (
               <Button variant="ghost" className="w-full" onClick={() => void refreshData()}>
-                Reintentar datos
+                {t('Reintentar datos')}
               </Button>
             )}
           </div>
@@ -243,9 +243,9 @@ export function HomePage(): React.JSX.Element {
 
       <section>
         <SectionHeading
-          eyebrow="Todo en una pantalla"
-          title="Pensada para jugar, no para leer"
-          description="La información justa, ordenada por prioridad y lista para usar en segundos."
+          eyebrow={t('Todo en una pantalla')}
+          title={t('Pensada para jugar, no para leer')}
+          description={t('La información justa, ordenada por prioridad y lista para usar en segundos.')}
         />
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {features.map((feature) => (
@@ -261,10 +261,10 @@ export function HomePage(): React.JSX.Element {
                 <feature.icon className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.8} />
               </span>
               <h3 className="font-display mt-4 text-[0.95rem] font-semibold text-ink-100">
-                {feature.title}
+                {t(feature.title)}
               </h3>
               <p className="mt-1.5 text-[0.78rem] leading-relaxed text-ink-400">
-                {feature.description}
+                {t(feature.description)}
               </p>
             </Card>
           ))}
@@ -273,7 +273,7 @@ export function HomePage(): React.JSX.Element {
 
       <section className="grid gap-4 xl:grid-cols-[1.1fr_1fr]">
         <Card className="p-6">
-          <SectionHeading eyebrow="Empieza en 3 pasos" title="Cómo funciona" />
+          <SectionHeading eyebrow={t('Empieza en 3 pasos')} title={t('Cómo funciona')} />
           <div className="mt-5 space-y-1">
             {steps.map((step, stepIndex) => (
               <div key={step.title} className="flex gap-4">
@@ -284,9 +284,9 @@ export function HomePage(): React.JSX.Element {
                   {stepIndex < steps.length - 1 && <span className="my-1 w-px flex-1 bg-line" />}
                 </div>
                 <div className="pb-5">
-                  <p className="text-[0.86rem] font-semibold text-ink-100">{step.title}</p>
+                  <p className="text-[0.86rem] font-semibold text-ink-100">{t(step.title)}</p>
                   <p className="mt-0.5 text-[0.78rem] leading-relaxed text-ink-400">
-                    {step.description}
+                    {t(step.description)}
                   </p>
                 </div>
               </div>
@@ -296,11 +296,11 @@ export function HomePage(): React.JSX.Element {
 
         <Card className="p-6">
           <SectionHeading
-            eyebrow="Atajos"
-            title="Campeones destacados"
+            eyebrow={t('Atajos')}
+            title={t('Campeones destacados')}
             action={
               <Link to="/campeones" className="text-[0.75rem] font-semibold text-gold-300 hover:text-gold-200">
-                Ver todos <ChevronRight className="inline h-3.5 w-3.5" />
+                {t('Ver todos')} <ChevronRight className="inline h-3.5 w-3.5" />
               </Link>
             }
           />
@@ -346,20 +346,20 @@ export function HomePage(): React.JSX.Element {
           <div className="mt-5 flex items-center gap-2 rounded-xl border border-line bg-base-900/50 px-3 py-2.5">
             <BadgeCheck className="h-4 w-4 shrink-0 text-teal-300" />
             <p className="text-[0.7rem] leading-relaxed text-ink-400">
-              Builds y runas generadas con datos oficiales. Sin cuentas ni publicidad.
+              {t('Builds y runas generadas con datos oficiales. Sin cuentas ni publicidad.')}
             </p>
           </div>
         </Card>
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5 text-[0.65rem] text-ink-600">
-        <span>App-LOL no está afiliada a Riot Games. League of Legends es una marca de Riot Games, Inc.</span>
+        <span>{t('App-LOL no está afiliada a Riot Games. League of Legends es una marca de Riot Games, Inc.')}</span>
         <button
           type="button"
           className="inline-flex items-center gap-1 text-ink-500 transition-colors hover:text-gold-300"
           onClick={() => void window.api.external.open('https://developer.riotgames.com/')}
         >
-          Fuentes de datos <ArrowRight className="h-3 w-3" />
+          {t('Fuentes de datos')} <ArrowRight className="h-3 w-3" />
         </button>
       </div>
     </div>

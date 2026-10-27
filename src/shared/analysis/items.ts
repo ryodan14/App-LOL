@@ -1,6 +1,7 @@
 import type { Champion, Item, Role } from '../types'
 import { classifyArchetype } from './champion'
-import { ARCHETYPE_LABELS } from './labels'
+import { archetypeLabel } from './labels'
+import { t } from '../i18n'
 import { analyzeTeam } from './team'
 import { stripHtml } from './text'
 import type { AnalysisIndex, Archetype, BuildItem, BuildPlan, CounterNeed } from './types'
@@ -291,16 +292,16 @@ function scoreItem(item: Item, archetype: Archetype): number {
 function statSummary(item: Item): string {
   const s = itemStats(item)
   const parts: string[] = []
-  if (s.ap > 0) parts.push(`${s.ap} de poder de habilidad`)
-  if (s.ad > 0) parts.push(`${s.ad} de daño de ataque`)
-  if (s.hp > 0) parts.push(`${s.hp} de vida`)
-  if (s.armor > 0) parts.push(`${s.armor} de armadura`)
-  if (s.mr > 0) parts.push(`${s.mr} de resistencia mágica`)
-  if (s.crit > 0) parts.push(`${s.crit}% de crítico`)
-  if (s.as > 0) parts.push(`${s.as}% de velocidad de ataque`)
-  if (s.haste > 0) parts.push(`${s.haste} de aceleración de habilidades`)
-  if (s.healShield > 0) parts.push(`${s.healShield}% de poder de curación y escudos`)
-  return parts.slice(0, 3).join(' y ') || 'Estadísticas defensivas'
+  if (s.ap > 0) parts.push(t('{value} de poder de habilidad', { value: s.ap }))
+  if (s.ad > 0) parts.push(t('{value} de daño de ataque', { value: s.ad }))
+  if (s.hp > 0) parts.push(t('{value} de vida', { value: s.hp }))
+  if (s.armor > 0) parts.push(t('{value} de armadura', { value: s.armor }))
+  if (s.mr > 0) parts.push(t('{value} de resistencia mágica', { value: s.mr }))
+  if (s.crit > 0) parts.push(t('{value}% de crítico', { value: s.crit }))
+  if (s.as > 0) parts.push(t('{value}% de velocidad de ataque', { value: s.as }))
+  if (s.haste > 0) parts.push(t('{value} de aceleración de habilidades', { value: s.haste }))
+  if (s.healShield > 0) parts.push(t('{value}% de poder de curación y escudos', { value: s.healShield }))
+  return parts.slice(0, 3).join(t(' y ')) || t('Estadísticas defensivas')
 }
 
 function toBuildItem(item: Item, reason: string): BuildItem {
@@ -336,33 +337,33 @@ function chooseBoots(
   const ad = team.damage.AD + team.damage.MIXED * 0.5
   const ap = team.damage.AP + team.damage.MIXED * 0.5
   let preferredId = 3158
-  let reason = 'Botas de aceleración para esquivar y rotar'
+  let reason = t('Botas de aceleración para esquivar y rotar')
 
   if (hardCc >= 2 || ap >= 2) {
     preferredId = 3111
-    reason = hardCc >= 2 ? 'Botas de RM y tenacidad contra el CC enemigo' : 'Botas de RM contra daño mágico'
+    reason = hardCc >= 2 ? t('Botas de RM y tenacidad contra el CC enemigo') : t('Botas de RM contra daño mágico')
   } else if (ad >= 2) {
     preferredId = 3047
-    reason = 'Botas de armadura contra daño físico'
+    reason = t('Botas de armadura contra daño físico')
   } else if (archetype === 'marksman') {
     preferredId = 3006
-    reason = 'Botas de velocidad de ataque para tu daño sostenido'
+    reason = t('Botas de velocidad de ataque para tu daño sostenido')
   } else if (
     archetype === 'mage' ||
     archetype === 'ap-assassin' ||
     archetype === 'ap-bruiser'
   ) {
     preferredId = 3020
-    reason = 'Botas de penetración mágica para aumentar tu daño'
+    reason = t('Botas de penetración mágica para aumentar tu daño')
   } else if (archetype === 'enchanter' || archetype === 'support') {
     preferredId = 3158
-    reason = 'Botas de aceleración para más utilidad'
+    reason = t('Botas de aceleración para más utilidad')
   } else if (archetype === 'tank') {
     preferredId = ad >= ap ? 3047 : 3111
-    reason = ad >= ap ? 'Botas de armadura contra daño físico' : 'Botas de RM contra daño mágico'
+    reason = ad >= ap ? t('Botas de armadura contra daño físico') : t('Botas de RM contra daño mágico')
   } else if (archetype === 'ad-assassin' || archetype === 'bruiser') {
     preferredId = ad >= 2 ? 3047 : 3158
-    reason = ad >= 2 ? 'Botas de armadura para sobrevivir el intercambio' : 'Botas de aceleración'
+    reason = ad >= 2 ? t('Botas de armadura para sobrevivir el intercambio') : t('Botas de aceleración')
   }
 
   const preferred = findItem(index, preferredId)
@@ -371,7 +372,7 @@ function chooseBoots(
   }
 
   const fallback = index.data.items.find((item) => isPurchasable(item) && isBoots(item))
-  return fallback ? toBuildItem(fallback, 'Botas situacionales') : null
+  return fallback ? toBuildItem(fallback, t('Botas situacionales')) : null
 }
 
 function chooseStarting(
@@ -393,42 +394,42 @@ function chooseStarting(
       archetype === 'ap-bruiser' ||
       archetype === 'support'
     ) {
-      add(STARTING_IDS.mosstomper, 'Mascota de jungla para resistir y limpiar campamentos')
+      add(STARTING_IDS.mosstomper, t('Mascota de jungla para resistir y limpiar campamentos'))
     } else if (archetype === 'marksman' || archetype === 'ad-assassin') {
-      add(STARTING_IDS.gustwalker, 'Mascota de jungla para movilidad y ganks')
+      add(STARTING_IDS.gustwalker, t('Mascota de jungla para movilidad y ganks'))
     } else {
-      add(STARTING_IDS.scorchclaw, 'Mascota de jungla para daño y limpieza')
+      add(STARTING_IDS.scorchclaw, t('Mascota de jungla para daño y limpieza'))
     }
-    add(STARTING_IDS.potion, 'Sustain para la primera limpieza')
+    add(STARTING_IDS.potion, t('Sustain para la primera limpieza'))
     return items
   }
 
   if (role === 'UTILITY') {
-    add(STARTING_IDS.worldAtlas, 'Objeto de soporte para generar oro y visión')
-    add(STARTING_IDS.potion, 'Poción para el carril')
-    add(STARTING_IDS.potion, 'Segunda poción para aguantar el carril')
+    add(STARTING_IDS.worldAtlas, t('Objeto de soporte para generar oro y visión'))
+    add(STARTING_IDS.potion, t('Poción para el carril'))
+    add(STARTING_IDS.potion, t('Segunda poción para aguantar el carril'))
     return items
   }
 
   if (team.pokeScore >= 40 && (archetype === 'tank' || archetype === 'bruiser')) {
-    add(STARTING_IDS.doranShield, 'Doran Shield para sobrevivir el poke en carril')
+    add(STARTING_IDS.doranShield, t('Doran Shield para sobrevivir el poke en carril'))
   } else if (
     archetype === 'marksman' ||
     archetype === 'ad-assassin' ||
     archetype === 'bruiser'
   ) {
-    add(STARTING_IDS.doranBlade, 'Doran Blade para daño y sustain en carril')
+    add(STARTING_IDS.doranBlade, t('Doran Blade para daño y sustain en carril'))
   } else if (
     archetype === 'mage' ||
     archetype === 'ap-assassin' ||
     archetype === 'ap-bruiser' ||
     archetype === 'enchanter'
   ) {
-    add(STARTING_IDS.doranRing, 'Doran Ring para poder de habilidad y maná')
+    add(STARTING_IDS.doranRing, t('Doran Ring para poder de habilidad y maná'))
   } else {
-    add(STARTING_IDS.doranShield, 'Doran Shield para aguantar el carril')
+    add(STARTING_IDS.doranShield, t('Doran Shield para aguantar el carril'))
   }
-  add(STARTING_IDS.potion, 'Poción para el carril')
+  add(STARTING_IDS.potion, t('Poción para el carril'))
   return items
 }
 
@@ -469,7 +470,7 @@ export function generateBuild(
   for (const item of natural) {
     if (core.length >= 3) break
     if (used.has(item.id)) continue
-    core.push(toBuildItem(item, `Núcleo de ${ARCHETYPE_LABELS[archetype].toLowerCase()}: ${statSummary(item)}`))
+    core.push(toBuildItem(item, t('Núcleo de {archetype}: {stats}', { archetype: archetypeLabel(archetype).toLocaleLowerCase(), stats: statSummary(item) })))
     used.add(item.id)
   }
 
@@ -478,7 +479,7 @@ export function generateBuild(
   for (const item of natural) {
     if (situational.length >= 2) break
     if (used.has(item.id)) continue
-    situational.push(toBuildItem(item, `Situacional: ${statSummary(item)}`))
+    situational.push(toBuildItem(item, t('Situacional: {stats}', { stats: statSummary(item) })))
     used.add(item.id)
   }
 
@@ -492,25 +493,23 @@ export function generateBuild(
   const notes: string[] = []
   if (enemies.length > 0) {
     notes.push(
-      `Build ajustada contra ${enemies.map((enemy) => enemy.name).join(', ')}.`
+      t('Build ajustada contra {champions}.', { champions: enemies.map((enemy) => enemy.name).join(', ') })
     )
     if (highAdaptive.length + mediumAdaptive.length > 0) {
       notes.push(
-        `Compras adaptativas: ${[...highAdaptive, ...mediumAdaptive]
-          .map((item) => item.item.name)
-          .join(', ')}.`
+        t('Compras adaptativas: {items}.', { items: [...highAdaptive, ...mediumAdaptive].map((item) => item.item.name).join(', ') })
       )
     }
   } else {
-    notes.push('Sin composición enemiga: build base por arquetipo.')
+    notes.push(t('Sin composición enemiga: build base por arquetipo.'))
   }
-  notes.push('Los objetos situacionales son una guía; adapta el orden según cómo vaya la partida.')
+  notes.push(t('Los objetos situacionales son una guía; adapta el orden según cómo vaya la partida.'))
 
   return {
     championId: champion.key,
     role,
     archetype,
-    archetypeLabel: ARCHETYPE_LABELS[archetype],
+    archetypeLabel: archetypeLabel(archetype),
     starting,
     boots,
     core,

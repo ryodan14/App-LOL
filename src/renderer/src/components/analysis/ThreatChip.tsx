@@ -1,4 +1,4 @@
-import { THREAT_LABELS, type Threat, type ThreatTag } from '@shared/analysis'
+import { threatLabel, type Threat, type ThreatTag } from '@shared/analysis'
 import { cn } from '@renderer/lib/cn'
 
 export function ThreatChip({
@@ -28,7 +28,7 @@ export function ThreatChip({
         className
       )}
     >
-      {THREAT_LABELS[tag]}
+      {threatLabel(tag)}
     </span>
   )
 }
