@@ -257,6 +257,8 @@ release/App-LOL-Portable-x64.exe
 release/latest.yml
 ```
 
+> En Linux o WSL, `npm run build:win` necesita Wine para generar el instalador NSIS. Si no está disponible, ejecuta `npm run build` y después `npx electron-builder --win portable --publish never` para generar solo el portátil.
+
 ### Publicar una versión
 
 La forma recomendada es dejar que GitHub Actions compile y publique la release:
@@ -349,7 +351,15 @@ App-LOL está en desarrollo activo. Algunas limitaciones conocidas:
 
 ## Contribuir
 
-Las mejoras se trabajan desde `develop` en ramas `feature/...`. Antes de abrir un cambio:
+Las mejoras se trabajan desde `develop` con una rama corta por cambio:
+
+- `feature/...` para funcionalidad.
+- `fix/...` para errores, textos o ajustes puntuales.
+- `docs/...` para documentación.
+
+Cada rama debe tener un objetivo y commits pequeños. Evita mezclar motor de análisis, interfaz y documentación en el mismo commit.
+
+Antes de abrir un cambio:
 
 ```bash
 npm run typecheck
