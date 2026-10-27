@@ -1,6 +1,6 @@
 {
   "name": "app-lol",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Compañero de partida para League of Legends: builds, counters y análisis en vivo.",
   "main": "./out/main/index.js",
   "author": "Diego Larrabeiti Masip",

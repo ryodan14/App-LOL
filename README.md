@@ -88,7 +88,7 @@ Los ejecutables no están firmados digitalmente, así que Windows puede mostrar 
 
 La versión instalada comprueba si hay una versión nueva al abrir la app y cada 6 horas. La actualización se descarga en segundo plano y se instala al cerrar o reiniciar App-LOL. También puedes comprobarla manualmente en **Ajustes → Actualizaciones**.
 
-> **Importante**: las versiones anteriores a la que incluye el actualizador no pueden actualizarse solas. Si ya tenías App-LOL instalado, descarga e instala una vez la última versión desde GitHub Releases. A partir de ahí las siguientes actualizaciones serán automáticas.
+> **Importante**: App-LOL 0.1.0 no incluye el actualizador y no puede actualizarse sola. Si ya lo tenías instalado, descarga e instala una vez la 0.2.0 desde GitHub Releases. A partir de ahí las siguientes actualizaciones serán automáticas.
 
 La **versión portátil no se actualiza sola**: descarga el ejecutable nuevo desde la última release. Las actualizaciones automáticas están disponibles en la versión instalada de Windows.
 
