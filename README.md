@@ -4,7 +4,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 > Proyecto personal, no afiliado ni respaldado por Riot Games. League of Legends y sus activos son propiedad de Riot Games, Inc.
 
-**[Descargar el instalador para Windows](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe)** · [Todas las versiones](https://github.com/ryodan14/App-LOL/releases)
+**[Descargar el instalador para Windows](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-x64.exe)** · [Todas las versiones](https://github.com/ryodan14/App-LOL/releases)
 
 ## Características
 
@@ -35,10 +35,10 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 ## Descarga
 
-Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependes de tenerlos solo en el Escritorio.
+Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependes de tenerlos solo en el Escritorio. Los enlaces de descarga apuntan siempre a la última versión publicada.
 
-- **Instalador recomendado**: [App-LOL-Setup-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe). Instala la app, crea accesos directos en el Escritorio y el menú Inicio, y la abre al terminar.
-- **Portátil**: [App-LOL-Portable-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-0.1.0-x64.exe). No requiere instalación.
+- **Instalador recomendado**: [App-LOL-Setup-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-x64.exe). Instala la app, crea accesos directos en el Escritorio y el menú Inicio, y la abre al terminar.
+- **Portátil**: [App-LOL-Portable-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-x64.exe). No requiere instalación.
 
 Al abrir la app por primera vez, queda configurada para iniciar con Windows y aparecer cuando abres League of Legends. Puedes cambiar ambas opciones en **Ajustes → Sistema**.
 
@@ -48,14 +48,14 @@ La app se distribuye de dos formas: instalador con accesos directos o ejecutable
 
 ### Opción A: instalador
 
-1. Ejecuta `App-LOL-Setup-0.1.0-x64.exe`.
+1. Ejecuta `App-LOL-Setup-x64.exe`.
 2. Elige la carpeta de instalación si quieres cambiarla.
 3. El instalador crea accesos directos en el escritorio y en el menú Inicio.
 4. Al terminar, App-LOL se abre automáticamente.
 
 ### Opción B: portátil
 
-1. Ejecuta `App-LOL-Portable-0.1.0-x64.exe`.
+1. Ejecuta `App-LOL-Portable-x64.exe`.
 2. La app extrae sus archivos a una carpeta temporal y se ejecuta desde allí.
 3. Puedes mover o renombrar el ejecutable, pero no lo borres mientras la app está abierta.
 
@@ -191,8 +191,8 @@ npm run dev
 Los artefactos de Windows quedan en `release/`:
 
 ```text
-release/App-LOL-Setup-0.1.0-x64.exe
-release/App-LOL-Portable-0.1.0-x64.exe
+release/App-LOL-Setup-x64.exe
+release/App-LOL-Portable-x64.exe
 ```
 
 ### Estructura
