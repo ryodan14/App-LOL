@@ -144,29 +144,29 @@ export function LaneGoldBoard({
 
   return (
     <div className={cn('space-y-1.5', !compact && 'space-y-2')}>
-      <div className="flex items-center justify-between gap-2 rounded-lg border border-line/70 bg-base-950/25 px-2 py-1.5">
-        <span className="text-[0.55rem] font-bold uppercase tracking-[0.13em] text-ink-600">
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.07] bg-gradient-to-r from-sky-400/[0.06] via-base-950/30 to-danger-400/[0.06] px-2.5 py-2">
+        <span className="text-[0.58rem] font-bold uppercase tracking-[0.13em] text-ink-500">
           {t('Oro total ≈')}
         </span>
-        <span className="inline-flex items-center gap-1.5 font-mono text-[0.66rem] font-semibold tabular-nums">
+        <span className="inline-flex items-center gap-1.5 font-mono text-[0.72rem] font-semibold tabular-nums">
           <span className="text-sky-300">{formatCompact(totals.ally)}</span>
           <span className="text-ink-600">·</span>
           <span className="text-danger-400">{formatCompact(totals.enemy)}</span>
           <span
             className={cn(
-              'ml-1 text-[0.6rem]',
+              'ml-1 rounded-full px-1.5 py-0.5 text-[0.62rem]',
               totalDifference > 0
-                ? 'text-sky-400'
+                ? 'bg-sky-400/10 text-sky-300'
                 : totalDifference < 0
-                  ? 'text-danger-400'
-                  : 'text-ink-600'
+                  ? 'bg-danger-500/10 text-danger-400'
+                  : 'bg-white/[0.04] text-ink-500'
             )}
           >
             {totalLabel}
           </span>
         </span>
       </div>
-      <div className="grid grid-cols-[20px_minmax(0,1fr)_60px_minmax(0,1fr)] items-center gap-1.5 px-1 text-[0.52rem] font-bold uppercase tracking-[0.12em] text-ink-600">
+      <div className="grid grid-cols-[24px_minmax(0,1fr)_64px_minmax(0,1fr)] items-center gap-2 px-1.5 text-[0.55rem] font-bold uppercase tracking-[0.12em] text-ink-600">
         <span />
         <span>{t('Tu equipo')}</span>
         <span className="text-center">{t('Oro ≈')}</span>
@@ -200,10 +200,10 @@ export function LaneGoldBoard({
           <div
             key={role}
             className={cn(
-              'grid grid-cols-[20px_minmax(0,1fr)_60px_minmax(0,1fr)] items-center gap-1.5 rounded-lg border px-1 py-1',
+              'grid grid-cols-[24px_minmax(0,1fr)_64px_minmax(0,1fr)] items-center gap-2 rounded-xl border px-1.5 py-1.5',
               isMine
-                ? 'border-gold-400/25 bg-gold-400/[0.06]'
-                : 'border-transparent bg-base-950/20'
+                ? 'border-gold-400/30 bg-gradient-to-r from-gold-400/[0.08] to-transparent'
+                : 'border-white/[0.045] bg-base-950/25'
             )}
           >
             <RoleMark role={role} className={cn('text-ink-500', isMine && 'text-gold-300')} />
@@ -215,12 +215,12 @@ export function LaneGoldBoard({
               {arrow}
               <span
                 className={cn(
-                  'mt-0.5 text-[0.62rem] font-bold tabular-nums',
+                  'mt-1 rounded-full px-1.5 py-0.5 text-[0.62rem] font-bold tabular-nums',
                   leader === 'ALLY'
-                    ? 'text-sky-400'
+                    ? 'bg-sky-400/10 text-sky-300'
                     : leader === 'ENEMY'
-                      ? 'text-danger-400'
-                      : 'text-ink-600'
+                      ? 'bg-danger-500/10 text-danger-400'
+                      : 'bg-white/[0.04] text-ink-600'
                 )}
               >
                 {diffLabel}

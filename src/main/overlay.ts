@@ -4,8 +4,8 @@ import { is } from '@electron-toolkit/utils'
 import { DEFAULT_OVERLAY_SCALE } from '@shared/constants'
 import type { AppSettings, OverlayCorner, Snapshot } from '@shared/types'
 
-const OVERLAY_WIDTH = 416
-const OVERLAY_HEIGHT = 632
+const OVERLAY_WIDTH = 448
+const OVERLAY_HEIGHT = 664
 const OVERLAY_MARGIN = 16
 
 let overlayWindow: BrowserWindow | null = null
