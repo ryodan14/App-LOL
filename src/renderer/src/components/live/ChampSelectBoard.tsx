@@ -104,15 +104,15 @@ export function ChampSelectBoard({
 
   return (
     <div className={cn('space-y-2.5', !compact && 'space-y-4')}>
-      <div className="flex items-center justify-between gap-2 rounded-lg border border-line/70 bg-base-950/25 px-2 py-1.5">
+      <div className="flex items-center justify-between gap-2 rounded-xl border border-white/[0.055] bg-base-950/25 px-2.5 py-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="text-[0.55rem] font-bold uppercase tracking-[0.14em] text-ink-600">
+          <span className="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-ink-500">
             {t('Tu pick')}
           </span>
           {model.myChampion ? (
             <>
               <ChampionIcon champion={model.myChampion} size="xs" />
-              <span className="truncate text-[0.7rem] font-semibold text-ink-100">
+              <span className="truncate text-[0.76rem] font-semibold text-ink-100">
                 {model.myChampion.name}
               </span>
             </>
@@ -128,10 +128,10 @@ export function ChampSelectBoard({
       </div>
 
       {model.banReport && model.banReport.suggestions.length > 0 && (
-        <div className="rounded-xl border border-danger-500/20 bg-danger-500/[0.04] p-2.5">
+        <div className="rounded-xl border border-danger-500/25 bg-danger-500/[0.05] p-3">
           <div className="flex items-center gap-1.5 px-0.5">
             <Ban className="h-3 w-3 text-danger-400" />
-            <p className="text-[0.58rem] font-bold uppercase tracking-[0.13em] text-danger-400">
+            <p className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-danger-400">
               {t('Baneos recomendados')}
             </p>
           </div>
@@ -139,12 +139,12 @@ export function ChampSelectBoard({
             {model.banReport.suggestions.slice(0, compact ? 2 : 3).map((suggestion) => (
               <div
                 key={suggestion.champion.id}
-                className="flex items-start gap-2 rounded-lg border border-line/70 bg-base-950/30 px-2 py-1.5"
+                className="flex items-start gap-2 rounded-lg border border-white/[0.05] bg-base-950/35 px-2 py-2"
               >
                 <ChampionIcon champion={suggestion.champion} size="xs" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate text-[0.68rem] font-semibold text-ink-200">
+                    <p className="truncate text-[0.72rem] font-semibold text-ink-200">
                       {suggestion.champion.name}
                     </p>
                     {suggestion.curated && (
@@ -169,15 +169,15 @@ export function ChampSelectBoard({
       )}
 
       {model.opponentChampion ? (
-        <div className="rounded-xl border border-gold-400/20 bg-gold-400/[0.04] p-2.5">
+        <div className="rounded-xl border border-gold-400/25 bg-gold-400/[0.045] p-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
               <ChampionIcon champion={model.opponentChampion} size="sm" />
               <div className="min-w-0">
-                <p className="text-[0.55rem] font-bold uppercase tracking-[0.14em] text-gold-300/80">
+                <p className="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-gold-300/85">
                   {t('Rival de línea')}{model.opponentInferred ? ' ' + t('(probable)') : ''}
                 </p>
-                <p className="truncate text-[0.82rem] font-semibold text-ink-100">
+                <p className="truncate text-[0.86rem] font-semibold text-ink-100">
                   {model.opponentChampion.name}
                 </p>
               </div>
@@ -196,19 +196,19 @@ export function ChampSelectBoard({
             <div className="mt-2.5 space-y-1.5">
               <div className="flex items-center gap-1.5 px-0.5">
                 <Crosshair className="h-3 w-3 text-teal-300" />
-                <p className="text-[0.58rem] font-bold uppercase tracking-[0.13em] text-teal-300">
+                <p className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-teal-300">
                   {t('Counters sugeridos')}
                 </p>
               </div>
               {model.report.suggestions.slice(0, count).map((suggestion) => (
                 <div
                   key={suggestion.champion.id}
-                  className="flex items-start gap-2 rounded-lg border border-line/70 bg-base-950/30 px-2 py-1.5"
+                  className="flex items-start gap-2 rounded-lg border border-white/[0.05] bg-base-950/35 px-2 py-2"
                 >
                   <ChampionIcon champion={suggestion.champion} size="xs" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-[0.68rem] font-semibold text-ink-200">
+                      <p className="truncate text-[0.72rem] font-semibold text-ink-200">
                         {suggestion.champion.name}
                       </p>
                       {suggestion.curated && (

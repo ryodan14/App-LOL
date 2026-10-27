@@ -28,19 +28,23 @@ function TimerRow({
   return (
     <div
       className={cn(
-        'flex items-center justify-between gap-2 rounded-lg border border-line/70 bg-base-950/25 px-2 py-1.5',
-        urgent && 'border-gold-400/25 bg-gold-400/[0.05]'
+        'flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2',
+        urgent
+          ? 'border-gold-400/35 bg-gradient-to-r from-gold-400/[0.12] to-gold-400/[0.03] shadow-[0_0_18px_rgba(199,168,90,0.08)]'
+          : timer.status === 'active'
+            ? 'border-teal-400/20 bg-teal-400/[0.05]'
+            : 'border-white/[0.055] bg-base-950/25'
       )}
     >
       <span className="flex min-w-0 items-center gap-1.5">
         <TimerIcon timer={timer} />
-        <span className="truncate text-[0.63rem] font-medium text-ink-300">
+        <span className={cn('truncate text-[0.68rem] font-medium', urgent ? 'text-ink-100' : 'text-ink-300')}>
           {compact ? timer.shortLabel : timer.label}
         </span>
       </span>
       <span
         className={cn(
-          'shrink-0 font-mono text-[0.68rem] font-bold tabular-nums',
+          'shrink-0 font-mono text-[0.72rem] font-bold tabular-nums',
           timer.status === 'countdown'
             ? urgent
               ? 'text-gold-200'
@@ -70,14 +74,14 @@ export function ObjectiveTimerList({
   const inhibitors = timers.filter((timer) => timer.kind === 'INHIBITOR')
 
   return (
-    <div className="space-y-1.5">
-      <div className="grid grid-cols-2 gap-1.5">
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2">
         {primary.map((timer) => (
           <TimerRow key={timer.id} timer={timer} compact={compact} />
         ))}
       </div>
       {inhibitors.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {inhibitors.slice(0, 3).map((timer) => (
             <TimerRow key={timer.id} timer={timer} compact={compact} />
           ))}

@@ -34,41 +34,45 @@ function Shell({
 }): React.JSX.Element {
   const alpha = Math.min(1, Math.max(0.35, opacity)).toFixed(2)
   return (
-    <div className="w-full p-2">
+    <div className="w-full p-2.5">
       <div
-        className="overflow-hidden rounded-2xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.8)] backdrop-blur-xl"
+        className="relative overflow-hidden rounded-[1.15rem] border border-white/[0.13] shadow-[0_28px_90px_rgba(0,0,0,0.85)] ring-1 ring-inset ring-white/[0.035] backdrop-blur-2xl"
         style={{ backgroundColor: `rgba(6, 10, 18, ${alpha})` }}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-white/[0.07] px-3 py-2">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-gold-400/30 bg-gold-400/10">
-              <Swords className="h-3.5 w-3.5 text-gold-300" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold-300/60 to-transparent" />
+        <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-3.5 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-8 w-8 items-center justify-center rounded-xl border border-gold-400/35 bg-gradient-to-br from-gold-400/20 to-gold-400/5 shadow-[0_0_24px_rgba(199,168,90,0.12)]">
+              <Swords className="h-4 w-4 text-gold-200" />
             </span>
             <div className="leading-tight">
-              <p className="font-display text-[0.72rem] font-semibold tracking-[0.14em] text-ink-100">
+              <p className="font-display text-[0.82rem] font-semibold tracking-[0.16em] text-ink-100">
                 APP-LOL
               </p>
-              <p className="text-[0.5rem] uppercase tracking-[0.16em] text-ink-500">
+              <p className="mt-0.5 flex items-center gap-1.5 text-[0.54rem] uppercase tracking-[0.18em] text-ink-500">
+                {mode === 'live' && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-300" />}
                 {mode === 'live' ? t('Partida en vivo') : mode === 'champ-select' ? t('Champ select') : t('En espera')}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {mode === 'live' && (
               <Badge tone="teal">
                 <Radio className="h-2.5 w-2.5" /> LIVE
               </Badge>
             )}
-            <span className="flex items-center gap-1 font-mono text-[0.72rem] font-bold tabular-nums text-ink-200">
-              <Clock3 className="h-3 w-3 text-ink-500" />
+            <span className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-black/20 px-2 py-1 font-mono text-[0.76rem] font-bold tabular-nums text-ink-100">
+              <Clock3 className="h-3.5 w-3.5 text-ink-500" />
               {timer}
             </span>
           </div>
         </div>
-        <div className="space-y-2.5 p-3">{children}</div>
-        <div className="flex items-center justify-between gap-2 border-t border-white/[0.06] px-3 py-1.5 text-[0.5rem] text-ink-600">
-          <span>{footerLeft}</span>
-          <span className="shrink-0 font-mono">Ctrl+Shift+O</span>
+        <div className="space-y-3 p-3.5">{children}</div>
+        <div className="flex items-center justify-between gap-2 border-t border-white/[0.07] px-3.5 py-2 text-[0.54rem] text-ink-600">
+          <span className="truncate">{footerLeft}</span>
+          <span className="shrink-0 rounded border border-white/[0.06] px-1.5 py-0.5 font-mono text-[0.5rem]">
+            Ctrl+Shift+O
+          </span>
         </div>
       </div>
     </div>
@@ -127,10 +131,12 @@ function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React
       {showGold && (
         <>
           <div className="flex items-center justify-between px-0.5">
-            <p className="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gold-300">
+            <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-gold-300">
               {t('Diferencia por línea')}
             </p>
-            <span className="text-[0.55rem] text-ink-500">{t('Equipo {team}', { team: t(mine) })}</span>
+            <span className="rounded-full border border-white/[0.07] bg-black/20 px-2 py-0.5 text-[0.58rem] text-ink-400">
+              {t('Equipo {team}', { team: t(mine) })}
+            </span>
           </div>
           <LaneGoldBoard live={live} gameTime={gameTime} compact />
         </>
@@ -138,8 +144,8 @@ function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React
       {showObjectives && (
         <>
           <div className="flex items-center gap-1.5 px-0.5 pt-1">
-            <TimerReset className="h-3 w-3 text-teal-300" />
-            <p className="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-teal-300">
+            <TimerReset className="h-3.5 w-3.5 text-teal-300" />
+            <p className="text-[0.58rem] font-bold uppercase tracking-[0.16em] text-teal-300">
               {t('Objetivos')}
             </p>
           </div>
