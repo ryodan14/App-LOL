@@ -529,7 +529,7 @@ export function SettingsPage(): React.JSX.Element {
           description={t('Comprueba si hay una versión nueva. La actualización se descarga en segundo plano y se instala al reiniciar.')}
         />
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Badge tone="gold">v{updateState?.currentVersion || version || '0.1.0'}</Badge>
+          <Badge tone="gold">v{updateState?.currentVersion || version}</Badge>
           {updateState?.version && updateState.status !== 'up-to-date' ? (
             <Badge tone="teal">v{updateState.version}</Badge>
           ) : null}
@@ -587,7 +587,7 @@ export function SettingsPage(): React.JSX.Element {
       <Card className="p-6">
         <SectionHeading eyebrow={t('Acerca de')} title="App-LOL" />
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Badge tone="gold">v{version || '0.1.0'}</Badge>
+          <Badge tone="gold">v{version}</Badge>
           <Badge>Electron + React</Badge>
           <Badge>{t('Sin publicidad')}</Badge>
         </div>
