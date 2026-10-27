@@ -608,19 +608,19 @@ function chooseStarting(
 
   if (role === 'UTILITY') {
     add(STARTING_IDS.worldAtlas, t('Objeto de soporte para generar oro y visión'))
-    add(STARTING_IDS.potion, t('Poción para el carril'))
-    add(STARTING_IDS.potion, t('Segunda poción para aguantar el carril'))
+    add(STARTING_IDS.potion, t('Poción para la línea'))
+    add(STARTING_IDS.potion, t('Segunda poción para aguantar la línea'))
     return items
   }
 
   if (team.pokeScore >= 40 && (archetype === 'tank' || archetype === 'bruiser')) {
-    add(STARTING_IDS.doranShield, t('Doran Shield para sobrevivir el poke en carril'))
+    add(STARTING_IDS.doranShield, t('Doran Shield para sobrevivir el poke en línea'))
   } else if (
     archetype === 'marksman' ||
     archetype === 'ad-assassin' ||
     archetype === 'bruiser'
   ) {
-    add(STARTING_IDS.doranBlade, t('Doran Blade para daño y sustain en carril'))
+    add(STARTING_IDS.doranBlade, t('Doran Blade para daño y sostenibilidad en línea'))
   } else if (
     archetype === 'mage' ||
     archetype === 'ap-assassin' ||
@@ -629,9 +629,9 @@ function chooseStarting(
   ) {
     add(STARTING_IDS.doranRing, t('Doran Ring para poder de habilidad y maná'))
   } else {
-    add(STARTING_IDS.doranShield, t('Doran Shield para aguantar el carril'))
+    add(STARTING_IDS.doranShield, t('Doran Shield para aguantar la línea'))
   }
-  add(STARTING_IDS.potion, t('Poción para el carril'))
+  add(STARTING_IDS.potion, t('Poción para la línea'))
   return items
 }
 

@@ -17,8 +17,8 @@ import { LOCALE_OPTIONS, t } from '@shared/i18n'
 import type { UpdateState } from '@shared/types'
 
 const OVERLAY_SCALE_LABELS: Record<number, string> = {
-  0.6: 'Muy chico',
-  0.7: 'Chico',
+  0.6: 'Muy pequeño',
+  0.7: 'Pequeño',
   0.8: 'Normal',
   0.9: 'Grande',
   1: 'Muy grande'

@@ -169,7 +169,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
     addNeed({
       id: 'antipoke',
       label: t('Sustain contra poke'),
-      description: t('El enemigo hace daño desde lejos. Prioriza sustain y peleas cortas.'),
+      description: t('El enemigo hace daño desde lejos. Prioriza sostenibilidad y peleas cortas.'),
       priority: priorityFor(poke, 2, 1),
       itemIds: [1054, 3065, 3107, 3222]
     })

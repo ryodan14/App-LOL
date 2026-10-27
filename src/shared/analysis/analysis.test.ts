@@ -364,7 +364,7 @@ describe('objetivos', () => {
 })
 
 describe('línea y counters', () => {
-  it('infiere el rol y asigna carriles', () => {
+  it('infiere el rol y asigna líneas', () => {
     expect(inferChampionRole(index, champions[3])).toBe('BOTTOM')
     const assignments = assignRoles(
       [
