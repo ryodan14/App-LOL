@@ -91,15 +91,34 @@ export interface BuildItem {
   reason: string
 }
 
+export type SkillKey = 'Q' | 'W' | 'E' | 'R'
+
+export interface SkillOrderEntry {
+  key: SkillKey
+  name: string
+  image: string
+  maxOrder: number | null
+}
+
+export interface SkillOrder {
+  priority: SkillKey[]
+  entries: SkillOrderEntry[]
+  ultimateLevels: number[]
+  note: string
+}
+
 export interface BuildPlan {
   championId: number
   role: Role
   archetype: Archetype
   archetypeLabel: string
   starting: BuildItem[]
+  firstItem: BuildItem | null
+  purchaseOrder: BuildItem[]
   boots: BuildItem | null
   core: BuildItem[]
   situational: BuildItem[]
+  skillOrder: SkillOrder
   needs: CounterNeed[]
   notes: string[]
   totalGold: number

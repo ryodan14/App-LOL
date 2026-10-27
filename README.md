@@ -30,7 +30,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 ## Características
 
 - **Datos oficiales**: campeones, objetos, hechizos, runas y recomendaciones desde Data Dragon y Community Dragon. El parche se detecta automáticamente y se guarda en caché local.
-- **Análisis de builds**: build recomendada por campeón y rol, runas, hechizos de invocador y counters directos.
+- **Análisis de builds**: salida de línea, primer objeto completado, botas, orden de compra y prioridad de habilidades, además de runas, hechizos de invocador y counters directos.
 - **Champ select**: composición aliada y enemiga, picks, bans, counters, baneos recomendados para tu pick y temporizador.
 - **Partida en vivo**: KDA, CS, objetos, nivel, oro estimado por personaje y diferencia total y por línea, además de timers de objetivos.
 - **Idiomas**: interfaz y datos de Riot en español, inglés o portugués de Brasil, con selector en Ajustes.
