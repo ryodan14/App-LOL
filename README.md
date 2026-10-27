@@ -10,9 +10,10 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 - **Datos oficiales**: campeones, objetos, hechizos, runas y recomendaciones desde Data Dragon y Community Dragon. El parche se detecta automáticamente y se guarda en caché local.
 - **Análisis de builds**: build recomendada por campeón y rol, runas, hechizos de invocador y counters directos.
-- **Champ select**: composición aliada y enemiga, picks, bans, counters y temporizador.
-- **Partida en vivo**: KDA, CS, objetos, nivel, diferencias por línea y timers de objetivos.
-- **Overlay click-through y personalizable**: se muestra solo en champ select, partida o reconexión. No roba foco ni clics; puedes cambiar tamaño, transparencia, posición y secciones visibles.
+- **Champ select**: composición aliada y enemiga, picks, bans, counters, baneos recomendados para tu pick y temporizador.
+- **Partida en vivo**: KDA, CS, objetos, nivel, oro estimado por personaje y diferencia total y por línea, además de timers de objetivos.
+- **Idiomas**: interfaz y datos de Riot en español, inglés o portugués de Brasil, con selector en Ajustes.
+- **Overlay click-through y personalizable**: se muestra solo en champ select, partida o reconexión. Incluye counters, baneos recomendados, oro por línea y timers. No roba foco ni clics; puedes cambiar tamaño, transparencia, posición y secciones visibles.
 - **Mi cuenta**: perfil, nivel, icono, rangos de Solo/Dúo y Flex, LP, winrate y maestría de campeones.
 - **Inicio automático**: arranca con Windows, queda en la bandeja y aparece al abrir League.
 - **Sin credenciales**: usa únicamente las APIs locales del cliente. No hay login, cuentas ni servidores propios.
@@ -83,8 +84,10 @@ Champ select y partida en vivo:
 
 - Aliados, enemigos, picks, bans y roles.
 - Counters y sugerencias de build.
+- Baneos recomendados cuando ya elegiste tu campeón.
 - KDA, CS, nivel, objetos y hechizos.
-- Diferencia de oro estimada por línea y timers de objetivos.
+- Oro estimado por personaje, diferencia total del equipo y diferencia por línea.
+- Timers de objetivos.
 - Botón para mostrar u ocultar el overlay.
 
 ### Campeones
@@ -99,6 +102,7 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 ### Ajustes
 
+- Idioma de la interfaz y de los datos de Riot: español, inglés o portugués de Brasil.
 - Detección automática del cliente o conexión manual por ruta, puerto y token.
 - Frecuencia de actualización.
 - Ventana siempre arriba, envío al segundo monitor, overlay, splash arts y reducción de animaciones.
@@ -114,9 +118,9 @@ El overlay aparece sobre el monitor principal cuando estás en champ select, en 
 - **Transparencia**: el fondo va de 35% (casi transparente) a 100% (sólido). Por defecto usa 75%.
 - **Posición**: arriba o abajo, a la izquierda o derecha, o al centro lateral. La posición centrada sirve para acercar los timers al minimapa.
 - **Segundo monitor**: en **Ajustes → Ventana y apariencia** puedes enviar la ventana principal al otro monitor y dejar el overlay sobre el juego.
-- **Secciones**: puedes activar o desactivar el oro por línea, los timers de objetivos y el overlay durante champ select.
+- **Secciones**: puedes activar o desactivar el oro estimado (total y por línea), los timers de objetivos y el overlay durante champ select.
 - **Oro con atajo**: si activas “Oro solo con Ctrl+Shift+G”, el panel de oro empieza oculto y lo muestras u ocultas con ese atajo. No se puede detectar la tecla Tab del juego desde la API.
-- **Alcance**: counters durante champ select, diferencia de oro estimada por línea y timers de objetivos.
+- **Alcance**: counters y baneos recomendados durante champ select, oro estimado por personaje con diferencia total y por línea, y timers de objetivos.
 - **Oro estimado**: se calcula con el tiempo de partida, CS, KDA y el valor de los objetos. No es el oro exacto del marcador, por eso se muestra con `≈`.
 - **Pantalla completa exclusiva**: el overlay puede no verse en ese modo. Usa League en pantalla completa sin bordes o en ventana.
 

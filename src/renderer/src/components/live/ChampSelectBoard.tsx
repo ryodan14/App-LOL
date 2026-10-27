@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Bot, Crosshair, Hourglass } from 'lucide-react'
+import { Ban, Bot, Crosshair, Hourglass } from 'lucide-react'
 import type { ChampSelectSlot, ChampSelectState, Champion, Role } from '@shared/types'
 import { roleLabel } from '@shared/constants'
 import {
@@ -7,6 +7,7 @@ import {
   assignRoles,
   findChampionForId,
   inferChampionRole,
+  suggestBanTargets,
   suggestLaneCounters
 } from '@shared/analysis'
 import { useGameData, type GameDataIndex } from '@renderer/lib/gameData'
@@ -68,6 +69,21 @@ export function ChampSelectBoard({
     const enemyPicks = champSelect.theirTeam
       .map((slot) => slotChampion(index, slot))
       .filter((champion): champion is Champion => Boolean(champion))
+    const knownPicks = [...champSelect.myTeam, ...champSelect.theirTeam]
+      .map((slot) => slotChampion(index, slot))
+      .filter((champion): champion is Champion => Boolean(champion))
+    const banned = champSelect.bans
+      .map((championId) => findChampionForId(index, championId))
+      .filter((champion): champion is Champion => Boolean(champion))
+    const banReport =
+      myChampion && myRole !== 'UNKNOWN'
+        ? suggestBanTargets(
+            myChampion,
+            myRole,
+            index,
+            [...knownPicks, ...banned].map((champion) => champion.id)
+          )
+        : null
 
     return {
       myChampion,
@@ -77,6 +93,7 @@ export function ChampSelectBoard({
       opponentInferred,
       opponentProfile: opponentChampion ? analyzeChampion(opponentChampion, myRole) : null,
       report,
+      banReport,
       enemyPicks
     }
   }, [champSelect, index])
@@ -109,6 +126,47 @@ export function ChampSelectBoard({
           {roleLabel(model.myRole)}
         </Badge>
       </div>
+
+      {model.banReport && model.banReport.suggestions.length > 0 && (
+        <div className="rounded-xl border border-danger-500/20 bg-danger-500/[0.04] p-2.5">
+          <div className="flex items-center gap-1.5 px-0.5">
+            <Ban className="h-3 w-3 text-danger-400" />
+            <p className="text-[0.58rem] font-bold uppercase tracking-[0.13em] text-danger-400">
+              {t('Baneos recomendados')}
+            </p>
+          </div>
+          <div className="mt-2 space-y-1.5">
+            {model.banReport.suggestions.slice(0, compact ? 2 : 3).map((suggestion) => (
+              <div
+                key={suggestion.champion.id}
+                className="flex items-start gap-2 rounded-lg border border-line/70 bg-base-950/30 px-2 py-1.5"
+              >
+                <ChampionIcon champion={suggestion.champion} size="xs" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-[0.68rem] font-semibold text-ink-200">
+                      {suggestion.champion.name}
+                    </p>
+                    {suggestion.curated && (
+                      <span className="text-[0.5rem] font-bold uppercase tracking-[0.1em] text-danger-400/80">
+                        {t('counter')}
+                      </span>
+                    )}
+                  </div>
+                  {!compact && (
+                    <p className="mt-0.5 text-[0.6rem] leading-snug text-ink-500">
+                      {suggestion.reasons[0] ?? t('Castiga tu pick en esta línea.')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+            {!compact && (
+              <p className="px-0.5 pt-0.5 text-[0.56rem] text-ink-600">{model.banReport.note}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {model.opponentChampion ? (
         <div className="rounded-xl border border-gold-400/20 bg-gold-400/[0.04] p-2.5">
