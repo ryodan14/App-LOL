@@ -1,7 +1,8 @@
-import { Coins, Info, ShieldCheck, Sparkles } from 'lucide-react'
-import type { BuildItem, BuildPlan, CounterNeed } from '@shared/analysis'
+import { Coins, Info, ShieldCheck, Sparkles, Swords } from 'lucide-react'
+import type { BuildItem, BuildPlan, CounterNeed, SkillOrder } from '@shared/analysis'
 import { Badge } from '@renderer/components/ui/Badge'
 import { ItemIcon } from '@renderer/components/lol/ItemIcon'
+import { SpellIcon } from '@renderer/components/lol/SpellIcon'
 import { roleLabel } from '@shared/constants'
 import { formatNumber } from '@renderer/lib/format'
 import { cn } from '@renderer/lib/cn'
@@ -16,17 +17,46 @@ function NeedBadge({ need }: { need: CounterNeed }): React.JSX.Element {
   )
 }
 
-function ItemRow({ entry, featured = false }: { entry: BuildItem; featured?: boolean }): React.JSX.Element {
+function ItemRow({
+  entry,
+  featured = false,
+  step,
+  label
+}: {
+  entry: BuildItem
+  featured?: boolean
+  step?: number
+  label?: string
+}): React.JSX.Element {
   return (
     <div
       className={cn(
         'flex items-center gap-2.5 rounded-xl border border-line/80 bg-base-900/45 p-2',
-        featured && 'border-gold-400/20 bg-gold-400/[0.04]'
+        featured && 'border-gold-400/25 bg-gold-400/[0.05]'
       )}
     >
+      {step !== undefined && (
+        <span
+          className={cn(
+            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[0.62rem] font-bold tabular-nums',
+            featured
+              ? 'border-gold-400/40 bg-gold-400/10 text-gold-200'
+              : 'border-line bg-base-950/60 text-ink-500'
+          )}
+        >
+          {step}
+        </span>
+      )}
       <ItemIcon item={entry.item} size={featured ? 'lg' : 'md'} />
       <div className="min-w-0">
-        <p className="truncate text-[0.78rem] font-semibold text-ink-100">{entry.item.name}</p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <p className="truncate text-[0.78rem] font-semibold text-ink-100">{entry.item.name}</p>
+          {featured && label && (
+            <span className="rounded-md border border-gold-400/25 bg-gold-400/10 px-1 py-0.5 text-[0.55rem] font-semibold uppercase tracking-[0.08em] text-gold-200">
+              {label}
+            </span>
+          )}
+        </div>
         <p className="mt-0.5 line-clamp-2 text-[0.65rem] leading-snug text-ink-500">{entry.reason}</p>
       </div>
       <span className="ml-auto shrink-0 text-[0.62rem] tabular-nums text-ink-600">
@@ -36,21 +66,77 @@ function ItemRow({ entry, featured = false }: { entry: BuildItem; featured?: boo
   )
 }
 
-function ItemGrid({ items, title }: { items: BuildItem[]; title: string }): React.JSX.Element {
+function PurchaseOrder({ build }: { build: BuildPlan }): React.JSX.Element {
   return (
     <div>
-      <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-        {title}
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
+          <Swords className="h-3.5 w-3.5 text-gold-300" /> {t('Orden de compra')}
+        </p>
+        <span className="text-[0.62rem] text-ink-600">
+          {t('{count} objetos', { count: build.purchaseOrder.length })}
+        </span>
+      </div>
+      <p className="mb-2 text-[0.68rem] leading-relaxed text-ink-500">
+        {t('El primer completado es tu pico de poder. La salida de línea busca ganar el intercambio inicial.')}
       </p>
-      {items.length > 0 ? (
-        <div className="grid gap-2 sm:grid-cols-2">
-          {items.map((entry) => (
-            <ItemRow key={entry.item.id} entry={entry} />
+      {build.purchaseOrder.length > 0 ? (
+        <div className="space-y-2">
+          {build.purchaseOrder.map((entry, index) => (
+            <ItemRow
+              key={`${entry.item.id}-${index}`}
+              entry={entry}
+              step={index + 1}
+              featured={index === 0 && entry.item.id === build.firstItem?.item.id}
+              label={t('Primer completado')}
+            />
           ))}
         </div>
       ) : (
         <p className="text-[0.72rem] text-ink-500">{t('Sin objetos para este bloque.')}</p>
       )}
+    </div>
+  )
+}
+
+function SkillPanel({ order }: { order: SkillOrder }): React.JSX.Element | null {
+  if (order.entries.length === 0) return null
+
+  return (
+    <div className="rounded-xl border border-line bg-base-900/45 p-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
+          <Sparkles className="h-3.5 w-3.5 text-gold-300" /> {t('Habilidades')}
+        </p>
+        {order.priority.length > 0 && (
+          <Badge tone="teal">
+            {t('Prioridad')} {order.priority.join(' > ')}
+          </Badge>
+        )}
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {order.entries.map((entry) => (
+          <div
+            key={entry.key}
+            className="flex items-center gap-2.5 rounded-xl border border-line/70 bg-base-950/35 p-2"
+          >
+            <SpellIcon image={entry.image} name={entry.name} size="sm" />
+            <div className="min-w-0">
+              <p className="truncate text-[0.72rem] font-semibold text-ink-200">
+                <span className="text-gold-300">{entry.key}</span> · {entry.name}
+              </p>
+              <p className="mt-0.5 text-[0.62rem] text-ink-500">
+                {entry.key === 'R'
+                  ? t('Niveles {levels}', { levels: order.ultimateLevels.join(' / ') })
+                  : entry.maxOrder
+                    ? t('Máx. {order}', { order: entry.maxOrder })
+                    : t('Adapta según la línea')}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2.5 text-[0.66rem] leading-relaxed text-ink-500">{order.note}</p>
     </div>
   )
 }
@@ -89,36 +175,30 @@ export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
 
       <div>
         <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-          {t('Iniciales')}
+          {t('Salida de línea')}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {build.starting.map((entry, index) => (
-            <div
-              key={`${entry.item.id}-${index}`}
-              className="flex items-center gap-2 rounded-xl border border-line bg-base-900/45 p-1.5 pr-3"
-            >
-              <ItemIcon item={entry.item} size="sm" />
-              <span className="text-[0.7rem] font-medium text-ink-200">{entry.item.name}</span>
-            </div>
-          ))}
-        </div>
+        {build.starting.length > 0 ? (
+          <div className="space-y-2">
+            {build.starting.map((entry, index) => (
+              <ItemRow
+                key={`${entry.item.id}-${index}`}
+                entry={entry}
+                featured={index === 0}
+                label={index === 0 ? t('Salida de línea') : undefined}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-[0.72rem] text-ink-500">{t('Sin objetos para este bloque.')}</p>
+        )}
       </div>
 
-      {build.boots && (
-        <div>
-          <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-            {t('Botas')}
-          </p>
-          <ItemRow entry={build.boots} featured />
-        </div>
-      )}
-
-      <ItemGrid items={build.core} title={t('Núcleo')} />
-      <ItemGrid items={build.situational} title={t('Situacionales')} />
+      <PurchaseOrder build={build} />
+      <SkillPanel order={build.skillOrder} />
 
       <div className="rounded-xl border border-line bg-base-900/35 p-3">
         <p className="mb-1.5 flex items-center gap-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
-          <Sparkles className="h-3.5 w-3.5 text-gold-300" /> {t('Cómo leerla')}
+          <Info className="h-3.5 w-3.5 text-teal-300" /> {t('Cómo leerla')}
         </p>
         <ul className="space-y-1">
           {build.notes.map((note) => (

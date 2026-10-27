@@ -54,6 +54,10 @@ describe.skipIf(!live)('carga real de datos de Riot', () => {
       expect(build.core.length).toBe(3)
       expect(build.boots).toBeTruthy()
       expect(build.starting.length).toBeGreaterThan(0)
+      expect(build.firstItem).toBeTruthy()
+      expect(build.purchaseOrder.length).toBeGreaterThanOrEqual(4)
+      expect(build.skillOrder.entries).toHaveLength(4)
+      expect(build.skillOrder.priority[0]).toBe('Q')
 
       const runes = generateRunePlan(jinx!, 'BOTTOM', index)
       expect(runes?.primaryRunes.length).toBeGreaterThan(0)

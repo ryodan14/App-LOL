@@ -3,6 +3,7 @@ import { classifyArchetype } from './champion'
 import { archetypeLabel } from './labels'
 import { t } from '../i18n'
 import { analyzeTeam } from './team'
+import { generateSkillOrder } from './skills'
 import { stripHtml } from './text'
 import type { AnalysisIndex, Archetype, BuildItem, BuildPlan, CounterNeed } from './types'
 
@@ -289,6 +290,14 @@ function scoreItem(item: Item, archetype: Archetype): number {
   return score
 }
 
+function laneOpeningScore(item: Item, archetype: Archetype): number {
+  const stats = itemStats(item)
+  const expensivePenalty = Math.max(0, item.gold.total - 3200) * 0.12
+  const cheapBonus = item.gold.total <= 3000 ? 6 : item.gold.total <= 3200 ? 2 : 0
+  const defensiveBonus = stats.armor + stats.mr + stats.hp * 0.05 + stats.lifesteal * 2
+  return scoreItem(item, archetype) - expensivePenalty + cheapBonus + defensiveBonus
+}
+
 function statSummary(item: Item): string {
   const s = itemStats(item)
   const parts: string[] = []
@@ -485,6 +494,20 @@ export function generateBuild(
 
   const boots = chooseBoots(archetype, team, index)
   const starting = chooseStarting(archetype, role, team, index)
+  const opening = [...core].sort(
+    (a, b) => laneOpeningScore(b.item, archetype) - laneOpeningScore(a.item, archetype)
+  )[0]
+  const orderedCore = opening
+    ? [opening, ...core.filter((entry) => entry.item.id !== opening.item.id)]
+    : core
+  const firstItem = orderedCore[0] ?? null
+  const purchaseOrder: BuildItem[] = [
+    ...(firstItem ? [firstItem] : []),
+    ...(boots ? [boots] : []),
+    ...orderedCore.slice(firstItem ? 1 : 0),
+    ...situational
+  ]
+  const skillOrder = generateSkillOrder(champion, role, archetype)
   const totalGold =
     (boots?.item.gold.total ?? 0) +
     core.reduce((total, item) => total + item.item.gold.total, 0) +
@@ -503,6 +526,7 @@ export function generateBuild(
   } else {
     notes.push(t('Sin composición enemiga: build base por arquetipo.'))
   }
+  notes.push(t('El primer objeto busca tu pico de línea; adelanta las botas si necesitas moverte antes.'))
   notes.push(t('Los objetos situacionales son una guía; adapta el orden según cómo vaya la partida.'))
 
   return {
@@ -511,9 +535,12 @@ export function generateBuild(
     archetype,
     archetypeLabel: archetypeLabel(archetype),
     starting,
+    firstItem,
+    purchaseOrder,
     boots,
-    core,
+    core: orderedCore,
     situational,
+    skillOrder,
     needs: team.needs,
     notes,
     totalGold

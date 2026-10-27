@@ -243,6 +243,16 @@ describe('builds', () => {
     expect(build.starting.map((entry) => entry.item.id)).toContain(2003)
     expect(allItems).toContain(3033)
     expect(build.boots?.item.id).toBe(3111)
+    expect(build.firstItem?.item.id).toBe(build.core[0]?.item.id)
+    expect(build.purchaseOrder[0]?.item.id).toBe(build.firstItem?.item.id)
+    expect(build.purchaseOrder[1]?.item.id).toBe(build.boots?.item.id)
+    expect(build.purchaseOrder).toHaveLength(
+      build.core.length + (build.boots ? 1 : 0) + build.situational.length
+    )
+    expect(build.skillOrder.priority[0]).toBe('Q')
+    expect(build.skillOrder.entries[0]?.maxOrder).toBe(1)
+    expect(build.skillOrder.ultimateLevels).toEqual([6, 11, 16])
+    expect(build.skillOrder.note.length).toBeGreaterThan(0)
     expect(build.notes.length).toBeGreaterThan(0)
     expect(build.totalGold).toBeGreaterThan(0)
   })
