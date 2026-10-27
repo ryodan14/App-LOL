@@ -125,7 +125,8 @@ const items: Item[] = [
   item(3033, 'Recordatorio mortal', ['Damage', 'CriticalStrike', 'ArmorPenetration'], { FlatPhysicalDamageMod: 35, FlatCritChanceMod: 0.25 }, 3000),
   item(3165, 'Morellonomicón', ['Health', 'SpellDamage', 'AbilityHaste'], { FlatMagicDamageMod: 75, FlatHPPoolMod: 350 }, 2850),
   item(3089, 'Sombrero mortal de Rabadon', ['SpellDamage'], { FlatMagicDamageMod: 130 }, 3500),
-  item(3135, 'Bastón del vacío', ['SpellDamage', 'MagicPenetration'], { FlatMagicDamageMod: 95 }, 3000),
+  item(3135, 'Bastón del vacío', ['SpellDamage', 'MagicPenetration'], { FlatMagicDamageMod: 95 }, 3000, '40% de penetración mágica.'),
+  item(6655, 'Eco de Luden', ['SpellDamage', 'Mana', 'AbilityHaste'], { FlatMagicDamageMod: 100, FlatMPPoolMod: 600 }, 2750),
   item(3075, 'Thornmail', ['Health', 'Armor'], { FlatHPPoolMod: 150, FlatArmorMod: 75 }, 2450),
   item(3068, 'Égida de fuego solar', ['Health', 'Armor', 'AbilityHaste'], { FlatHPPoolMod: 350, FlatArmorMod: 50 }, 2800),
   item(3084, 'Corazón de acero', ['Health', 'HealthRegen'], { FlatHPPoolMod: 900 }, 3000),
@@ -255,6 +256,14 @@ describe('builds', () => {
     expect(build.skillOrder.note.length).toBeGreaterThan(0)
     expect(build.notes.length).toBeGreaterThan(0)
     expect(build.totalGold).toBeGreaterThan(0)
+  })
+
+  it('prioriza el objeto de arranque antes que penetración tardía', () => {
+    const jinx = generateBuild(champions[3], 'BOTTOM', [], index)
+    expect(jinx.firstItem?.item.id).toBe(6672)
+
+    const ahri = generateBuild(champions[0], 'MIDDLE', [], index)
+    expect(ahri.firstItem?.item.id).toBe(6655)
   })
 
   it('arma una build con runas recomendadas', () => {
