@@ -133,7 +133,7 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 ### Ajustes
 
-- Idioma de la interfaz y de los datos de Riot: español, inglés o portugués de Brasil.
+- Idioma de la interfaz y de los datos de Riot: español de España, inglés o portugués de Brasil. En español se usa “línea” y “sostenibilidad” en lugar de “carril” y “sustain”.
 - Detección automática del cliente o conexión manual por ruta, puerto y token.
 - Frecuencia de actualización.
 - Ventana siempre arriba, envío al segundo monitor, overlay, splash arts y reducción de animaciones.
@@ -173,7 +173,8 @@ El overlay aparece sobre el monitor principal cuando estás en champ select, en 
 </p>
 
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
-- **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%. Por defecto usa 80%.
+- **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%, con las etiquetas Muy pequeño, Pequeño, Normal, Grande y Muy grande. Por defecto usa 80%. La ventana base mide 448×664 px.
+- **Legibilidad**: fondo con más contraste, filas de oro y timers más separadas, y tu línea resaltada.
 - **Transparencia**: el fondo va de 35% (casi transparente) a 100% (sólido). Por defecto usa 75%.
 - **Posición**: arriba o abajo, a la izquierda o derecha, o al centro lateral. La posición centrada sirve para acercar los timers al minimapa.
 - **Segundo monitor**: en **Ajustes → Ventana y apariencia** puedes enviar la ventana principal al otro monitor y dejar el overlay sobre el juego.
