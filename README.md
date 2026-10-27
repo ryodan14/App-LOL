@@ -133,12 +133,36 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 ### Ajustes
 
-- Idioma de la interfaz y de los datos de Riot: español, inglés o portugués de Brasil.
+- Idioma de la interfaz y de los datos de Riot: español de España, inglés o portugués de Brasil. En español se usa “línea” y “sostenibilidad” en lugar de “carril” y “sustain”.
 - Detección automática del cliente o conexión manual por ruta, puerto y token.
 - Frecuencia de actualización.
 - Ventana siempre arriba, envío al segundo monitor, overlay, splash arts y reducción de animaciones.
 - Inicio con Windows y aparición al abrir League.
 - Estado de la caché y actualización de datos.
+
+## Builds y orden de objetos
+
+App-LOL no usa una lista fija: cruza el campeón, el rol, el arquetipo y la composición enemiga para proponer una compra.
+
+La ficha de build se divide en:
+
+- **Salida de línea**: Doran + poción, World Atlas + pociones si eres soporte, o mascota de jungla + poción si jungleas. Se adapta al poke y al arquetipo.
+- **Primer objeto completado**: el que más ayuda a ganar el intercambio inicial. No siempre es el más caro: se penalizan la penetración porcentual, la anti-curación y los objetos acumulativos como primera compra.
+- **Botas**: se eligen según el daño y el control de masas enemigo.
+- **Núcleo**: tres objetos completados que definen tu pico de poder.
+- **Situacionales**: dos objetos para responder a curación, tanques, escudos, CC o daño dominante.
+- **Orden de compra**: numera la secuencia desde el primer completado; las botas aparecen después para no tapar el primer pico de poder.
+- **Habilidades**: prioridad Q/W/E/R y niveles de la definitiva según el kit y el rol.
+
+La selección de objetos combina:
+
+- Estadísticas oficiales de Data Dragon.
+- Etiquetas de arquetipo y rol.
+- Bonus por objetos de arranque habituales de cada clase.
+- Amenazas enemigas: curación, tanques, escudos, CC, poke y daño físico o mágico.
+- Penalizaciones para compras tardías o situacionales demasiado pronto.
+
+> Riot no publica una lista completa de builds por campeón en Data Dragon ni en Community Dragon. El orden es una recomendación heurística de App-LOL, no una lista oficial ni un winrate. No se usan APIs de terceros.
 
 ## Overlay
 
@@ -149,7 +173,8 @@ El overlay aparece sobre el monitor principal cuando estás en champ select, en 
 </p>
 
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
-- **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%. Por defecto usa 80%.
+- **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%, con las etiquetas Muy pequeño, Pequeño, Normal, Grande y Muy grande. Por defecto usa 80%. La ventana base mide 448×664 px.
+- **Legibilidad**: fondo con más contraste, filas de oro y timers más separadas, y tu línea resaltada.
 - **Transparencia**: el fondo va de 35% (casi transparente) a 100% (sólido). Por defecto usa 75%.
 - **Posición**: arriba o abajo, a la izquierda o derecha, o al centro lateral. La posición centrada sirve para acercar los timers al minimapa.
 - **Segundo monitor**: en **Ajustes → Ventana y apariencia** puedes enviar la ventana principal al otro monitor y dejar el overlay sobre el juego.
@@ -231,6 +256,8 @@ release/App-LOL-Setup-x64.exe.blockmap
 release/App-LOL-Portable-x64.exe
 release/latest.yml
 ```
+
+> En Linux o WSL, `npm run build:win` necesita Wine para generar el instalador NSIS. Si no está disponible, ejecuta `npm run build` y después `npx electron-builder --win portable --publish never` para generar solo el portátil.
 
 ### Publicar una versión
 
@@ -316,6 +343,7 @@ Es un binario sin firma digital. Usa **Más información → Ejecutar de todas f
 App-LOL está en desarrollo activo. Algunas limitaciones conocidas:
 
 - El oro exacto de los diez jugadores no está expuesto por la API oficial; se estima y se muestra como aproximado.
+- Riot no publica una lista completa de builds por campeón en Data Dragon. El orden de objetos es una recomendación heurística basada en estadísticas, arquetipo, rol y amenazas enemigas.
 - No hay OCR ni lectura de pantalla.
 - El overlay puede no funcionar en pantalla completa exclusiva.
 - Los ejecutables no están firmados, por lo que SmartScreen puede advertir.
@@ -323,7 +351,15 @@ App-LOL está en desarrollo activo. Algunas limitaciones conocidas:
 
 ## Contribuir
 
-Las mejoras se trabajan desde `develop` en ramas `feature/...`. Antes de abrir un cambio:
+Las mejoras se trabajan desde `develop` con una rama corta por cambio:
+
+- `feature/...` para funcionalidad.
+- `fix/...` para errores, textos o ajustes puntuales.
+- `docs/...` para documentación.
+
+Cada rama debe tener un objetivo y commits pequeños. Evita mezclar motor de análisis, interfaz y documentación en el mismo commit.
+
+Antes de abrir un cambio:
 
 ```bash
 npm run typecheck
