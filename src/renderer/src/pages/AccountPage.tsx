@@ -174,7 +174,7 @@ export function AccountPage(): React.JSX.Element {
           setError(null)
         } else {
           setAccount(null)
-          setError('No pudimos leer los datos de tu cuenta. Probá reconectar el cliente.')
+          setError('No pudimos leer los datos de tu cuenta. Prueba a reconectar el cliente.')
         }
       })
       .catch((reason: unknown) => {
@@ -196,7 +196,7 @@ export function AccountPage(): React.JSX.Element {
       <Card>
         <EmptyState
           icon={<WifiOff className="h-6 w-6" />}
-          title="Tu cuenta aparece cuando abrís el cliente"
+          title="Tu cuenta aparece cuando abres el cliente"
           description="Detectamos tu invocador, rango y maestría directamente desde el cliente de League of Legends, sin pedirte la contraseña."
           action={
             <div className="flex flex-wrap justify-center gap-2">
@@ -305,7 +305,7 @@ export function AccountPage(): React.JSX.Element {
               <Trophy className="mx-auto h-6 w-6 text-ink-600" />
               <p className="mt-2 text-[0.8rem] font-semibold text-ink-300">Sin clasificatorias este split</p>
               <p className="mt-1 text-[0.7rem] text-ink-500">
-                Cuando juegues tus primeras partidas rankeadas, el rango va a aparecer acá.
+                Cuando juegues tus primeras partidas clasificatorias, el rango aparecerá aquí.
               </p>
             </div>
           )}
@@ -314,7 +314,7 @@ export function AccountPage(): React.JSX.Element {
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-xl border border-line bg-base-950/35 p-3">
                 <p className="text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
-                  Partidas rankeadas
+                  Partidas clasificatorias
                 </p>
                 <p className="font-display mt-1 text-lg font-semibold text-ink-100">
                   {formatNumber(totalGames)}

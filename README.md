@@ -12,7 +12,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 - **Análisis de builds**: build recomendada por campeón y rol, runas, hechizos de invocador y counters directos.
 - **Champ select**: composición aliada y enemiga, picks, bans, counters y temporizador.
 - **Partida en vivo**: KDA, CS, objetos, nivel, diferencias por línea y timers de objetivos.
-- **Overlay click-through y personalizable**: se muestra solo en champ select, partida o reconexión. No roba foco ni clics; podés cambiar tamaño, transparencia, posición y secciones visibles.
+- **Overlay click-through y personalizable**: se muestra solo en champ select, partida o reconexión. No roba foco ni clics; puedes cambiar tamaño, transparencia, posición y secciones visibles.
 - **Mi cuenta**: perfil, nivel, icono, rangos de Solo/Dúo y Flex, LP, winrate y maestría de campeones.
 - **Inicio automático**: arranca con Windows, queda en la bandeja y aparece al abrir League.
 - **Sin credenciales**: usa únicamente las APIs locales del cliente. No hay login, cuentas ni servidores propios.
@@ -34,40 +34,40 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 ## Descarga
 
-Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependés de tenerlos solo en el Escritorio.
+Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependes de tenerlos solo en el Escritorio.
 
 - **Instalador recomendado**: [App-LOL-Setup-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe). Instala la app, crea accesos directos en el Escritorio y el menú Inicio, y la abre al terminar.
-- **Portable**: [App-LOL-Portable-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-0.1.0-x64.exe). No requiere instalación.
+- **Portátil**: [App-LOL-Portable-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-0.1.0-x64.exe). No requiere instalación.
 
-Al abrir la app por primera vez, queda configurada para iniciar con Windows y aparecer cuando abrís League of Legends. Podés cambiar ambas opciones en **Ajustes → Sistema**.
+Al abrir la app por primera vez, queda configurada para iniciar con Windows y aparecer cuando abres League of Legends. Puedes cambiar ambas opciones en **Ajustes → Sistema**.
 
 ## Instalación en Windows
 
-La app se distribuye de dos formas: instalador con accesos directos o ejecutable portable.
+La app se distribuye de dos formas: instalador con accesos directos o ejecutable portátil.
 
 ### Opción A: instalador
 
-1. Ejecutá `App-LOL-Setup-0.1.0-x64.exe`.
-2. Elegí la carpeta de instalación si querés cambiarla.
+1. Ejecuta `App-LOL-Setup-0.1.0-x64.exe`.
+2. Elige la carpeta de instalación si quieres cambiarla.
 3. El instalador crea accesos directos en el escritorio y en el menú Inicio.
 4. Al terminar, App-LOL se abre automáticamente.
 
-### Opción B: portable
+### Opción B: portátil
 
-1. Ejecutá `App-LOL-Portable-0.1.0-x64.exe`.
-2. La app extrae sus archivos a una carpeta temporal y se ejecuta desde ahí.
-3. Podés mover o renombrar el ejecutable, pero no lo borres mientras la app está abierta.
+1. Ejecuta `App-LOL-Portable-0.1.0-x64.exe`.
+2. La app extrae sus archivos a una carpeta temporal y se ejecuta desde allí.
+3. Puedes mover o renombrar el ejecutable, pero no lo borres mientras la app está abierta.
 
 ### Aviso de SmartScreen
 
-Los ejecutables no están firmados digitalmente, así que Windows puede mostrar un aviso de SmartScreen. Si descargaste el archivo desde este repositorio o lo compilaste vos, usá **Más información → Ejecutar de todas formas**.
+Los ejecutables no están firmados digitalmente, así que Windows puede mostrar un aviso de SmartScreen. Si descargaste el archivo desde este repositorio o lo compilaste tú, usa **Más información → Ejecutar de todas formas**.
 
 ## Primer uso
 
-1. Abrí App-LOL.
-2. Abrí League of Legends. La app detecta el cliente automáticamente y trae tu perfil.
-3. Si ya estás en champ select o en partida, entrá a **Partida** para ver el análisis en vivo.
-4. En **Ajustes** podés configurar el inicio con Windows, el overlay y la conexión manual con el cliente.
+1. Abre App-LOL.
+2. Abre League of Legends. La app detecta el cliente automáticamente y trae tu perfil.
+3. Si ya estás en champ select o en partida, entra en **Partida** para ver el análisis en vivo.
+4. En **Ajustes** puedes configurar el inicio con Windows, el overlay y la conexión manual con el cliente.
 
 La primera carga descarga los datos del parche. Las siguientes aperturas usan la caché local y son más rápidas.
 
@@ -110,15 +110,15 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 El overlay aparece sobre el monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
 
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
-- **Tamaño**: en **Ajustes** podés elegir entre 60% y 100%. Por defecto usa 80%.
+- **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%. Por defecto usa 80%.
 - **Transparencia**: el fondo va de 35% (casi transparente) a 100% (sólido). Por defecto usa 75%.
 - **Posición**: arriba o abajo, a la izquierda o derecha, o al centro lateral. La posición centrada sirve para acercar los timers al minimapa.
-- **Segundo monitor**: en **Ajustes → Ventana y apariencia** podés enviar la ventana principal al otro monitor y dejar el overlay sobre el juego.
-- **Secciones**: podés activar o desactivar el oro por línea, los timers de objetivos y el overlay durante champ select.
-- **Oro con atajo**: si activás “Oro solo con Ctrl+Shift+G”, el panel de oro empieza oculto y lo mostrás u ocultás con ese atajo. No se puede detectar la tecla Tab del juego desde la API.
+- **Segundo monitor**: en **Ajustes → Ventana y apariencia** puedes enviar la ventana principal al otro monitor y dejar el overlay sobre el juego.
+- **Secciones**: puedes activar o desactivar el oro por línea, los timers de objetivos y el overlay durante champ select.
+- **Oro con atajo**: si activas “Oro solo con Ctrl+Shift+G”, el panel de oro empieza oculto y lo muestras u ocultas con ese atajo. No se puede detectar la tecla Tab del juego desde la API.
 - **Alcance**: counters durante champ select, diferencia de oro estimada por línea y timers de objetivos.
 - **Oro estimado**: se calcula con el tiempo de partida, CS, KDA y el valor de los objetos. No es el oro exacto del marcador, por eso se muestra con `≈`.
-- **Pantalla completa exclusiva**: el overlay puede no verse en ese modo. Usá League en pantalla completa sin bordes o en ventana.
+- **Pantalla completa exclusiva**: el overlay puede no verse en ese modo. Usa League en pantalla completa sin bordes o en ventana.
 
 ## Inicio con Windows y bandeja
 
@@ -126,8 +126,8 @@ El inicio automático y la aparición al abrir League vienen activados por defec
 
 - Al iniciar sesión en Windows, App-LOL arranca oculta en la bandeja.
 - Cuando se detecta el cliente de League, la ventana sale de la bandeja sin robar foco.
-- Con el inicio automático activo, la **X** oculta la ventana en la bandeja. Para cerrar la app del todo, usá **Salir** en el menú de la bandeja.
-- Si desactivás el inicio automático, la **X** cierra la app.
+- Con el inicio automático activo, la **X** oculta la ventana en la bandeja. Para cerrar la app del todo, usa **Salir** en el menú de la bandeja.
+- Si desactivas el inicio automático, la **X** cierra la app.
 - El menú de la bandeja también permite abrir la app, activar el overlay y cambiar el inicio con Windows o la aparición al abrir League.
 
 El inicio automático se registra en el usuario actual, no requiere administrador y se limpia al desinstalar.
@@ -146,13 +146,13 @@ E:\Riot Games\League of Legends
 
 También puede leer el proceso `LeagueClientUx.exe` y su archivo `lockfile`.
 
-Si usás otra instalación:
+Si usas otra instalación:
 
-1. Abrí **Ajustes → League of Legends**.
-2. Desactivá **Detectar el cliente automáticamente**.
-3. Ingresá la ruta de instalación, por ejemplo `C:\Riot Games\League of Legends`.
-4. Si hace falta, completá el puerto y el token del cliente.
-5. Salí del campo para guardar y usá **Volver a detectar**.
+1. Abre **Ajustes → League of Legends**.
+2. Desactiva **Detectar el cliente automáticamente**.
+3. Introduce la ruta de instalación, por ejemplo `C:\Riot Games\League of Legends`.
+4. Si hace falta, completa el puerto y el token del cliente.
+5. Sal del campo para guardar y usa **Volver a detectar**.
 
 El token del cliente es local y sensible. La app no lo envía a internet. No compartas tu `lockfile` ni el token con nadie.
 
@@ -181,7 +181,7 @@ npm run dev
 | `npm run typecheck` | Verifica tipos del proceso principal y del renderer. |
 | `npm test` | Ejecuta los tests con Vitest. |
 | `npm run build` | Compila la app sin empaquetar. |
-| `npm run build:win` | Genera el instalador NSIS y el portable para Windows x64. |
+| `npm run build:win` | Genera el instalador NSIS y el portátil para Windows x64. |
 | `npm run build:linux` | Genera un AppImage para Linux. |
 
 Los artefactos de Windows quedan en `release/`:
@@ -217,39 +217,39 @@ build/             Iconos y personalización del instalador
 
 ### La app no detecta el cliente
 
-- Verificá que League of Legends esté abierto y hayas iniciado sesión.
-- Abrí **Ajustes → League of Legends** y usá **Volver a detectar**.
-- Si usás una instalación personalizada, desactivá la detección automática e ingresá la ruta.
-- Revisá que el archivo `lockfile` exista dentro de la carpeta de instalación.
+- Verifica que League of Legends esté abierto y hayas iniciado sesión.
+- Abre **Ajustes → League of Legends** y usa **Volver a detectar**.
+- Si usas una instalación personalizada, desactiva la detección automática e introduce la ruta.
+- Revisa que el archivo `lockfile` exista dentro de la carpeta de instalación.
 
 ### El overlay no aparece
 
-- Activá el overlay en **Ajustes** o con `Ctrl + Shift + O`.
-- El overlay solo se muestra en champ select, partida o reconexión. Verificá que “Mostrar en champ select” esté activo si no aparece al elegir campeón.
-- Si el oro no aparece, usá `Ctrl + Shift + G` o desactivá “Oro solo con Ctrl+Shift+G” en Ajustes.
-- En pantalla completa exclusiva puede quedar oculto. Probá con pantalla completa sin bordes.
-- Si otro programa usa `Ctrl + Shift + O` o `Ctrl + Shift + G`, cambiá el foco y volvé a intentar.
+- Activa el overlay en **Ajustes** o con `Ctrl + Shift + O`.
+- El overlay solo se muestra en champ select, partida o reconexión. Verifica que “Mostrar en champ select” esté activo si no aparece al elegir campeón.
+- Si el oro no aparece, usa `Ctrl + Shift + G` o desactiva “Oro solo con Ctrl+Shift+G” en Ajustes.
+- En pantalla completa exclusiva puede quedar oculto. Prueba con pantalla completa sin bordes.
+- Si otro programa usa `Ctrl + Shift + O` o `Ctrl + Shift + G`, cambia el foco y vuelve a intentar.
 
 ### Windows bloquea el ejecutable
 
-Es un binario sin firma digital. Usá **Más información → Ejecutar de todas formas** si confiás en el origen del archivo.
+Es un binario sin firma digital. Usa **Más información → Ejecutar de todas formas** si confías en el origen del archivo.
 
 ### La app no arranca o no aparece la ventana
 
-- Si el inicio automático está activo, la app puede estar en la bandeja. Hacé clic en el icono de App-LOL.
-- Abrí el menú de la bandeja y elegí **Abrir App-LOL**.
-- Si el problema persiste, cerrá la app desde la bandeja con **Salir** y volvé a abrirla.
+- Si el inicio automático está activo, la app puede estar en la bandeja. Haz clic en el icono de App-LOL.
+- Abre el menú de la bandeja y elige **Abrir App-LOL**.
+- Si el problema persiste, cierra la app desde la bandeja con **Salir** y vuelve a abrirla.
 
 ### No cargan los datos del parche
 
-- Revisá la conexión a internet.
-- Abrí **Ajustes → Datos** y usá **Actualizar datos ahora**.
+- Revisa la conexión a internet.
+- Abre **Ajustes → Datos** y usa **Actualizar datos ahora**.
 - Si el parche cambió hace poco, puede tardar unos minutos en estar disponible en Data Dragon.
 
 ### Mi cuenta aparece vacía
 
 - La página necesita que el cliente esté abierto y con sesión iniciada.
-- Esperá unos segundos y usá **Actualizar cuenta**.
+- Espera unos segundos y usa **Actualizar cuenta**.
 - Si el cliente está en mantenimiento o sin conexión, los rangos y la maestría pueden no estar disponibles.
 
 ## Estado del proyecto

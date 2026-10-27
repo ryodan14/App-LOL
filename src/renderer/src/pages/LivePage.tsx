@@ -186,7 +186,7 @@ export function LivePage(): React.JSX.Element {
         <EmptyState
           icon={<MonitorPlay className="h-6 w-6" />}
           title="Todavía no hay una partida"
-          description={`Abrí League of Legends y entrá a champ select o a una partida. Estado actual: ${phaseLabel(snapshot.phase)}.`}
+          description={`Abre League of Legends y entra en champ select o en una partida. Estado actual: ${phaseLabel(snapshot.phase)}.`}
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <Button
@@ -214,7 +214,7 @@ export function LivePage(): React.JSX.Element {
           <div>
             <p className="eyebrow">Champ select</p>
             <h1 className="font-display mt-1 text-2xl font-semibold text-ink-100">
-              Elegí con información
+              Elige con información
             </h1>
             <p className="mt-1 text-[0.82rem] text-ink-400">
               Detectamos tu línea y sugerimos counters para el rival revelado.
@@ -239,7 +239,7 @@ export function LivePage(): React.JSX.Element {
               <BuildPanel build={model.build} />
             ) : (
               <div className="py-10 text-center text-[0.82rem] text-ink-400">
-                Elegí tu campeón para ver la build adaptada a tu línea.
+                Elige tu campeón para ver la build adaptada a tu línea.
               </div>
             )}
           </Card>

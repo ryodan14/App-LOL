@@ -504,7 +504,7 @@ export function generateBuild(
   } else {
     notes.push('Sin composición enemiga: build base por arquetipo.')
   }
-  notes.push('Los objetos situacionales son una guía; adaptá el orden según cómo vaya la partida.')
+  notes.push('Los objetos situacionales son una guía; adapta el orden según cómo vaya la partida.')
 
   return {
     championId: champion.key,

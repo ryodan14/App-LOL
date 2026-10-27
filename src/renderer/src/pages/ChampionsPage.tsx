@@ -62,7 +62,7 @@ export function ChampionsPage(): React.JSX.Element {
           title="Cargando campeones"
           description={
             data.status === 'error'
-              ? 'No se pudieron cargar los datos oficiales. Revisá tu conexión e intentá de nuevo.'
+              ? 'No se pudieron cargar los datos oficiales. Revisa tu conexión e inténtalo de nuevo.'
               : 'Estamos preparando la lista completa con builds, runas y counters.'
           }
           action={
@@ -88,7 +88,7 @@ export function ChampionsPage(): React.JSX.Element {
       <SectionHeading
         eyebrow="Explorador"
         title="Campeones"
-        description="Buscá por nombre o filtrá por rol. Cada ficha incluye build adaptada, runas oficiales y counters."
+        description="Busca por nombre o filtra por rol. Cada ficha incluye build adaptada, runas oficiales y counters."
         action={<Badge tone="gold">{filtered.length} campeones</Badge>}
       />
 
@@ -169,7 +169,7 @@ export function ChampionsPage(): React.JSX.Element {
           <EmptyState
             icon={<Search className="h-6 w-6" />}
             title="No encontramos campeones"
-            description="Probá con otro nombre o quitá el filtro de rol."
+            description="Prueba con otro nombre o quita el filtro de rol."
             action={
               <button
                 type="button"

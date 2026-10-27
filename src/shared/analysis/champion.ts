@@ -223,13 +223,13 @@ export function analyzeChampion(champion: Champion, role?: Role): ThreatProfile 
   const notes: string[] = []
   if (damageType === 'AP') notes.push('La mayor parte de su daño es mágico')
   if (damageType === 'AD') notes.push('La mayor parte de su daño es físico')
-  if (damageType === 'MIXED') notes.push('Tiene daño mixto: necesitás ambas resistencias')
+  if (damageType === 'MIXED') notes.push('Tiene daño mixto: necesitas ambas resistencias')
   if (damageType === 'TRUE') notes.push('Su daño principal ignora resistencias')
   if (threats.some((threat) => threat.tag === 'HARD_CC')) {
-    notes.push('Su CC condiciona las peleas: guardá tenacidad o movilidad')
+    notes.push('Su CC condiciona las peleas: guarda tenacidad o movilidad')
   }
-  if (tags.includes('Tank')) notes.push('Evitá peleas largas sin penetración de resistencias')
-  if (tags.includes('Assassin')) notes.push('Respetá su rango de burst y wardea sus entradas')
+  if (tags.includes('Tank')) notes.push('Evita peleas largas sin penetración de resistencias')
+  if (tags.includes('Assassin')) notes.push('Respeta su rango de burst y wardea sus entradas')
 
   return {
     championId: champion.key,

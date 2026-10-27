@@ -61,7 +61,7 @@ export function SettingsPage(): React.JSX.Element {
     const raw = manualPort.trim()
     const value = raw === '' ? null : Number(raw)
     if (value !== null && (!Number.isInteger(value) || value < 1 || value > 65535)) {
-      setPortError('El puerto tiene que ser un número entre 1 y 65535.')
+      setPortError('El puerto debe ser un número entre 1 y 65535.')
       return
     }
     setPortError(null)
@@ -79,7 +79,7 @@ export function SettingsPage(): React.JSX.Element {
         <SectionHeading
           eyebrow="Cliente"
           title="League of Legends"
-          description="La app busca el cliente local automáticamente. Si usás una instalación personalizada, podés indicar la ruta."
+          description="La app busca el cliente local automáticamente. Si usas una instalación personalizada, puedes indicar la ruta."
           action={
             <Badge tone={snapshot.lcuConnected ? 'teal' : 'neutral'}>
               {snapshot.lcuConnected ? 'Conectado' : 'Sin conexión'}
@@ -91,7 +91,7 @@ export function SettingsPage(): React.JSX.Element {
             checked={settings.autoDetectClient}
             onChange={(value) => void updateSettings({ autoDetectClient: value })}
             label="Detectar el cliente automáticamente"
-            description="Busca LeagueClientUx.exe y el archivo lockfile. Apagalo para usar solo la ruta o el puerto manual."
+            description="Busca LeagueClientUx.exe y el archivo lockfile. Desactívalo para usar solo la ruta o el puerto manual."
           />
           {!settings.autoDetectClient && (
             <div className="space-y-3 py-4">
@@ -218,7 +218,7 @@ export function SettingsPage(): React.JSX.Element {
               <div>
                 <p className="text-[0.86rem] font-semibold text-ink-100">Segundo monitor</p>
                 <p className="text-[0.76rem] text-ink-400">
-                  Mové la ventana al otro monitor para dejar solo el overlay sobre el juego.
+                  Mueve la ventana al otro monitor para dejar solo el overlay sobre el juego.
                 </p>
               </div>
               <Button
@@ -295,7 +295,7 @@ export function SettingsPage(): React.JSX.Element {
         <SectionHeading
           eyebrow="Overlay"
           title="Panel de partida"
-          description="Ajustá tamaño, transparencia, posición y qué información querés ver sobre el juego."
+          description="Ajusta tamaño, transparencia, posición y qué información quieres ver sobre el juego."
           action={
             <Badge tone={settings.overlayEnabled ? 'teal' : 'neutral'}>
               {settings.overlayEnabled ? 'Activo' : 'Oculto'}
@@ -383,7 +383,7 @@ export function SettingsPage(): React.JSX.Element {
               checked={settings.overlayGoldOnDemand}
               onChange={(value) => void updateSettings({ overlayGoldOnDemand: value })}
               label="Oro solo con Ctrl+Shift+G"
-              description="El panel de oro empieza oculto y lo mostrás u ocultás con el atajo. No podemos leer la tecla Tab del juego."
+              description="El panel de oro empieza oculto y lo muestras u ocultas con el atajo. No podemos leer la tecla Tab del juego."
             />
           )}
           <Toggle
@@ -396,7 +396,7 @@ export function SettingsPage(): React.JSX.Element {
             checked={settings.overlayShowChampSelect}
             onChange={(value) => void updateSettings({ overlayShowChampSelect: value })}
             label="Mostrar en champ select"
-            description="Muestra los counters por kit mientras elegís campeón."
+            description="Muestra los counters por kit mientras eliges campeón."
           />
           <div className="flex flex-wrap items-center justify-between gap-3 py-3">
             <span className="inline-flex items-center gap-2 text-[0.72rem] text-ink-400">
@@ -413,7 +413,7 @@ export function SettingsPage(): React.JSX.Element {
           </div>
           <p className="py-3 text-[0.64rem] leading-relaxed text-ink-500">
             El overlay es click-through y no roba foco. En pantalla completa exclusiva puede no
-            verse; usá el juego en ventana sin bordes. La posición “al centro” sirve para acercar
+            verse; usa el juego en ventana sin bordes. La posición “al centro” sirve para acercar
             los timers al minimapa sin taparlo del todo.
           </p>
         </div>
@@ -423,7 +423,7 @@ export function SettingsPage(): React.JSX.Element {
         <SectionHeading
           eyebrow="Sistema"
           title="Inicio y bandeja"
-          description="Dejá App-LOL lista antes de entrar al cliente. Funciona en la versión instalada y en la portable."
+          description="Deja App-LOL lista antes de entrar al cliente. Funciona en la versión instalada y en la portátil."
         />
         <div className="mt-3 divide-y divide-line">
           <Toggle
@@ -441,8 +441,8 @@ export function SettingsPage(): React.JSX.Element {
         </div>
         <p className="mt-3 rounded-lg border border-line bg-base-950/40 px-3 py-2 text-[0.68rem] leading-relaxed text-ink-500">
           {settings.startWithWindows
-            ? 'Con el inicio automático activo, la X oculta la ventana en la bandeja. Para cerrar del todo, usá “Salir” en el icono de la bandeja.'
-            : 'Si desactivás el inicio automático, cerrar la ventana cierra la app.'}
+            ? 'Con el inicio automático activo, la X oculta la ventana en la bandeja. Para cerrar del todo, usa “Salir” en el icono de la bandeja.'
+            : 'Si desactivas el inicio automático, cerrar la ventana cierra la app.'}
         </p>
       </Card>
 

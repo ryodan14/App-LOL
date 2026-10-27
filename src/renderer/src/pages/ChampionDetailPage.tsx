@@ -163,7 +163,7 @@ export function ChampionDetailPage(): React.JSX.Element {
           </p>
           <p className="mt-1.5 max-w-md text-[0.78rem] text-ink-500">
             {data.status === 'error'
-              ? 'Revisá tu conexión y volvé a intentar.'
+              ? 'Revisa tu conexión y vuelve a intentarlo.'
               : 'Estamos preparando builds, runas y counters oficiales.'}
           </p>
           {data.status === 'error' && (
@@ -285,7 +285,7 @@ export function ChampionDetailPage(): React.JSX.Element {
         <SectionHeading
           eyebrow="Adaptación"
           title="Composición enemiga"
-          description="Agregá hasta 5 rivales para ajustar objetos, runas y consejos de pelea."
+          description="Añade hasta 5 rivales para ajustar objetos, runas y consejos de pelea."
           action={<Badge tone="teal">{enemyIds.length}/5 rivales</Badge>}
         />
         <Card className="mt-3 p-5">
@@ -316,9 +316,9 @@ export function ChampionDetailPage(): React.JSX.Element {
             <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-line bg-base-900/35 p-3">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold-300" />
               <p className="text-[0.74rem] leading-relaxed text-ink-400">
-                La build de arriba es la base del campeón. Al agregar rivales, se priorizan
+                La build de arriba es la base del campeón. Al añadir rivales, se priorizan
                 anti-curación, resistencias, penetración y objetos contra burst según lo que
-                enfrentás.
+                tengas enfrente.
               </p>
             </div>
           )}

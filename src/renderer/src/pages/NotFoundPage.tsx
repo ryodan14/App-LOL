@@ -9,7 +9,7 @@ export function NotFoundPage(): React.JSX.Element {
       <EmptyState
         icon={<Compass className="h-6 w-6" />}
         title="Página no encontrada"
-        description="La ruta que buscás no existe o fue movida."
+        description="La ruta que buscas no existe o fue movida."
         action={
           <ButtonLink to="/" variant="primary">
             Volver al inicio

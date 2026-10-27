@@ -73,8 +73,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
       label: 'Anti-curación',
       description:
         heal >= 2
-          ? 'Varios campeones enemigos se curan. Comprá anti-curación temprano.'
-          : 'El enemigo tiene curación o robo de vida. Sumá anti-curación antes de las peleas largas.',
+          ? 'Varios campeones enemigos se curan. Compra anti-curación temprano.'
+          : 'El enemigo tiene curación o robo de vida. Suma anti-curación antes de las peleas largas.',
       priority: priorityFor(heal, 2, 1),
       itemIds: [3165, 6609, 3033, 3075, 3011]
     })
@@ -85,8 +85,8 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
       id: 'antishield',
       label: 'Anti-escudos',
       description: shield >= 2
-        ? 'Hay varios escudos en el equipo enemigo. Rompelos antes de comprometerte.'
-        : 'El enemigo puede absorber daño con escudos. Considerá rompe-escudos.',
+        ? 'Hay varios escudos en el equipo enemigo. Rómpelos antes de comprometerte.'
+        : 'El enemigo puede absorber daño con escudos. Considera rompe-escudos.',
       priority: priorityFor(shield, 2, 1),
       itemIds: [6695, 4645]
     })
@@ -99,7 +99,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
       description:
         weightedAd >= 3
           ? 'La composición enemiga es mayoritariamente física. La armadura es prioridad.'
-          : 'El enemigo tiene daño físico relevante. Sumá armadura a tu build.',
+          : 'El enemigo tiene daño físico relevante. Suma armadura a tu build.',
       priority: priorityFor(weightedAd, 3, 2),
       itemIds: [3075, 3143, 3110, 3742]
     })
@@ -112,7 +112,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
       description:
         weightedAp >= 3
           ? 'La composición enemiga es mayoritariamente mágica. La RM es prioridad.'
-          : 'El enemigo tiene daño mágico relevante. Sumá resistencia mágica.',
+          : 'El enemigo tiene daño mágico relevante. Suma resistencia mágica.',
       priority: priorityFor(weightedAp, 3, 2),
       itemIds: [3065, 2504, 4401, 3091, 3156]
     })
@@ -124,7 +124,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
       label: 'Daño porcentual',
       description:
         tank >= 2
-          ? 'Hay varios tanques enemigos. Necesitás penetración y daño porcentual.'
+          ? 'Hay varios tanques enemigos. Necesitas penetración y daño porcentual.'
           : 'El enemigo castiga objetivos con mucha vida. El daño porcentual ayuda.',
       priority: priorityFor(tank, 2, 1),
       itemIds: [3036, 3135, 3153, 6653]
@@ -138,7 +138,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
       description:
         hardCc >= 3
           ? 'Mucho CC enemigo. La tenacidad y un cleanup son casi obligatorios.'
-          : 'El CC enemigo puede encadenarte. Considerá tenacidad o limpieza de CC.',
+          : 'El CC enemigo puede encadenarte. Considera tenacidad o limpieza de CC.',
       priority: priorityFor(hardCc, 3, 2),
       itemIds: [3111, 3140, 6035, 3091]
     })
@@ -158,7 +158,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
     addNeed({
       id: 'antistealth',
       label: 'Control de visión',
-      description: 'El enemigo puede invisibilizarse. Wardea y llevá control de visión.',
+      description: 'El enemigo puede invisibilizarse. Wardea y lleva control de visión.',
       priority: 'MEDIA',
       itemIds: [3364, 2056]
     })
@@ -168,7 +168,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
     addNeed({
       id: 'antipoke',
       label: 'Sustain contra poke',
-      description: 'El enemigo hace daño desde lejos. Priorizá sustain y peleas cortas.',
+      description: 'El enemigo hace daño desde lejos. Prioriza sustain y peleas cortas.',
       priority: priorityFor(poke, 2, 1),
       itemIds: [1054, 3065, 3107, 3222]
     })
@@ -188,7 +188,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
     addNeed({
       id: 'antiexecute',
       label: 'Contra ejecución',
-      description: 'El enemigo remata objetivos con poca vida. No te quedes bajo y usá escudos.',
+      description: 'El enemigo remata objetivos con poca vida. No te quedes bajo y usa escudos.',
       priority: 'MEDIA',
       itemIds: [3157, 3026, 3053]
     })
@@ -224,7 +224,7 @@ export function analyzeTeam(enemies: Champion[]): TeamAnalysis {
   if (tanks > 0) summaryParts.push(`${tanks} tanque${tanks === 1 ? '' : 's'}.`)
   if (assassins > 0) summaryParts.push(`${assassins} asesino${assassins === 1 ? '' : 's'}.`)
   if (priorityNeeds.length > 0) {
-    summaryParts.push(`Priorizá ${priorityNeeds.join(', ').toLowerCase()}.`)
+    summaryParts.push(`Prioriza ${priorityNeeds.join(', ').toLowerCase()}.`)
   } else {
     summaryParts.push('Sin amenazas críticas detectadas: build estándar.')
   }

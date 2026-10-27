@@ -18,7 +18,7 @@ export function ChampionPicker({
   onChange,
   excludeIds = [],
   max = 5,
-  label = 'Agregar rival'
+  label = 'Añadir rival'
 }: {
   value: string[]
   onChange: (ids: string[]) => void

@@ -13,7 +13,7 @@ const subtitles: Record<string, string> = {
   '/partida': 'Champ select y partida en vivo',
   '/campeones': 'Builds, runas y counters',
   '/cuenta': 'Rango, maestría y progreso',
-  '/ajustes': 'Personalizá tu experiencia'
+  '/ajustes': 'Personaliza tu experiencia'
 }
 
 export function Topbar(): React.JSX.Element {

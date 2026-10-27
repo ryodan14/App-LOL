@@ -109,7 +109,7 @@ function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React
       >
         <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
           {data.status === 'error'
-            ? 'Datos no disponibles. Abrí App-LOL y reintentá la carga.'
+            ? 'Datos no disponibles. Abre App-LOL y vuelve a intentar la carga.'
             : 'Cargando datos oficiales…'}
         </p>
       </Shell>
@@ -147,7 +147,7 @@ function LiveOverlay({ live, now }: { live: LiveGameState; now: number }): React
       )}
       {!showGold && !showObjectives && (
         <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
-          No hay secciones activas. Configuralas en Ajustes.
+          No hay secciones activas. Configúralas en Ajustes.
         </p>
       )}
     </Shell>
@@ -207,7 +207,7 @@ function OverlayContent(): React.JSX.Element {
         footerLeft="Datos no disponibles"
       >
         <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
-          No pudimos cargar los datos de Riot. Abrí App-LOL y reintentá desde Ajustes.
+          No pudimos cargar los datos de Riot. Abre App-LOL y vuelve a intentarlo desde Ajustes.
         </p>
       </Shell>
     )
@@ -220,7 +220,7 @@ function OverlayContent(): React.JSX.Element {
       footerLeft="Sin partida activa"
     >
       <p className="py-10 text-center text-[0.72rem] leading-relaxed text-ink-400">
-        Abrí League of Legends y entrá a champ select o a una partida.
+        Abre League of Legends y entra en champ select o en una partida.
       </p>
     </Shell>
   )

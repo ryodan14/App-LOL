@@ -178,7 +178,7 @@ export function ChampSelectBoard({
         <div className="rounded-xl border border-line/70 bg-base-950/25 p-3">
           <p className="text-[0.68rem] font-medium text-ink-300">
             {model.myRole === 'UNKNOWN'
-              ? 'Elegí tu campeón para detectar tu línea.'
+              ? 'Elige tu campeón para detectar tu línea.'
               : `Esperando el pick rival en ${ROLE_LABELS[model.myRole].toLowerCase()}.`}
           </p>
           {model.enemyPicks.length > 0 && (

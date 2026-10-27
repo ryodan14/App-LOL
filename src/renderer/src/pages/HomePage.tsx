@@ -57,7 +57,7 @@ const features = [
     icon: EyeOff,
     title: 'Cero publicidad',
     description:
-      'Sin anuncios, sin cuentas, sin ruido. Solo una interfaz limpia para consultar lo que necesitás.',
+      'Sin anuncios, sin cuentas, sin ruido. Solo una interfaz limpia para consultar lo que necesitas.',
     tone: 'teal'
   }
 ] as const
@@ -65,17 +65,17 @@ const features = [
 const steps = [
   {
     icon: Wifi,
-    title: 'Abrí League of Legends',
-    description: 'La app detecta el cliente automáticamente. No necesitás pegar tokens ni configurar nada.'
+    title: 'Abre League of Legends',
+    description: 'La app detecta el cliente automáticamente. No necesitas pegar tokens ni configurar nada.'
   },
   {
     icon: UsersRound,
-    title: 'Entrá a champ select',
+    title: 'Entra en champ select',
     description: 'Vemos los campeones de tu equipo y los rivales revelados, con sus roles y amenazas.'
   },
   {
     icon: Zap,
-    title: 'Jugá con ventaja',
+    title: 'Juega con ventaja',
     description: 'Build adaptada, runas oficiales, counters y objetivos en vivo en una sola pantalla.'
   }
 ]
@@ -134,8 +134,8 @@ export function HomePage(): React.JSX.Element {
                 </span>
               </h2>
               <p className="mt-4 max-w-lg text-[0.88rem] leading-relaxed text-ink-300">
-                Builds adaptadas, counters y análisis de la composición enemiga mientras elegís
-                campeón o jugás. Sin publicidad y sin perder tiempo.
+                Builds adaptadas, counters y análisis de la composición enemiga mientras eliges
+                campeón o juegas. Sin publicidad y sin perder tiempo.
               </p>
             </div>
 
@@ -273,7 +273,7 @@ export function HomePage(): React.JSX.Element {
 
       <section className="grid gap-4 xl:grid-cols-[1.1fr_1fr]">
         <Card className="p-6">
-          <SectionHeading eyebrow="Empezá en 3 pasos" title="Cómo funciona" />
+          <SectionHeading eyebrow="Empieza en 3 pasos" title="Cómo funciona" />
           <div className="mt-5 space-y-1">
             {steps.map((step, stepIndex) => (
               <div key={step.title} className="flex gap-4">
