@@ -30,7 +30,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   overlayShowGold: true,
   overlayShowObjectives: true,
   overlayShowChampSelect: true,
-  overlayGoldOnDemand: true,
+  overlayGoldOnDemand: false,
   startWithWindows: true,
   showWithLeague: true
 }
