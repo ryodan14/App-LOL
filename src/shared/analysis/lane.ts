@@ -1,4 +1,5 @@
 import type { Champion, Role } from '../types'
+import { t } from '../i18n'
 import { analyzeChampion } from './champion'
 import type {
   AnalysisIndex,
@@ -168,10 +169,10 @@ function matchupScore(
 
   if (candidateRanged && enemyMelee) {
     score += 1.8
-    addReason(reasons, 'Rango para kites y castigar su aproximación')
+    addReason(reasons, t('Rango para kites y castigar su aproximación'))
   } else if (candidateRange > enemyRange + 100) {
     score += 0.8
-    addReason(reasons, 'Tiene más rango en la línea')
+    addReason(reasons, t('Tiene más rango en la línea'))
   }
 
   const has = (tag: string): boolean =>
@@ -180,11 +181,11 @@ function matchupScore(
   if (enemyProfile.archetype === 'tank') {
     if (has('MAX_HP') || has('TRUE_DAMAGE')) {
       score += 3
-      addReason(reasons, 'Tiene daño porcentual o verdadero para romper tanques')
+      addReason(reasons, t('Tiene daño porcentual o verdadero para romper tanques'))
     }
     if (has('AUTO_ATTACK') && candidateProfile.archetype === 'marksman') {
       score += 1.2
-      addReason(reasons, 'Daño sostenido para peleas largas')
+      addReason(reasons, t('Daño sostenido para peleas largas'))
     }
     if (candidateProfile.archetype === 'tank') score -= 0.8
   }
@@ -196,11 +197,11 @@ function matchupScore(
   ) {
     if (candidateProfile.archetype === 'tank') {
       score += 2.4
-      addReason(reasons, 'Aguanta su burst y puede cortar la entrada')
+      addReason(reasons, t('Aguanta su burst y puede cortar la entrada'))
     }
     if (has('HARD_CC')) {
       score += 1.7
-      addReason(reasons, 'CC para frenar su combo')
+      addReason(reasons, t('CC para frenar su combo'))
     }
     if (candidateProfile.archetype === 'marksman') score -= 0.8
   }
@@ -211,11 +212,11 @@ function matchupScore(
       candidateProfile.archetype === 'ap-assassin'
     ) {
       score += 2.2
-      addReason(reasons, 'Burst y movilidad para cerrar sobre el tirador')
+      addReason(reasons, t('Burst y movilidad para cerrar sobre el tirador'))
     }
     if (has('HARD_CC') || has('SLOW')) {
       score += 1
-      addReason(reasons, 'CC para castigarlo cuando se acerca')
+      addReason(reasons, t('CC para castigarlo cuando se acerca'))
     }
   }
 
@@ -225,22 +226,22 @@ function matchupScore(
       candidateProfile.archetype === 'ap-assassin'
     ) {
       score += 2.2
-      addReason(reasons, 'Movilidad para esquivar sus habilidades y entrar')
+      addReason(reasons, t('Movilidad para esquivar sus habilidades y entrar'))
     }
     if (has('HARD_CC')) {
       score += 0.9
-      addReason(reasons, 'Puede castigarlo si falla su combo')
+      addReason(reasons, t('Puede castigarlo si falla su combo'))
     }
   }
 
   if (enemyProfile.archetype === 'bruiser' || enemyProfile.archetype === 'ap-bruiser') {
     if (candidateRanged) {
       score += 1.2
-      addReason(reasons, 'Rango y kite contra un cuerpo a cuerpo')
+      addReason(reasons, t('Rango y kite contra un cuerpo a cuerpo'))
     }
     if (has('HARD_CC') || has('SLOW')) {
       score += 0.8
-      addReason(reasons, 'Herramientas para cortar su persecución')
+      addReason(reasons, t('Herramientas para cortar su persecución'))
     }
   }
 
@@ -251,14 +252,14 @@ function matchupScore(
       candidateProfile.archetype === 'support'
     ) {
       score += 1.4
-      addReason(reasons, 'Presión o engage para forzar peleas cortas')
+      addReason(reasons, t('Presión o engage para forzar peleas cortas'))
     }
   }
 
   if (enemyProfile.threats.some((threat) => threat.tag === 'HEAL')) {
     if (has('BURST')) {
       score += 0.7
-      addReason(reasons, 'Burst para matar antes de que se cure')
+      addReason(reasons, t('Burst para matar antes de que se cure'))
     }
   }
 
@@ -266,6 +267,51 @@ function matchupScore(
   if (has('MOBILITY')) score += 0.25
 
   return { score, reasons }
+}
+
+export interface BanSuggestionReport {
+  champion: Champion
+  role: Role
+  suggestions: CounterSuggestion[]
+  note: string
+}
+
+export function suggestBanTargets(
+  myChampion: Champion,
+  role: Role,
+  index: AnalysisIndex,
+  excludeIds: string[] = []
+): BanSuggestionReport {
+  const excluded = new Set([myChampion.id, ...excludeIds])
+  const curated = new Set(CURATED_COUNTERS[myChampion.id] ?? [])
+  const suggestions: CounterSuggestion[] = []
+
+  for (const candidate of index.data.champions) {
+    if (excluded.has(candidate.id)) continue
+    if (!recommendedRoles(index, candidate).includes(role)) continue
+
+    const { score, reasons } = matchupScore(candidate, myChampion, role, index)
+    const isCurated = curated.has(candidate.id)
+    if (isCurated) {
+      addReason(reasons, t('Matchup históricamente favorable contra tu campeón'))
+    }
+
+    suggestions.push({
+      champion: candidate,
+      score: score + (isCurated ? 4 : 0),
+      reasons: reasons.slice(0, 2),
+      curated: isCurated
+    })
+  }
+
+  suggestions.sort((a, b) => b.score - a.score || a.champion.name.localeCompare(b.champion.name))
+
+  return {
+    champion: myChampion,
+    role,
+    suggestions: suggestions.filter((entry) => entry.score > 0.5).slice(0, 5),
+    note: t('Baneos sugeridos por kit, línea y arquetipo. No son winrates en vivo.')
+  }
 }
 
 export function suggestLaneCounters(
@@ -286,7 +332,7 @@ export function suggestLaneCounters(
     const { score, reasons } = matchupScore(candidate, enemy, role, index)
     const isCurated = curated.has(candidate.id)
     if (isCurated) {
-      addReason(reasons, 'Matchup históricamente favorable en esta línea')
+      addReason(reasons, t('Matchup históricamente favorable en esta línea'))
     }
 
     suggestions.push({
@@ -297,12 +343,12 @@ export function suggestLaneCounters(
     })
   }
 
-  suggestions.sort((a, b) => b.score - a.score || a.champion.name.localeCompare(b.champion.name, 'es'))
+  suggestions.sort((a, b) => b.score - a.score || a.champion.name.localeCompare(b.champion.name))
 
   return {
     enemy,
     role,
     suggestions: suggestions.filter((entry) => entry.score > 0.5).slice(0, 6),
-    note: 'Sugerencias por kit, rango y arquetipo. No son winrates en vivo.'
+    note: t('Sugerencias por kit, rango y arquetipo. No son winrates en vivo.')
   }
 }

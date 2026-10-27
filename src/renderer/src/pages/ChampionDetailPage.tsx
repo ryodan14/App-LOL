@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Info, RefreshCw, Sparkles, Swords, UsersRound } from 'lucide-react'
 import type { Champion, Role } from '@shared/types'
-import { ROLE_LABELS, ROLE_ORDER } from '@shared/constants'
+import { roleLabel, ROLE_ORDER } from '@shared/constants'
 import { analyzeTeam, generateBuild, generateRunePlan } from '@shared/analysis'
 import { useGameData } from '@renderer/lib/gameData'
 import { useAppStore } from '@renderer/store/useAppStore'
@@ -22,6 +22,7 @@ import { BuildPanel } from '@renderer/components/analysis/BuildPanel'
 import { RunePanel } from '@renderer/components/analysis/RunePanel'
 import { TeamPanel } from '@renderer/components/analysis/TeamPanel'
 import { CounterPanel } from '@renderer/components/analysis/CounterPanel'
+import { t } from '@shared/i18n'
 
 const TAG_LABELS: Record<string, string> = {
   Mage: 'Mago',
@@ -58,7 +59,7 @@ function RoleSelector({
           )}
         >
           <RoleMark role={option} className="text-current" />
-          {ROLE_LABELS[option]}
+          {roleLabel(option)}
           {recommended.includes(option) && <span className="h-1 w-1 rounded-full bg-teal-400" />}
         </button>
       ))}
@@ -97,18 +98,18 @@ function ChampionStats({ champion }: { champion: Champion }): React.JSX.Element 
   return (
     <div className="space-y-3">
       <div>
-        <p className="eyebrow">Atributos</p>
-        <h2 className="font-display mt-1 text-lg font-semibold text-ink-100">Perfil de combate</h2>
+        <p className="eyebrow">{t('Atributos')}</p>
+        <h2 className="font-display mt-1 text-lg font-semibold text-ink-100">{t('Perfil de combate')}</h2>
       </div>
       <div className="space-y-2.5">
-        <StatBar label="Ataque" value={champion.info.attack} max={10} tone="gold" />
-        <StatBar label="Defensa" value={champion.info.defense} max={10} tone="teal" />
-        <StatBar label="Magia" value={champion.info.magic} max={10} tone="teal" />
-        <StatBar label="Dificultad" value={champion.info.difficulty} max={10} tone="danger" />
+        <StatBar label={t('Ataque')} value={champion.info.attack} max={10} tone="gold" />
+        <StatBar label={t('Defensa')} value={champion.info.defense} max={10} tone="teal" />
+        <StatBar label={t('Magia')} value={champion.info.magic} max={10} tone="teal" />
+        <StatBar label={t('Dificultad')} value={champion.info.difficulty} max={10} tone="danger" />
       </div>
       <div className="flex flex-wrap gap-1.5">
         {champion.tags.map((tag) => (
-          <Badge key={tag}>{TAG_LABELS[tag] ?? tag}</Badge>
+          <Badge key={tag}>{t(TAG_LABELS[tag] ?? tag)}</Badge>
         ))}
       </div>
     </div>
@@ -159,12 +160,12 @@ export function ChampionDetailPage(): React.JSX.Element {
       <Card>
         <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
           <p className="text-[0.9rem] font-semibold text-ink-200">
-            {data.status === 'error' ? 'No pudimos cargar los datos del campeón' : 'Cargando ficha del campeón…'}
+            {data.status === 'error' ? t('No pudimos cargar los datos del campeón') : t('Cargando ficha del campeón…')}
           </p>
           <p className="mt-1.5 max-w-md text-[0.78rem] text-ink-500">
             {data.status === 'error'
-              ? 'Revisá tu conexión y volvé a intentar.'
-              : 'Estamos preparando builds, runas y counters oficiales.'}
+              ? t('Revisa tu conexión y vuelve a intentarlo.')
+              : t('Estamos preparando builds, runas y counters oficiales.')}
           </p>
           {data.status === 'error' && (
             <Button
@@ -173,7 +174,7 @@ export function ChampionDetailPage(): React.JSX.Element {
               icon={<RefreshCw className="h-4 w-4" />}
               onClick={() => void refreshData()}
             >
-              Reintentar
+              {t('Reintentar')}
             </Button>
           )}
         </div>
@@ -190,11 +191,11 @@ export function ChampionDetailPage(): React.JSX.Element {
           size="sm"
           icon={<ArrowLeft className="h-4 w-4" />}
         >
-          Volver a campeones
+          {t('Volver a campeones')}
         </ButtonLink>
         <Card>
           <div className="py-16 text-center text-sm text-ink-400">
-            No encontramos ese campeón.
+            {t('No encontramos ese campeón.')}
           </div>
         </Card>
       </div>
@@ -251,7 +252,7 @@ export function ChampionDetailPage(): React.JSX.Element {
                     className="inline-flex items-center gap-1 rounded-md border border-teal-400/20 bg-teal-400/5 px-1.5 py-0.5 text-[0.6rem] font-medium text-teal-300"
                   >
                     <RoleMark role={item} />
-                    {ROLE_LABELS[item]}
+                    {roleLabel(item)}
                   </span>
                 ))}
               </div>
@@ -260,7 +261,7 @@ export function ChampionDetailPage(): React.JSX.Element {
 
           <div className="max-w-full">
             <p className="mb-2 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-              Tu rol
+              {t('Tu rol')}
             </p>
             <RoleSelector role={selectedRole} recommended={recommended} onChange={setRole} />
           </div>
@@ -283,10 +284,10 @@ export function ChampionDetailPage(): React.JSX.Element {
 
       <section>
         <SectionHeading
-          eyebrow="Adaptación"
-          title="Composición enemiga"
-          description="Agregá hasta 5 rivales para ajustar objetos, runas y consejos de pelea."
-          action={<Badge tone="teal">{enemyIds.length}/5 rivales</Badge>}
+          eyebrow={t('Adaptación')}
+          title={t('Composición enemiga')}
+          description={t('Añade hasta 5 rivales para ajustar objetos, runas y consejos de pelea.')}
+          action={<Badge tone="teal">{t('{count}/5 rivales', { count: enemyIds.length })}</Badge>}
         />
         <Card className="mt-3 p-5">
           <ChampionPicker
@@ -316,9 +317,7 @@ export function ChampionDetailPage(): React.JSX.Element {
             <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-line bg-base-900/35 p-3">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold-300" />
               <p className="text-[0.74rem] leading-relaxed text-ink-400">
-                La build de arriba es la base del campeón. Al agregar rivales, se priorizan
-                anti-curación, resistencias, penetración y objetos contra burst según lo que
-                enfrentás.
+                {t('La build de arriba es la base del campeón. Al añadir rivales, se priorizan anti-curación, resistencias, penetración y objetos contra burst según lo que tengas enfrente.')}
               </p>
             </div>
           )}
@@ -327,12 +326,12 @@ export function ChampionDetailPage(): React.JSX.Element {
 
       <section>
         <SectionHeading
-          eyebrow="Kit"
-          title="Habilidades"
-          description="Descripciones oficiales para repasar rangos, enfriamientos y utilidad."
+          eyebrow={t('Kit')}
+          title={t('Habilidades')}
+          description={t('Descripciones oficiales para repasar rangos, enfriamientos y utilidad.')}
           action={
             <Badge>
-              <Sparkles className="h-3 w-3" /> {champion.spells.length} habilidades
+              <Sparkles className="h-3 w-3" /> {t('{count} habilidades', { count: champion.spells.length })}
             </Badge>
           }
         />
@@ -341,7 +340,7 @@ export function ChampionDetailPage(): React.JSX.Element {
             icon={<PassiveIcon image={champion.passive.image} name={champion.passive.name} />}
             name={champion.passive.name}
             description={champion.passive.description}
-            meta="Pasiva"
+            meta={t('Pasiva')}
           />
           {champion.spells.map((spell) => (
             <AbilityRow
@@ -349,7 +348,7 @@ export function ChampionDetailPage(): React.JSX.Element {
               icon={<SpellIcon image={spell.image} name={spell.name} />}
               name={spell.name}
               description={spell.description}
-              meta={`Enfriamiento ${spell.cooldown[0] ?? '—'}s · Rango ${formatNumber(spell.range[0] ?? 0)}`}
+              meta={t('Enfriamiento {cooldown}s · Rango {range}', { cooldown: spell.cooldown[0] ?? '—', range: formatNumber(spell.range[0] ?? 0) })}
             />
           ))}
         </Card>
@@ -358,11 +357,11 @@ export function ChampionDetailPage(): React.JSX.Element {
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-base-900/30 px-4 py-3 text-[0.68rem] text-ink-500">
         <span className="inline-flex items-center gap-1.5">
           <Swords className="h-3.5 w-3.5 text-gold-300/80" />
-          Build generada con datos oficiales del parche {index.data.patch}.
+          {t('Build generada con datos oficiales del parche {patch}.', { patch: index.data.patch })}
         </span>
         <Link to="/partida" className="inline-flex items-center gap-1.5 font-semibold text-gold-300">
           <UsersRound className="h-3.5 w-3.5" />
-          Ver mi partida
+          {t('Ver mi partida')}
         </Link>
       </div>
     </div>

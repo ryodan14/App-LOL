@@ -4,6 +4,7 @@ import { cn } from '@renderer/lib/cn'
 import { useGameData } from '@renderer/lib/gameData'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { navigation } from './navigation'
+import { t } from '@shared/i18n'
 
 export function Sidebar(): React.JSX.Element {
   const index = useGameData()
@@ -21,12 +22,12 @@ export function Sidebar(): React.JSX.Element {
             APP-LOL
           </span>
           <span className="block text-[0.65rem] font-medium tracking-wide text-ink-500">
-            Compañero de partida
+            {t('Compañero de partida')}
           </span>
         </span>
       </NavLink>
 
-      <nav className="flex flex-col gap-1" aria-label="Navegación principal">
+      <nav className="flex flex-col gap-1" aria-label={t('Navegación principal')}>
         {navigation.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
@@ -35,10 +36,10 @@ export function Sidebar(): React.JSX.Element {
             className={({ isActive }) =>
               cn('nav-item max-[1180px]:justify-center max-[1180px]:px-0', isActive && 'nav-item-active')
             }
-            title={label}
+            title={t(label)}
           >
             <Icon className="h-[1.15rem] w-[1.15rem] shrink-0" strokeWidth={1.8} />
-            <span className="max-[1180px]:hidden">{label}</span>
+            <span className="max-[1180px]:hidden">{t(label)}</span>
           </NavLink>
         ))}
       </nav>
@@ -47,7 +48,7 @@ export function Sidebar(): React.JSX.Element {
         <div className="rounded-xl border border-line bg-base-900/60 p-3 max-[1180px]:hidden">
           <div className="flex items-center justify-between">
             <span className="text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-              Parche
+              {t('Parche')}
             </span>
             <span
               className={cn(
@@ -57,14 +58,14 @@ export function Sidebar(): React.JSX.Element {
             />
           </div>
           <p className="font-display mt-1 text-sm font-semibold text-ink-200">
-            {index?.data.patch ?? 'Cargando…'}
+            {index?.data.patch ?? t('Cargando…')}
           </p>
           <p className="mt-0.5 text-[0.65rem] leading-relaxed text-ink-500">
-            Datos oficiales de Riot
+            {t('Datos oficiales de Riot')}
           </p>
         </div>
         <p className="px-2 text-[0.6rem] leading-relaxed text-ink-600 max-[1180px]:hidden">
-          Proyecto no oficial. No está afiliado ni respaldado por Riot Games.
+          {t('Proyecto no oficial. No está afiliado ni respaldado por Riot Games.')}
         </p>
       </div>
     </aside>

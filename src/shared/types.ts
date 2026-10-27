@@ -1,3 +1,5 @@
+import type { Locale } from './i18n'
+
 export type Role = 'TOP' | 'JUNGLE' | 'MIDDLE' | 'BOTTOM' | 'UTILITY' | 'UNKNOWN'
 
 export type ClientPhase =
@@ -144,6 +146,7 @@ export type OverlayCorner =
   | 'left-center'
 
 export interface AppSettings {
+  language: Locale
   alwaysOnTop: boolean
   reduceMotion: boolean
   autoDetectClient: boolean

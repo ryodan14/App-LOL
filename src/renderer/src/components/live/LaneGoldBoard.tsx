@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { ArrowLeft, ArrowRight, Minus } from 'lucide-react'
 import type { Champion, LiveGameState, LivePlayer, Role } from '@shared/types'
-import { ROLE_LABELS } from '@shared/constants'
+import { roleLabel } from '@shared/constants'
 import {
   assignRoles,
   compareLaneGold,
@@ -13,6 +13,7 @@ import { formatCompact, formatNumber } from '@renderer/lib/format'
 import { cn } from '@renderer/lib/cn'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
+import { t } from '@shared/i18n'
 
 function playerChampion(
   index: GameDataIndex,
@@ -35,12 +36,14 @@ function LaneSide({
   player,
   champion,
   side,
-  compact
+  compact,
+  gold
 }: {
   player: LivePlayer | undefined
   champion: Champion | null
   side: 'ally' | 'enemy'
   compact?: boolean
+  gold?: number
 }): React.JSX.Element {
   const content = (
     <>
@@ -51,6 +54,7 @@ function LaneSide({
         </span>
         {!compact && player && (
           <span className="block text-[0.55rem] text-ink-500">
+            {gold !== undefined && `${formatCompact(gold)} · `}
             {formatNumber(player.cs)} CS · {player.kills}/{player.deaths}/{player.assists}
           </span>
         )}
@@ -111,15 +115,62 @@ export function LaneGoldBoard({
     return { allyByRole: allyRoles, enemyByRole: enemyRoles, activeRole: role }
   }, [index, live])
 
+  const totals = useMemo(() => {
+    if (!index) return { ally: 0, enemy: 0 }
+    let ally = 0
+    let enemy = 0
+    for (const role of LANE_ROLES) {
+      const comparison = compareLaneGold(
+        allyByRole.get(role),
+        enemyByRole.get(role),
+        gameTime,
+        index
+      )
+      ally += comparison.allyGold
+      enemy += comparison.enemyGold
+    }
+    return { ally, enemy }
+  }, [index, gameTime, allyByRole, enemyByRole])
+
   if (!index) return null
+
+  const totalDifference = totals.ally - totals.enemy
+  const totalLabel =
+    totalDifference > 0
+      ? `+${formatCompact(totalDifference)}`
+      : totalDifference < 0
+        ? `-${formatCompact(Math.abs(totalDifference))}`
+        : '—'
 
   return (
     <div className={cn('space-y-1.5', !compact && 'space-y-2')}>
+      <div className="flex items-center justify-between gap-2 rounded-lg border border-line/70 bg-base-950/25 px-2 py-1.5">
+        <span className="text-[0.55rem] font-bold uppercase tracking-[0.13em] text-ink-600">
+          {t('Oro total ≈')}
+        </span>
+        <span className="inline-flex items-center gap-1.5 font-mono text-[0.66rem] font-semibold tabular-nums">
+          <span className="text-sky-300">{formatCompact(totals.ally)}</span>
+          <span className="text-ink-600">·</span>
+          <span className="text-danger-400">{formatCompact(totals.enemy)}</span>
+          <span
+            className={cn(
+              'ml-1 text-[0.6rem]',
+              totalDifference > 0
+                ? 'text-sky-400'
+                : totalDifference < 0
+                  ? 'text-danger-400'
+                  : 'text-ink-600'
+            )}
+          >
+            {totalLabel}
+          </span>
+        </span>
+      </div>
       <div className="grid grid-cols-[20px_minmax(0,1fr)_60px_minmax(0,1fr)] items-center gap-1.5 px-1 text-[0.52rem] font-bold uppercase tracking-[0.12em] text-ink-600">
         <span />
-        <span>Tu equipo</span>
-        <span className="text-center">Oro ≈</span>
-        <span className="text-right">Rival</span>
+        <span>{t('Tu equipo')}</span>
+        <span className="text-center">{t('Oro ≈')}</span>
+        <span className="text-right">{t('Rival')}</span>
       </div>
 
       {LANE_ROLES.map((role) => {
@@ -156,10 +207,10 @@ export function LaneGoldBoard({
             )}
           >
             <RoleMark role={role} className={cn('text-ink-500', isMine && 'text-gold-300')} />
-            <LaneSide player={ally} champion={allyChampion} side="ally" compact={compact} />
+            <LaneSide player={ally} champion={allyChampion} side="ally" compact={compact} gold={comparison.allyGold} />
             <div
               className="flex flex-col items-center leading-none"
-              title={`${ROLE_LABELS[role]}: ${formatNumber(comparison.allyGold)} vs ${formatNumber(comparison.enemyGold)} de oro estimado`}
+              title={t('{role}: {ally} vs {enemy} de oro estimado', { role: roleLabel(role), ally: formatNumber(comparison.allyGold), enemy: formatNumber(comparison.enemyGold) })}
             >
               {arrow}
               <span
@@ -175,14 +226,14 @@ export function LaneGoldBoard({
                 {diffLabel}
               </span>
             </div>
-            <LaneSide player={enemy} champion={enemyChampion} side="enemy" compact={compact} />
+            <LaneSide player={enemy} champion={enemyChampion} side="enemy" compact={compact} gold={comparison.enemyGold} />
           </div>
         )
       })}
 
       {!compact && (
         <p className="px-1 pt-1 text-[0.55rem] text-ink-600">
-          Azul = tu equipo adelante · Rojo = el rival adelante · Oro estimado con objetos, CS y KDA.
+          {t('Azul = tu equipo adelante · Rojo = el rival adelante · Oro estimado con objetos, CS y KDA.')}
         </p>
       )}
     </div>

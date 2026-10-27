@@ -22,6 +22,7 @@ import {
   generateCounterTips,
   generateRunePlan,
   inferChampionRole,
+  suggestBanTargets,
   suggestLaneCounters
 } from './index'
 
@@ -364,6 +365,14 @@ describe('línea y counters', () => {
     const report = suggestLaneCounters(champions[0], 'MIDDLE', index)
     expect(report.enemy.id).toBe('Ahri')
     expect(report.suggestions.some((entry) => entry.champion.id === 'Zed')).toBe(true)
+    expect(report.note.length).toBeGreaterThan(0)
+  })
+
+  it('sugiere baneos que castigan tu pick', () => {
+    const report = suggestBanTargets(champions[0], 'MIDDLE', index)
+    expect(report.champion.id).toBe('Ahri')
+    expect(report.suggestions.length).toBeGreaterThan(0)
+    expect(report.suggestions.every((entry) => entry.champion.id !== 'Ahri')).toBe(true)
     expect(report.note.length).toBeGreaterThan(0)
   })
 })

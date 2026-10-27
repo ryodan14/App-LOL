@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { RefreshCw, Search, SlidersHorizontal, UsersRound } from 'lucide-react'
 import type { Role } from '@shared/types'
-import { ROLE_LABELS, ROLE_ORDER } from '@shared/constants'
+import { roleLabel, ROLE_ORDER } from '@shared/constants'
 import { useGameData } from '@renderer/lib/gameData'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { Card, SectionHeading } from '@renderer/components/ui/Card'
@@ -12,6 +12,7 @@ import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
 import { Badge } from '@renderer/components/ui/Badge'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 const TAG_LABELS: Record<string, string> = {
   Mage: 'Mago',
@@ -59,11 +60,11 @@ export function ChampionsPage(): React.JSX.Element {
       <Card>
         <EmptyState
           icon={<UsersRound className="h-6 w-6" />}
-          title="Cargando campeones"
+          title={t('Cargando campeones')}
           description={
             data.status === 'error'
-              ? 'No se pudieron cargar los datos oficiales. Revisá tu conexión e intentá de nuevo.'
-              : 'Estamos preparando la lista completa con builds, runas y counters.'
+              ? t('No se pudieron cargar los datos oficiales. Revisa tu conexión e inténtalo de nuevo.')
+              : t('Estamos preparando la lista completa con builds, runas y counters.')
           }
           action={
             data.status === 'error' ? (
@@ -72,7 +73,7 @@ export function ChampionsPage(): React.JSX.Element {
                 icon={<RefreshCw className="h-4 w-4" />}
                 onClick={() => void refreshData()}
               >
-                Reintentar
+                {t('Reintentar')}
               </Button>
             ) : (
               <Spinner />
@@ -86,10 +87,10 @@ export function ChampionsPage(): React.JSX.Element {
   return (
     <div className="space-y-5">
       <SectionHeading
-        eyebrow="Explorador"
-        title="Campeones"
-        description="Buscá por nombre o filtrá por rol. Cada ficha incluye build adaptada, runas oficiales y counters."
-        action={<Badge tone="gold">{filtered.length} campeones</Badge>}
+        eyebrow={t('Explorador')}
+        title={t('Campeones')}
+        description={t('Busca por nombre o filtra por rol. Cada ficha incluye build adaptada, runas oficiales y counters.')}
+        action={<Badge tone="gold">{t('{count} campeones', { count: filtered.length })}</Badge>}
       />
 
       <Card className="p-4">
@@ -99,20 +100,20 @@ export function ChampionsPage(): React.JSX.Element {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar campeón, título o id…"
+              placeholder={t('Buscar campeón, título o id…')}
               className="h-10 flex-1 bg-transparent text-[0.84rem] text-ink-100 outline-none placeholder:text-ink-500"
             />
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="mr-1 hidden items-center gap-1.5 text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-ink-500 sm:flex">
-              <SlidersHorizontal className="h-3.5 w-3.5" /> Rol
+              <SlidersHorizontal className="h-3.5 w-3.5" /> {t('Rol')}
             </span>
             <RoleButton active={role === 'ALL'} onClick={() => setRole('ALL')}>
-              Todos
+              {t('Todos')}
             </RoleButton>
             {FILTER_ROLES.map((item) => (
               <RoleButton key={item} active={role === item} onClick={() => setRole(item)}>
-                {ROLE_LABELS[item]}
+                {roleLabel(item)}
               </RoleButton>
             ))}
           </div>
@@ -139,7 +140,7 @@ export function ChampionsPage(): React.JSX.Element {
                             key={tag}
                             className="rounded-md border border-line px-1.5 py-0.5 text-[0.56rem] font-medium text-ink-400"
                           >
-                            {TAG_LABELS[tag] ?? tag}
+                            {t(TAG_LABELS[tag] ?? tag)}
                           </span>
                         ))}
                       </div>
@@ -152,11 +153,11 @@ export function ChampionsPage(): React.JSX.Element {
                           <RoleMark key={item} role={item} className="text-ink-500" />
                         ))
                       ) : (
-                        <span className="text-[0.58rem] text-ink-600">Sin rol recomendado</span>
+                        <span className="text-[0.58rem] text-ink-600">{t('Sin rol recomendado')}</span>
                       )}
                     </div>
                     <span className="text-[0.58rem] font-semibold text-gold-300/80 group-hover:text-gold-200">
-                      Ver ficha
+                      {t('Ver ficha')}
                     </span>
                   </div>
                 </Card>
@@ -168,8 +169,8 @@ export function ChampionsPage(): React.JSX.Element {
         <Card>
           <EmptyState
             icon={<Search className="h-6 w-6" />}
-            title="No encontramos campeones"
-            description="Probá con otro nombre o quitá el filtro de rol."
+            title={t('No encontramos campeones')}
+            description={t('Prueba con otro nombre o quita el filtro de rol.')}
             action={
               <button
                 type="button"
@@ -179,7 +180,7 @@ export function ChampionsPage(): React.JSX.Element {
                 }}
                 className="btn btn-ghost"
               >
-                Limpiar filtros
+                {t('Limpiar filtros')}
               </button>
             }
           />

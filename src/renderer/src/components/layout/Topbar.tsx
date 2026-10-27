@@ -7,13 +7,14 @@ import { StatusDot } from '@renderer/components/ui/Badge'
 import { Button } from '@renderer/components/ui/Button'
 import { Spinner } from '@renderer/components/ui/EmptyState'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 const subtitles: Record<string, string> = {
   '/': 'Resumen y estado de tu cliente',
   '/partida': 'Champ select y partida en vivo',
   '/campeones': 'Builds, runas y counters',
   '/cuenta': 'Rango, maestría y progreso',
-  '/ajustes': 'Personalizá tu experiencia'
+  '/ajustes': 'Personaliza tu experiencia'
 }
 
 export function Topbar(): React.JSX.Element {
@@ -32,20 +33,20 @@ export function Topbar(): React.JSX.Element {
   const title = champion
     ? champion.name
     : location.pathname === '/'
-      ? 'Inicio'
+      ? t('Inicio')
       : location.pathname.startsWith('/partida')
-        ? 'Partida en vivo'
+        ? t('Partida en vivo')
         : location.pathname.startsWith('/campeones')
-          ? 'Campeones'
+          ? t('Campeones')
           : location.pathname.startsWith('/cuenta')
-            ? 'Mi cuenta'
+            ? t('Mi cuenta')
             : location.pathname.startsWith('/ajustes')
-              ? 'Ajustes'
+              ? t('Ajustes')
               : 'App-LOL'
 
   const subtitle = champion
     ? `${champion.title} · ${champion.tags.join(' / ')}`
-    : (subtitles[location.pathname] ?? 'League of Legends, más claro')
+    : t(subtitles[location.pathname] ?? 'League of Legends, más claro')
 
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-base-950/70 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4 lg:px-8">
@@ -70,7 +71,7 @@ export function Topbar(): React.JSX.Element {
           )}
           {data.status === 'loading' && (
             <span className="chip max-sm:hidden">
-              <Spinner className="h-3 w-3" /> Cargando datos
+              <Spinner className="h-3 w-3" /> {t('Cargando datos')}
             </span>
           )}
           {data.status === 'error' && (
@@ -80,7 +81,7 @@ export function Topbar(): React.JSX.Element {
               className="chip chip-danger max-sm:hidden"
               title={data.error}
             >
-              Datos no disponibles
+              {t('Datos no disponibles')}
             </button>
           )}
 
@@ -88,8 +89,8 @@ export function Topbar(): React.JSX.Element {
             variant="quiet"
             size="icon"
             onClick={() => void refreshSnapshot()}
-            title="Actualizar estado"
-            aria-label="Actualizar estado"
+            title={t('Actualizar estado')}
+            aria-label={t('Actualizar estado')}
           >
             <RefreshCw
               className={cn('h-4 w-4', snapshot.phase === 'InProgress' && 'text-teal-300')}
@@ -99,8 +100,8 @@ export function Topbar(): React.JSX.Element {
             variant={settings.overlayEnabled ? 'ghost' : 'quiet'}
             size="icon"
             onClick={() => void updateSettings({ overlayEnabled: !settings.overlayEnabled })}
-            title={settings.overlayEnabled ? 'Ocultar overlay' : 'Mostrar overlay'}
-            aria-label={settings.overlayEnabled ? 'Ocultar overlay' : 'Mostrar overlay'}
+            title={settings.overlayEnabled ? t('Ocultar overlay') : t('Mostrar overlay')}
+            aria-label={settings.overlayEnabled ? t('Ocultar overlay') : t('Mostrar overlay')}
             aria-pressed={settings.overlayEnabled}
             className={settings.overlayEnabled ? 'border-teal-400/30 text-teal-300' : ''}
           >
@@ -114,8 +115,8 @@ export function Topbar(): React.JSX.Element {
             variant={settings.alwaysOnTop ? 'ghost' : 'quiet'}
             size="icon"
             onClick={() => void updateSettings({ alwaysOnTop: !settings.alwaysOnTop })}
-            title={settings.alwaysOnTop ? 'Desanclar ventana' : 'Mantener ventana arriba'}
-            aria-label={settings.alwaysOnTop ? 'Desanclar ventana' : 'Mantener ventana arriba'}
+            title={settings.alwaysOnTop ? t('Desanclar ventana') : t('Mantener ventana arriba')}
+            aria-label={settings.alwaysOnTop ? t('Desanclar ventana') : t('Mantener ventana arriba')}
             className={settings.alwaysOnTop ? 'border-gold-400/30 text-gold-300' : ''}
           >
             <Pin className={cn('h-4 w-4', settings.alwaysOnTop && 'fill-gold-300/20')} />

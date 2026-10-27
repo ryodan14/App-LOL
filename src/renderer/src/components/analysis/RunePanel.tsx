@@ -3,6 +3,7 @@ import type { RuneDef } from '@shared/types'
 import { SpellIcon } from '@renderer/components/lol/SpellIcon'
 import { RuneIcon } from '@renderer/components/lol/RuneIcon'
 import { Badge } from '@renderer/components/ui/Badge'
+import { t } from '@shared/i18n'
 
 function RuneRow({ runes }: { runes: RuneDef[] }): React.JSX.Element {
   return (
@@ -26,7 +27,7 @@ export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Elemen
   if (!plan) {
     return (
       <div className="rounded-xl border border-line bg-base-900/35 p-4 text-[0.78rem] text-ink-400">
-        No hay una página de runas recomendada para este campeón y rol en este parche.
+        {t('No hay una página de runas recomendada para este campeón y rol en este parche.')}
       </div>
     )
   }
@@ -34,11 +35,10 @@ export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Elemen
   return (
     <div className="space-y-4">
       <div>
-        <p className="eyebrow">Runas oficiales</p>
-        <h2 className="font-display mt-1 text-xl font-semibold text-ink-100">Página recomendada</h2>
+        <p className="eyebrow">{t('Runas oficiales')}</p>
+        <h2 className="font-display mt-1 text-xl font-semibold text-ink-100">{t('Página recomendada')}</h2>
         <p className="mt-1 text-[0.78rem] text-ink-400">
-          Recomendación de Riot para {plan.recommendation.position.toLowerCase()} en Grieta del
-          Invocador.
+          {t('Recomendación de Riot para {role} en Grieta del Invocador.', { role: t(plan.recommendation.position.toLowerCase()) })}
         </p>
       </div>
 
@@ -63,14 +63,14 @@ export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Elemen
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-            Fragmentos
+            {t('Fragmentos')}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {plan.shards.map((shard, index) => (
               <RuneIcon
                 key={`${shard.id}-${index}`}
                 icon={shard.icon}
-                name={shard.name}
+                name={t(shard.name)}
                 size="sm"
               />
             ))}
@@ -78,7 +78,7 @@ export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Elemen
         </div>
         <div>
           <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">
-            Hechizos
+            {t('Hechizos')}
           </p>
           <div className="flex flex-wrap gap-2">
             {plan.summonerSpells.map((spell) => (

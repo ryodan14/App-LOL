@@ -3,6 +3,7 @@ import type { Champion } from '@shared/types'
 import { championIconUrl } from '@renderer/lib/icons'
 import { cn } from '@renderer/lib/cn'
 import { useGameData } from '@renderer/lib/gameData'
+import { t } from '@shared/i18n'
 
 const sizeMap = {
   xs: 'h-7 w-7 rounded-md',
@@ -40,7 +41,7 @@ export function ChampionIcon({
       {src ? (
         <img
           src={src}
-          alt={champion?.name ?? 'Campeón'}
+          alt={champion?.name ?? t('Campeón')}
           className="h-full w-full object-cover"
           loading="lazy"
           draggable={false}

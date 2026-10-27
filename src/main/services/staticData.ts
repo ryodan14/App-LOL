@@ -1,7 +1,8 @@
 import { app } from 'electron'
 import { promises as fs } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { DATA_LANGUAGE } from '@shared/constants'
+import { DDRAGON_LOCALE, INTL_LOCALE, type Locale } from '@shared/i18n'
+import { getSettings } from './settings'
 import type {
   Champion,
   DataResult,
@@ -157,7 +158,7 @@ interface RawSummonerSpells {
   data: Record<string, RawSummonerSpell>
 }
 
-function transformChampions(raw: RawChampionFull): Champion[] {
+function transformChampions(raw: RawChampionFull, locale: Locale): Champion[] {
   return Object.values(raw.data)
     .map((champion) => ({
       id: champion.id,
@@ -185,10 +186,10 @@ function transformChampions(raw: RawChampionFull): Champion[] {
         image: spell.image.full
       }))
     }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+    .sort((a, b) => a.name.localeCompare(b.name, INTL_LOCALE[locale]))
 }
 
-function transformItems(raw: RawItems): Item[] {
+function transformItems(raw: RawItems, locale: Locale): Item[] {
   const seen = new Set<number>()
   const items: Item[] = []
   for (const [rawId, item] of Object.entries(raw.data)) {
@@ -218,7 +219,7 @@ function transformItems(raw: RawItems): Item[] {
       consumed: item.consumed
     })
   }
-  return items.sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  return items.sort((a, b) => a.name.localeCompare(b.name, INTL_LOCALE[locale]))
 }
 
 function transformRuneRecommendations(
@@ -242,7 +243,7 @@ function transformRuneRecommendations(
     )
 }
 
-function transformSummonerSpells(raw: RawSummonerSpells): SummonerSpell[] {
+function transformSummonerSpells(raw: RawSummonerSpells, locale: Locale): SummonerSpell[] {
   return Object.values(raw.data)
     .map((spell) => ({
       id: Number(spell.key),
@@ -253,11 +254,11 @@ function transformSummonerSpells(raw: RawSummonerSpells): SummonerSpell[] {
       cooldown: spell.cooldown
     }))
     .filter((spell) => Number.isFinite(spell.id))
-    .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+    .sort((a, b) => a.name.localeCompare(b.name, INTL_LOCALE[locale]))
 }
 
-export async function fetchStaticData(version: string): Promise<StaticData> {
-  const language = DATA_LANGUAGE
+export async function fetchStaticData(version: string, locale: Locale): Promise<StaticData> {
+  const language = DDRAGON_LOCALE[locale]
   const [championRaw, itemRaw, summonerRaw, runeTreesRaw, runeRecsRaw] = await Promise.all([
     fetchJson<RawChampionFull>(
       `${DDRAGON}/cdn/${version}/data/${language}/championFull.json`
@@ -270,7 +271,7 @@ export async function fetchStaticData(version: string): Promise<StaticData> {
     )
   ])
 
-  const champions = transformChampions(championRaw)
+  const champions = transformChampions(championRaw, locale)
   const knownChampionIds = new Set(champions.map((champion) => champion.key))
   const runeRecs = transformRuneRecommendations(runeRecsRaw, knownChampionIds)
 
@@ -278,17 +279,17 @@ export async function fetchStaticData(version: string): Promise<StaticData> {
     patch: version,
     language,
     champions,
-    items: transformItems(itemRaw),
+    items: transformItems(itemRaw, locale),
     runeTrees: runeTreesRaw,
     runeRecs,
-    summonerSpells: transformSummonerSpells(summonerRaw),
+    summonerSpells: transformSummonerSpells(summonerRaw, locale),
     shards: SHARDS,
     fetchedAt: Date.now()
   }
 }
 
-function cachePath(): string {
-  return join(app.getPath('userData'), 'cache', `static-data-v2-${DATA_LANGUAGE}.json`)
+function cachePath(locale: Locale): string {
+  return join(app.getPath('userData'), 'cache', `static-data-v2-${DDRAGON_LOCALE[locale]}.json`)
 }
 
 function isValidCache(value: unknown): value is StaticData {
@@ -314,9 +315,9 @@ function isValidCache(value: unknown): value is StaticData {
   )
 }
 
-async function readCache(): Promise<StaticData | null> {
+async function readCache(locale: Locale): Promise<StaticData | null> {
   try {
-    const raw = await fs.readFile(cachePath(), 'utf8')
+    const raw = await fs.readFile(cachePath(locale), 'utf8')
     const parsed: unknown = JSON.parse(raw)
     return isValidCache(parsed) ? parsed : null
   } catch {
@@ -324,8 +325,8 @@ async function readCache(): Promise<StaticData | null> {
   }
 }
 
-async function writeCache(data: StaticData): Promise<void> {
-  const file = cachePath()
+async function writeCache(data: StaticData, locale: Locale): Promise<void> {
+  const file = cachePath(locale)
   await fs.mkdir(dirname(file), { recursive: true })
   const tmp = `${file}.tmp`
   await fs.writeFile(tmp, JSON.stringify(data), 'utf8')
@@ -335,6 +336,7 @@ async function writeCache(data: StaticData): Promise<void> {
 export class StaticDataService {
   private state: DataResult = { data: null, status: 'loading' }
   private refreshing: Promise<DataResult> | null = null
+  private locale: Locale = 'es'
   private listeners = new Set<(result: DataResult) => void>()
 
   get(): DataResult {
@@ -357,7 +359,9 @@ export class StaticDataService {
   }
 
   async init(): Promise<void> {
-    const cached = await readCache()
+    const settings = await getSettings()
+    this.locale = settings.language
+    const cached = await readCache(this.locale)
     if (cached) {
       this.state = { data: cached, status: 'ready' }
       this.emit()
@@ -366,12 +370,27 @@ export class StaticDataService {
     void this.refresh(false)
   }
 
+  async setLanguage(locale: Locale): Promise<void> {
+    if (locale === this.locale) return
+    this.locale = locale
+    this.state = { data: null, status: 'loading' }
+    this.emit()
+    const cached = await readCache(locale)
+    if (cached) {
+      this.state = { data: cached, status: 'ready' }
+      this.emit()
+    }
+    const pending = this.refreshing
+    if (pending) await pending.catch(() => undefined)
+    await this.refresh(true)
+  }
+
   async refresh(force: boolean): Promise<DataResult> {
     if (this.refreshing) return this.refreshing
 
     this.refreshing = (async () => {
       try {
-        if (this.state.data && !force) {
+        if (this.state.data && !force && this.state.data.language === DDRAGON_LOCALE[this.locale]) {
           const age = Date.now() - this.state.data.fetchedAt
           if (age < CACHE_TTL_MS) return this.state
         }
@@ -381,11 +400,11 @@ export class StaticDataService {
         if (!latest) throw new Error('Data Dragon no devolvió versiones')
 
         const cached = this.state.data
-        if (cached && cached.patch === latest && !force) {
+        if (cached && cached.patch === latest && !force && cached.language === DDRAGON_LOCALE[this.locale]) {
           const updated = { ...cached, fetchedAt: Date.now() }
           this.state = { data: updated, status: 'ready' }
           this.emit()
-          await writeCache(updated)
+          await writeCache(updated, this.locale)
           return this.state
         }
 
@@ -394,9 +413,9 @@ export class StaticDataService {
           this.emit()
         }
 
-        const data = await fetchStaticData(latest)
+        const data = await fetchStaticData(latest, this.locale)
         this.state = { data, status: 'ready' }
-        await writeCache(data)
+        await writeCache(data, this.locale)
         this.emit()
         return this.state
       } catch (error) {
