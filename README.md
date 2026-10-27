@@ -2,9 +2,30 @@
 
 Compañero de escritorio para League of Legends. Reúne builds, counters, runas, datos del cliente y un overlay de partida en una sola app, sin publicidad y sin pedir tu cuenta de Riot.
 
+![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows11&logoColor=white)
+![Versión](https://img.shields.io/github/v/release/ryodan14/App-LOL?label=versi%C3%B3n&color=d4b87a)
+![Licencia MIT](https://img.shields.io/badge/licencia-MIT-2ea44f)
+
 > Proyecto personal, no afiliado ni respaldado por Riot Games. League of Legends y sus activos son propiedad de Riot Games, Inc.
 
 **[Descargar el instalador para Windows](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-x64.exe)** · [Todas las versiones](https://github.com/ryodan14/App-LOL/releases)
+
+<p align="center">
+  <img src="docs/media/demo.gif" alt="Recorrido por App-LOL: inicio, champ select y partida en vivo" width="100%" />
+</p>
+
+<details>
+<summary><strong>Ver capturas de la app</strong></summary>
+
+### Champ select
+
+![Champ select con baneos recomendados y counters](docs/media/champ-select.png)
+
+### Partida en vivo
+
+![Partida en vivo con diferencia de oro por línea](docs/media/partida.png)
+
+</details>
 
 ## Características
 
@@ -113,6 +134,10 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 El overlay aparece sobre el monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
 
+<p align="center">
+  <img src="docs/media/overlay.gif" alt="Overlay de App-LOL con oro por línea, objetivos, baneos y counters" width="100%" />
+</p>
+
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
 - **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%. Por defecto usa 80%.
 - **Transparencia**: el fondo va de 35% (casi transparente) a 100% (sólido). Por defecto usa 75%.
@@ -215,6 +240,7 @@ src/
       lib/         Cliente IPC, formato y datos de juego
   shared/          Tipos, constantes y motor de análisis
 build/             Iconos y personalización del instalador
+docs/media/        Capturas y GIFs usados en el README
 ```
 
 ## Solución de problemas
