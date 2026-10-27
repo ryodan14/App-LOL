@@ -1,5 +1,10 @@
 appId: com.ryodan14.applol
 productName: App-LOL
+publish:
+  provider: github
+  owner: ryodan14
+  repo: App-LOL
+  releaseType: release
 directories:
   buildResources: build
   output: release
@@ -22,7 +27,7 @@ win:
         - x64
   icon: build/icon.ico
 nsis:
-  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
+  artifactName: ${productName}-Setup-${arch}.${ext}
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
@@ -30,7 +35,7 @@ nsis:
   runAfterFinish: true
   shortcutName: App-LOL
 portable:
-  artifactName: ${productName}-Portable-${version}-${arch}.${ext}
+  artifactName: ${productName}-Portable-${arch}.${ext}
 linux:
   target:
     - AppImage

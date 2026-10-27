@@ -14,6 +14,7 @@ import { Toggle } from '@renderer/components/ui/Toggle'
 import { Badge } from '@renderer/components/ui/Badge'
 import { Spinner } from '@renderer/components/ui/EmptyState'
 import { LOCALE_OPTIONS, t } from '@shared/i18n'
+import type { UpdateState } from '@shared/types'
 
 const OVERLAY_SCALE_LABELS: Record<number, string> = {
   0.6: 'Muy chico',
@@ -32,6 +33,34 @@ const OVERLAY_CORNER_LABELS: Record<string, string> = {
   'left-center': 'Izquierda al centro'
 }
 
+function updateMessage(state: UpdateState | null): string {
+  if (!state) return t('Comprueba si hay una versión nueva. La actualización se descarga en segundo plano y se instala al reiniciar.')
+  switch (state.status) {
+    case 'checking':
+      return t('Buscando actualizaciones…')
+    case 'available':
+      return t('Hay una versión nueva disponible: {version}.', { version: state.version ?? '' })
+    case 'downloading':
+      return t('Descargando la actualización… {progress}%', { progress: state.progress ?? 0 })
+    case 'downloaded':
+      return t('Actualización lista. Reinicia para aplicarla.')
+    case 'up-to-date':
+      return t('Estás en la última versión.')
+    case 'error':
+      return t('No se pudo comprobar la actualización: {error}', { error: state.error ?? '' })
+    case 'unsupported':
+      if (state.reason === 'portable') {
+        return t('La versión portátil no se actualiza sola. Descarga la última versión desde GitHub Releases.')
+      }
+      if (state.reason === 'platform') {
+        return t('Las actualizaciones automáticas solo están disponibles en Windows.')
+      }
+      return t('Las actualizaciones automáticas solo están disponibles en la app instalada.')
+    default:
+      return t('Comprueba si hay una versión nueva. La actualización se descarga en segundo plano y se instala al reiniciar.')
+  }
+}
+
 export function SettingsPage(): React.JSX.Element {
   const settings = useAppStore((state) => state.settings)
   const snapshot = useAppStore((state) => state.snapshot)
@@ -45,6 +74,8 @@ export function SettingsPage(): React.JSX.Element {
   const [manualPort, setManualPort] = useState(settings.manualLcuPort?.toString() ?? '')
   const [manualToken, setManualToken] = useState(settings.manualLcuToken)
   const [portError, setPortError] = useState<string | null>(null)
+  const [updateState, setUpdateState] = useState<UpdateState | null>(null)
+  const [checkingUpdates, setCheckingUpdates] = useState(false)
 
   useEffect(() => setCustomPath(settings.customLcuPath), [settings.customLcuPath])
   useEffect(
@@ -52,6 +83,32 @@ export function SettingsPage(): React.JSX.Element {
     [settings.manualLcuPort]
   )
   useEffect(() => setManualToken(settings.manualLcuToken), [settings.manualLcuToken])
+
+  useEffect(() => {
+    let cancelled = false
+    void window.api.updates
+      .get()
+      .then((state) => {
+        if (!cancelled) setUpdateState(state)
+      })
+      .catch(() => undefined)
+    const dispose = window.api.updates.onUpdate((state) => setUpdateState(state))
+    return () => {
+      cancelled = true
+      dispose()
+    }
+  }, [])
+
+  const checkUpdates = async (): Promise<void> => {
+    setCheckingUpdates(true)
+    try {
+      setUpdateState(await window.api.updates.check())
+    } catch {
+      // The main process reports the error through the update state.
+    } finally {
+      setCheckingUpdates(false)
+    }
+  }
 
   const commitPath = (): void => {
     const value = customPath.trim()
@@ -462,6 +519,68 @@ export function SettingsPage(): React.JSX.Element {
           {settings.startWithWindows
             ? t('Con el inicio automático activo, la X oculta la ventana en la bandeja. Para cerrar del todo, usa “Salir” en el icono de la bandeja.')
             : t('Si desactivas el inicio automático, cerrar la ventana cierra la app.')}
+        </p>
+      </Card>
+
+      <Card className="p-6">
+        <SectionHeading
+          eyebrow={t('Actualizaciones')}
+          title={t('Mantén App-LOL al día')}
+          description={t('Comprueba si hay una versión nueva. La actualización se descarga en segundo plano y se instala al reiniciar.')}
+        />
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Badge tone="gold">v{updateState?.currentVersion || version || '0.1.0'}</Badge>
+          {updateState?.version && updateState.status !== 'up-to-date' ? (
+            <Badge tone="teal">v{updateState.version}</Badge>
+          ) : null}
+        </div>
+        <p className="mt-3 text-[0.72rem] leading-relaxed text-ink-400">
+          {updateMessage(updateState)}
+        </p>
+        {updateState?.status === 'downloading' ? (
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-base-700">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-gold-600 to-gold-300 transition-[width]"
+              style={{ width: `${Math.max(2, updateState.progress ?? 0)}%` }}
+            />
+          </div>
+        ) : null}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            variant="quiet"
+            size="sm"
+            icon={<RefreshCw className={checkingUpdates ? 'h-3.5 w-3.5 animate-spin' : 'h-3.5 w-3.5'} />}
+            disabled={checkingUpdates || updateState?.status === 'checking' || updateState?.status === 'downloading'}
+            onClick={() => void checkUpdates()}
+          >
+            {checkingUpdates || updateState?.status === 'checking'
+              ? t('Buscando actualizaciones…')
+              : t('Buscar actualizaciones')}
+          </Button>
+          {updateState?.status === 'downloaded' ? (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => void window.api.updates.restart()}
+            >
+              {t('Reiniciar e instalar')}
+            </Button>
+          ) : null}
+          {updateState?.status === 'unsupported' ? (
+            <Button
+              variant="quiet"
+              size="sm"
+              icon={<ExternalLink className="h-3.5 w-3.5" />}
+              onClick={() =>
+                void window.api.external.open('https://github.com/ryodan14/App-LOL/releases')
+              }
+            >
+              {t('Ver releases')}
+            </Button>
+          ) : null}
+        </div>
+        <p className="mt-3 text-[0.64rem] leading-relaxed text-ink-500">
+          {t('La comprobación automática se hace al abrir la app y cada 6 horas.')}
         </p>
       </Card>
 

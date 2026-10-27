@@ -14,6 +14,7 @@ import {
 } from './overlay'
 import { createPreviewAccount, createPreviewSnapshot } from './preview'
 import { createAppTray, destroyAppTray, updateAppTray } from './tray'
+import { checkForUpdates, getUpdateState, initUpdater, restartAndInstall } from './services/updater'
 import { setLocale } from '@shared/i18n'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
@@ -151,6 +152,10 @@ function registerIpc(): void {
     return snapshotService?.getAccount() ?? null
   })
 
+  ipcMain.handle('updates:get', () => getUpdateState())
+  ipcMain.handle('updates:check', () => checkForUpdates())
+  ipcMain.handle('updates:restart', () => restartAndInstall())
+
   ipcMain.on('window:minimize', () => getMainWindow()?.minimize())
   ipcMain.on('window:toggle-maximize', () => {
     const window = getMainWindow()
@@ -200,8 +205,7 @@ app.whenReady().then(async () => {
   electronApp.setAppUserModelId('com.ryodan14.applol')
 
   const settings = await getSettings()
-  activeSettings = settings
-  applyLoginItemSettings(settings)
+  applySettingsRuntime(settings)
 
   if (!process.env['ELECTRON_RENDERER_URL']) {
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
@@ -283,6 +287,7 @@ app.whenReady().then(async () => {
     if (startHidden) showMainWindow()
   }
   snapshotService.start()
+  initUpdater()
 
   const mainPreviewArg = process.argv.find((arg) => arg.startsWith('--app-lol-main-preview='))
   if (mainPreviewArg) {

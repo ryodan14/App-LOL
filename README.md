@@ -2,9 +2,30 @@
 
 Compañero de escritorio para League of Legends. Reúne builds, counters, runas, datos del cliente y un overlay de partida en una sola app, sin publicidad y sin pedir tu cuenta de Riot.
 
+![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows11&logoColor=white)
+![Versión](https://img.shields.io/github/v/release/ryodan14/App-LOL?label=versi%C3%B3n&color=d4b87a)
+![Licencia MIT](https://img.shields.io/badge/licencia-MIT-2ea44f)
+
 > Proyecto personal, no afiliado ni respaldado por Riot Games. League of Legends y sus activos son propiedad de Riot Games, Inc.
 
-**[Descargar el instalador para Windows](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe)** · [Todas las versiones](https://github.com/ryodan14/App-LOL/releases)
+**[Descargar el instalador para Windows](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-x64.exe)** · [Todas las versiones](https://github.com/ryodan14/App-LOL/releases)
+
+<p align="center">
+  <img src="docs/media/demo.gif" alt="Recorrido por App-LOL: inicio, champ select y partida en vivo" width="100%" />
+</p>
+
+<details>
+<summary><strong>Ver capturas de la app</strong></summary>
+
+### Champ select
+
+![Champ select con baneos recomendados y counters](docs/media/champ-select.png)
+
+### Partida en vivo
+
+![Partida en vivo con diferencia de oro por línea](docs/media/partida.png)
+
+</details>
 
 ## Características
 
@@ -35,10 +56,10 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 ## Descarga
 
-Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependes de tenerlos solo en el Escritorio.
+Los ejecutables están publicados en [GitHub Releases](https://github.com/ryodan14/App-LOL/releases/latest), así no dependes de tenerlos solo en el Escritorio. Los enlaces de descarga apuntan siempre a la última versión publicada.
 
-- **Instalador recomendado**: [App-LOL-Setup-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-0.1.0-x64.exe). Instala la app, crea accesos directos en el Escritorio y el menú Inicio, y la abre al terminar.
-- **Portátil**: [App-LOL-Portable-0.1.0-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-0.1.0-x64.exe). No requiere instalación.
+- **Instalador recomendado**: [App-LOL-Setup-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Setup-x64.exe). Instala la app, crea accesos directos en el Escritorio y el menú Inicio, y la abre al terminar.
+- **Portátil**: [App-LOL-Portable-x64.exe](https://github.com/ryodan14/App-LOL/releases/latest/download/App-LOL-Portable-x64.exe). No requiere instalación.
 
 Al abrir la app por primera vez, queda configurada para iniciar con Windows y aparecer cuando abres League of Legends. Puedes cambiar ambas opciones en **Ajustes → Sistema**.
 
@@ -48,20 +69,30 @@ La app se distribuye de dos formas: instalador con accesos directos o ejecutable
 
 ### Opción A: instalador
 
-1. Ejecuta `App-LOL-Setup-0.1.0-x64.exe`.
+1. Ejecuta `App-LOL-Setup-x64.exe`.
 2. Elige la carpeta de instalación si quieres cambiarla.
 3. El instalador crea accesos directos en el escritorio y en el menú Inicio.
 4. Al terminar, App-LOL se abre automáticamente.
 
 ### Opción B: portátil
 
-1. Ejecuta `App-LOL-Portable-0.1.0-x64.exe`.
+1. Ejecuta `App-LOL-Portable-x64.exe`.
 2. La app extrae sus archivos a una carpeta temporal y se ejecuta desde allí.
 3. Puedes mover o renombrar el ejecutable, pero no lo borres mientras la app está abierta.
 
 ### Aviso de SmartScreen
 
 Los ejecutables no están firmados digitalmente, así que Windows puede mostrar un aviso de SmartScreen. Si descargaste el archivo desde este repositorio o lo compilaste tú, usa **Más información → Ejecutar de todas formas**.
+
+## Actualizaciones
+
+La versión instalada comprueba si hay una versión nueva al abrir la app y cada 6 horas. La actualización se descarga en segundo plano y se instala al cerrar o reiniciar App-LOL. También puedes comprobarla manualmente en **Ajustes → Actualizaciones**.
+
+> **Importante**: las versiones anteriores a la que incluye el actualizador no pueden actualizarse solas. Si ya tenías App-LOL instalado, descarga e instala una vez la última versión desde GitHub Releases. A partir de ahí las siguientes actualizaciones serán automáticas.
+
+La **versión portátil no se actualiza sola**: descarga el ejecutable nuevo desde la última release. Las actualizaciones automáticas están disponibles en la versión instalada de Windows.
+
+Las versiones se publican como releases de GitHub. El instalador se actualiza con `latest.yml` y los usuarios no tienen que volver a descargar nada.
 
 ## Primer uso
 
@@ -112,6 +143,10 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 ## Overlay
 
 El overlay aparece sobre el monitor principal cuando estás en champ select, en partida o reconectando. Es transparente, no roba foco y deja pasar los clics al juego.
+
+<p align="center">
+  <img src="docs/media/overlay.gif" alt="Overlay de App-LOL con oro por línea, objetivos, baneos y counters" width="100%" />
+</p>
 
 - **Mostrar u ocultar**: `Ctrl + Shift + O`, el botón de la barra superior o el menú de la bandeja.
 - **Tamaño**: en **Ajustes** puedes elegir entre 60% y 100%. Por defecto usa 80%.
@@ -186,14 +221,38 @@ npm run dev
 | `npm test` | Ejecuta los tests con Vitest. |
 | `npm run build` | Compila la app sin empaquetar. |
 | `npm run build:win` | Genera el instalador NSIS y el portátil para Windows x64. |
+| `npm run release:win` | Genera y publica la release de Windows en GitHub. Requiere `GH_TOKEN`. |
 | `npm run build:linux` | Genera un AppImage para Linux. |
 
 Los artefactos de Windows quedan en `release/`:
 
 ```text
-release/App-LOL-Setup-0.1.0-x64.exe
-release/App-LOL-Portable-0.1.0-x64.exe
+release/App-LOL-Setup-x64.exe
+release/App-LOL-Setup-x64.exe.blockmap
+release/App-LOL-Portable-x64.exe
+release/latest.yml
 ```
+
+### Publicar una versión
+
+La forma recomendada es dejar que GitHub Actions compile y publique la release:
+
+1. Sube la versión y crea el tag: `npm version patch` (o `minor`/`major`).
+2. Sube el commit y el tag:
+
+```bash
+git push origin main --follow-tags
+```
+
+3. La workflow `.github/workflows/release.yml` compila en Windows, ejecuta los tests y publica el instalador, `latest.yml` y el `.blockmap`.
+
+También puedes publicar desde un Windows con un token con permiso sobre el repositorio:
+
+```bash
+GH_TOKEN=tu_token npm run release:win
+```
+
+El token no se guarda en el repositorio. Para que las actualizaciones funcionen, la release debe ser pública y no quedar en borrador. La versión de `package.json` debe coincidir con el tag.
 
 ### Estructura
 
@@ -215,6 +274,7 @@ src/
       lib/         Cliente IPC, formato y datos de juego
   shared/          Tipos, constantes y motor de análisis
 build/             Iconos y personalización del instalador
+docs/media/        Capturas y GIFs usados en el README
 ```
 
 ## Solución de problemas
