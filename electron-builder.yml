@@ -1,5 +1,10 @@
 appId: com.ryodan14.applol
 productName: App-LOL
+publish:
+  provider: github
+  owner: ryodan14
+  repo: App-LOL
+  releaseType: release
 directories:
   buildResources: build
   output: release

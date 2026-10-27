@@ -84,6 +84,16 @@ La app se distribuye de dos formas: instalador con accesos directos o ejecutable
 
 Los ejecutables no están firmados digitalmente, así que Windows puede mostrar un aviso de SmartScreen. Si descargaste el archivo desde este repositorio o lo compilaste tú, usa **Más información → Ejecutar de todas formas**.
 
+## Actualizaciones
+
+La versión instalada comprueba si hay una versión nueva al abrir la app y cada 6 horas. La actualización se descarga en segundo plano y se instala al cerrar o reiniciar App-LOL. También puedes comprobarla manualmente en **Ajustes → Actualizaciones**.
+
+> **Importante**: las versiones anteriores a la que incluye el actualizador no pueden actualizarse solas. Si ya tenías App-LOL instalado, descarga e instala una vez la última versión desde GitHub Releases. A partir de ahí las siguientes actualizaciones serán automáticas.
+
+La **versión portátil no se actualiza sola**: descarga el ejecutable nuevo desde la última release. Las actualizaciones automáticas están disponibles en la versión instalada de Windows.
+
+Las versiones se publican como releases de GitHub. El instalador se actualiza con `latest.yml` y los usuarios no tienen que volver a descargar nada.
+
 ## Primer uso
 
 1. Abre App-LOL.
@@ -211,14 +221,30 @@ npm run dev
 | `npm test` | Ejecuta los tests con Vitest. |
 | `npm run build` | Compila la app sin empaquetar. |
 | `npm run build:win` | Genera el instalador NSIS y el portátil para Windows x64. |
+| `npm run release:win` | Genera y publica la release de Windows en GitHub. Requiere `GH_TOKEN`. |
 | `npm run build:linux` | Genera un AppImage para Linux. |
 
 Los artefactos de Windows quedan en `release/`:
 
 ```text
 release/App-LOL-Setup-x64.exe
+release/App-LOL-Setup-x64.exe.blockmap
 release/App-LOL-Portable-x64.exe
+release/latest.yml
 ```
+
+### Publicar una versión
+
+1. Sube la versión: `npm version patch` (o `minor`/`major`).
+2. Publica con un token de GitHub con permiso sobre el repositorio:
+
+```bash
+GH_TOKEN=tu_token npm run release:win
+```
+
+3. Comprueba que la release incluye el instalador, `latest.yml` y el `.blockmap`.
+
+El token no se guarda en el repositorio. Para que las actualizaciones funcionen, la release debe ser pública y no quedar en borrador.
 
 ### Estructura
 
