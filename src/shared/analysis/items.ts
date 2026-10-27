@@ -108,6 +108,125 @@ const ENCHANTER_ITEM_BONUS: Record<number, number> = {
   6620: 35
 }
 
+const CORE_ITEM_BONUS: Record<Archetype, Record<number, number>> = {
+  marksman: {
+    6672: 34,
+    3031: 30,
+    3072: 24,
+    6676: 22,
+    3085: 20,
+    3036: 18,
+    6675: 18,
+    3033: 16,
+    3094: 16,
+    3508: 14,
+    6694: 12,
+    3153: 12
+  },
+  mage: {
+    6655: 30,
+    3157: 26,
+    3089: 24,
+    6653: 22,
+    4645: 22,
+    3135: 20,
+    3102: 18,
+    3165: 16,
+    3116: 16,
+    3118: 16,
+    4628: 14
+  },
+  'ap-assassin': {
+    4645: 28,
+    3157: 24,
+    3089: 22,
+    3135: 22,
+    6655: 20,
+    3102: 18,
+    6653: 16,
+    3165: 14
+  },
+  'ad-assassin': {
+    6692: 28,
+    3142: 24,
+    3814: 22,
+    6694: 20,
+    6676: 18,
+    6695: 16,
+    3071: 16,
+    3153: 16
+  },
+  bruiser: {
+    3078: 28,
+    6333: 24,
+    3053: 24,
+    3071: 22,
+    6610: 20,
+    3153: 20,
+    3748: 18,
+    3181: 16,
+    6609: 14
+  },
+  'ap-bruiser': {
+    4633: 26,
+    6653: 24,
+    3116: 22,
+    3157: 22,
+    3089: 18,
+    3135: 18,
+    3065: 16,
+    2504: 16,
+    3165: 14
+  },
+  tank: {
+    3068: 26,
+    3143: 22,
+    2504: 22,
+    3084: 22,
+    3075: 20,
+    3110: 20,
+    3065: 20,
+    6665: 18,
+    6662: 18,
+    3190: 16
+  },
+  enchanter: {
+    6617: 35,
+    6616: 30,
+    3504: 28,
+    3107: 28,
+    3222: 26,
+    6620: 24,
+    3190: 18,
+    3011: 18,
+    2065: 16
+  },
+  support: {
+    3190: 28,
+    3109: 26,
+    3107: 24,
+    3222: 22,
+    3050: 20,
+    2065: 20,
+    3110: 18,
+    3075: 16
+  }
+}
+
+const EARLY_ITEM_BONUS: Record<Archetype, Record<number, number>> = {
+  marksman: { 6672: 180, 6676: 80, 3508: 60 },
+  mage: { 6655: 180, 3118: 100, 6653: 80, 3157: 80 },
+  'ap-assassin': { 6655: 220, 4645: 100, 3157: 80 },
+  'ad-assassin': { 6692: 140, 3142: 120, 6695: 60 },
+  bruiser: { 3078: 100, 3071: 90, 6610: 90 },
+  'ap-bruiser': { 4633: 120, 6653: 100, 3116: 80 },
+  tank: { 3068: 300, 6662: 120, 3190: 100, 2504: 80 },
+  enchanter: { 6617: 150, 6620: 100, 3107: 100 },
+  support: { 3190: 120, 3109: 100, 3050: 80 }
+}
+
+const STACKING_ITEM_IDS = new Set([3084, 3118])
+
 const STARTING_IDS = {
   doranBlade: 1055,
   doranRing: 1056,
@@ -157,6 +276,24 @@ function itemText(item: Item): string {
   return `${stripHtml(item.description)} ${stripHtml(item.plaintext)}`
 }
 
+function hasPercentPenetration(item: Item): boolean {
+  return /(\d+)\s*%\s*(?:de\s+)?(?:penetración de armadura|penetración mágica|armor penetration|magic penetration)/i.test(
+    itemText(item)
+  )
+}
+
+function hasGrievousWounds(item: Item): boolean {
+  return /heridas graves|grievous wounds|anti-?heal/i.test(itemText(item))
+}
+
+function itemBonus(item: Item, archetype: Archetype): number {
+  return CORE_ITEM_BONUS[archetype][item.id] ?? 0
+}
+
+function earlyItemBonus(item: Item, archetype: Archetype): number {
+  return EARLY_ITEM_BONUS[archetype][item.id] ?? 0
+}
+
 function itemStats(item: Item): {
   ad: number
   ap: number
@@ -173,6 +310,7 @@ function itemStats(item: Item): {
   lethality: number
   armorPen: number
   magicPen: number
+  magicPenPercent: number
   healShield: number
 } {
   const stats = item.stats
@@ -185,6 +323,18 @@ function itemStats(item: Item): {
   const haste =
     parsedHaste ||
     (tags.includes('AbilityHaste') ? 15 : tags.includes('CooldownReduction') ? 10 : 0)
+  const armorPenPercent = parseNumber(
+    text,
+    /(\d+)\s*%\s*(?:de\s+)?(?:penetración de armadura|armor penetration)/i
+  )
+  const magicPenPercent = parseNumber(
+    text,
+    /(\d+)\s*%\s*(?:de\s+)?(?:penetración mágica|magic penetration)/i
+  )
+  const magicPenFlat = parseNumber(
+    text,
+    /(\d+)\s*(?:de\s+)?(?:penetración mágica|magic penetration)/i
+  )
 
   return {
     ad: stats.FlatPhysicalDamageMod ?? 0,
@@ -200,14 +350,9 @@ function itemStats(item: Item): {
     ms: (stats.PercentMovementSpeedMod ?? 0) * 100,
     haste,
     lethality: parseNumber(text, /(\d+)\s*(?:de\s+)?(?:letalidad|lethality)/i),
-    armorPen:
-      parseNumber(
-        text,
-        /(\d+)%\s*(?:de\s+)?(?:penetración de armadura|armor penetration)/i
-      ) + (tags.includes('ArmorPenetration') ? 8 : 0),
-    magicPen:
-      parseNumber(text, /(\d+)\s*(?:de\s+)?(?:penetración mágica|magic penetration)/i) +
-      (tags.includes('MagicPenetration') ? 8 : 0),
+    armorPen: armorPenPercent,
+    magicPen: magicPenFlat + (tags.includes('MagicPenetration') ? 8 : 0),
+    magicPenPercent,
     healShield: parseNumber(
       text,
       /(\d+)%\s*(?:de\s+)?(?:poder de curación y escudos|heal and shield power)/i
@@ -227,11 +372,12 @@ function scoreItem(item: Item, archetype: Archetype): number {
       if (tags.includes('OnHit')) score += 10
       break
     case 'mage':
-      score += s.ap * 2.0 + s.magicPen * 4.5 + s.haste * 1.5 + s.hp * 0.1 + s.mana * 0.015
-      score += s.ms * 0.8
+      score += s.ap * 2.0 + s.magicPen * 4.5 + s.magicPenPercent * 1.5
+      score += s.haste * 1.5 + s.hp * 0.1 + s.mana * 0.015 + s.ms * 0.8
       break
     case 'ap-assassin':
-      score += s.ap * 2.1 + s.magicPen * 5.5 + s.haste * 1.3 + s.hp * 0.07 + s.ms * 1.4
+      score += s.ap * 2.1 + s.magicPen * 5.5 + s.magicPenPercent * 1.8
+      score += s.haste * 1.3 + s.hp * 0.07 + s.ms * 1.4
       break
     case 'ad-assassin':
       score += s.ad * 2.5 + s.lethality * 4 + s.armorPen * 2.5 + s.haste * 1.1
@@ -242,7 +388,8 @@ function scoreItem(item: Item, archetype: Archetype): number {
       score += s.as * 0.8 + s.lifesteal * 2 + s.ms * 0.5
       break
     case 'ap-bruiser':
-      score += s.ap * 1.9 + s.hp * 0.15 + s.armor * 0.8 + s.mr * 0.8 + s.haste * 1.1
+      score += s.ap * 1.9 + s.magicPen * 2 + s.magicPenPercent * 1.2
+      score += s.hp * 0.15 + s.armor * 0.8 + s.mr * 0.8 + s.haste * 1.1
       score += s.as * 0.6 + s.ms * 0.5
       break
     case 'tank':
@@ -286,16 +433,62 @@ function scoreItem(item: Item, archetype: Archetype): number {
   }
   if (archetype === 'tank' && (tags.includes('Armor') || tags.includes('SpellBlock'))) score += 8
   if (archetype === 'enchanter' && tags.includes('ManaRegen')) score += 6
+  score += itemBonus(item, archetype)
 
   return score
 }
 
 function laneOpeningScore(item: Item, archetype: Archetype): number {
   const stats = itemStats(item)
-  const expensivePenalty = Math.max(0, item.gold.total - 3200) * 0.12
-  const cheapBonus = item.gold.total <= 3000 ? 6 : item.gold.total <= 3200 ? 2 : 0
-  const defensiveBonus = stats.armor + stats.mr + stats.hp * 0.05 + stats.lifesteal * 2
-  return scoreItem(item, archetype) - expensivePenalty + cheapBonus + defensiveBonus
+  let score = 0
+
+  switch (archetype) {
+    case 'marksman':
+      score += stats.ad * 1.8 + stats.as * 2.2 + stats.crit * 2.4 + stats.lifesteal * 2
+      score += stats.haste * 0.8
+      break
+    case 'mage':
+      score += stats.ap * 1.7 + stats.mana * 0.02 + stats.haste * 1.4 + stats.hp * 0.08
+      break
+    case 'ap-assassin':
+      score += stats.ap * 1.9 + stats.magicPen * 2 + stats.haste * 1.4 + stats.hp * 0.06
+      break
+    case 'ad-assassin':
+      score += stats.ad * 2 + stats.lethality * 2.5 + stats.haste * 1.2 + stats.hp * 0.06
+      break
+    case 'bruiser':
+      score += stats.ad * 1.7 + stats.hp * 0.12 + stats.armor * 0.8 + stats.mr * 0.8
+      score += stats.as * 1.4 + stats.lifesteal * 1.5 + stats.haste
+      break
+    case 'ap-bruiser':
+      score += stats.ap * 1.6 + stats.hp * 0.12 + stats.armor * 0.7 + stats.mr * 0.7
+      score += stats.haste * 1.1
+      break
+    case 'tank':
+      score += stats.hp * 0.22 + stats.armor * 1.6 + stats.mr * 1.6 + stats.haste + stats.ms * 0.4
+      break
+    case 'enchanter':
+      score += stats.ap * 0.7 + stats.hp * 0.08 + stats.haste * 1.6 + stats.healShield * 6
+      score += stats.mpRegen * 8 + stats.mana * 0.02 + stats.ms
+      break
+    case 'support':
+      score += stats.hp * 0.18 + stats.armor * 1.4 + stats.mr * 1.4 + stats.haste * 1.8
+      score += stats.healShield * 3 + stats.ms * 0.7
+      break
+  }
+
+  score += itemBonus(item, archetype) * 0.35
+  score += earlyItemBonus(item, archetype) * 0.5
+  score -= item.gold.total * 0.03
+  if (item.gold.total > 3200) score -= (item.gold.total - 3200) * 0.12
+  if (item.gold.total <= 3000) score += 8
+  if (hasPercentPenetration(item)) score -= 30
+  if (hasGrievousWounds(item)) score -= 40
+  if (STACKING_ITEM_IDS.has(item.id) || /acumul|stack|permanentemente/i.test(itemText(item))) {
+    score -= 18
+  }
+
+  return score
 }
 
 function statSummary(item: Item): string {
@@ -471,7 +664,7 @@ export function generateBuild(
   const situationalAdaptive = highAdaptive.slice(1)
   const natural = pool
     .filter((item) => !used.has(item.id))
-    .map((item) => ({ item, score: scoreItem(item, archetype) }))
+    .map((item) => ({ item, score: scoreItem(item, archetype) + earlyItemBonus(item, archetype) }))
     .sort((a, b) => b.score - a.score)
     .map(({ item }) => item)
 
