@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -28,7 +27,20 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Build and publish
-        run: npm run release:win
+      - name: Build Windows artifacts
+        run: npm run build:win
+
+      - name: Publish GitHub release
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --title "App-LOL $TAG" --generate-notes
+          gh release upload "$TAG" \
+            release/App-LOL-Setup-x64.exe \
+            release/App-LOL-Setup-x64.exe.blockmap \
+            release/App-LOL-Portable-x64.exe \
+            release/latest.yml \
+            --clobber
+          gh release edit "$TAG" --draft=false

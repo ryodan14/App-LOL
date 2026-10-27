@@ -16,8 +16,7 @@
     "test:watch": "vitest",
     "build": "npm run typecheck && electron-vite build",
     "build:win": "npm run build && electron-builder --win --publish never",
-    "build:linux": "npm run build && electron-builder --linux",
-    "release:win": "npm run build && electron-builder --win --publish always"
+    "build:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",

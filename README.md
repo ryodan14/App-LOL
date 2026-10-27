@@ -220,8 +220,7 @@ npm run dev
 | `npm run typecheck` | Verifica tipos del proceso principal y del renderer. |
 | `npm test` | Ejecuta los tests con Vitest. |
 | `npm run build` | Compila la app sin empaquetar. |
-| `npm run build:win` | Genera el instalador NSIS y el portátil para Windows x64. |
-| `npm run release:win` | Genera y publica la release de Windows en GitHub. Requiere `GH_TOKEN`. |
+| `npm run build:win` | Genera el instalador NSIS, el portátil y `latest.yml` en `release/`. |
 | `npm run build:linux` | Genera un AppImage para Linux. |
 
 Los artefactos de Windows quedan en `release/`:
@@ -246,13 +245,9 @@ git push origin main --follow-tags
 
 3. La workflow `.github/workflows/release.yml` compila en Windows, ejecuta los tests y publica el instalador, `latest.yml` y el `.blockmap`.
 
-También puedes publicar desde un Windows con un token con permiso sobre el repositorio:
+Si compilas manualmente con `npm run build:win`, sube a la release el instalador, el `.blockmap`, el portátil y `latest.yml`. No publiques el instalador y el portátil por separado: todos los assets deben quedar en la misma release.
 
-```bash
-GH_TOKEN=tu_token npm run release:win
-```
-
-El token no se guarda en el repositorio. Para que las actualizaciones funcionen, la release debe ser pública y no quedar en borrador. La versión de `package.json` debe coincidir con el tag.
+La versión de `package.json` debe coincidir con el tag. Para que las actualizaciones funcionen, la release debe ser pública y no quedar en borrador.
 
 ### Estructura
 
