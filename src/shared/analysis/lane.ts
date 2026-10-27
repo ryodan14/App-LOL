@@ -269,6 +269,51 @@ function matchupScore(
   return { score, reasons }
 }
 
+export interface BanSuggestionReport {
+  champion: Champion
+  role: Role
+  suggestions: CounterSuggestion[]
+  note: string
+}
+
+export function suggestBanTargets(
+  myChampion: Champion,
+  role: Role,
+  index: AnalysisIndex,
+  excludeIds: string[] = []
+): BanSuggestionReport {
+  const excluded = new Set([myChampion.id, ...excludeIds])
+  const curated = new Set(CURATED_COUNTERS[myChampion.id] ?? [])
+  const suggestions: CounterSuggestion[] = []
+
+  for (const candidate of index.data.champions) {
+    if (excluded.has(candidate.id)) continue
+    if (!recommendedRoles(index, candidate).includes(role)) continue
+
+    const { score, reasons } = matchupScore(candidate, myChampion, role, index)
+    const isCurated = curated.has(candidate.id)
+    if (isCurated) {
+      addReason(reasons, t('Matchup históricamente favorable contra tu campeón'))
+    }
+
+    suggestions.push({
+      champion: candidate,
+      score: score + (isCurated ? 4 : 0),
+      reasons: reasons.slice(0, 2),
+      curated: isCurated
+    })
+  }
+
+  suggestions.sort((a, b) => b.score - a.score || a.champion.name.localeCompare(b.champion.name))
+
+  return {
+    champion: myChampion,
+    role,
+    suggestions: suggestions.filter((entry) => entry.score > 0.5).slice(0, 5),
+    note: t('Baneos sugeridos por kit, línea y arquetipo. No son winrates en vivo.')
+  }
+}
+
 export function suggestLaneCounters(
   enemy: Champion,
   role: Role,
