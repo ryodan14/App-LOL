@@ -3,6 +3,7 @@ import type { LiveGameState } from '@shared/types'
 import { computeObjectiveTimers, type ObjectiveTimer } from '@shared/analysis'
 import { formatDuration } from '@renderer/lib/format'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 function TimerIcon({ timer }: { timer: ObjectiveTimer }): React.JSX.Element {
   if (timer.kind === 'DRAGON') return <Flame className="h-3.5 w-3.5 text-orange-300" />
@@ -12,8 +13,8 @@ function TimerIcon({ timer }: { timer: ObjectiveTimer }): React.JSX.Element {
 
 function timerValue(timer: ObjectiveTimer): string {
   if (timer.status === 'countdown') return formatDuration(timer.remaining)
-  if (timer.status === 'active') return 'En juego'
-  return 'Listo'
+  if (timer.status === 'active') return t('En juego')
+  return t('Listo')
 }
 
 function TimerRow({

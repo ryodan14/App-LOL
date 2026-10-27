@@ -1,15 +1,27 @@
-import { TIER_LABELS } from '@shared/constants'
+import { tierLabel } from '@shared/constants'
+import { INTL_LOCALE, getLocale, t } from '@shared/i18n'
 
-const numberFormatter = new Intl.NumberFormat('es-ES')
+const numberFormatters = new Map<string, Intl.NumberFormat>()
+
+function numberFormatter(): Intl.NumberFormat {
+  const locale = INTL_LOCALE[getLocale()]
+  let formatter = numberFormatters.get(locale)
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale)
+    numberFormatters.set(locale, formatter)
+  }
+  return formatter
+}
 
 export function formatNumber(value: number): string {
-  return numberFormatter.format(Math.round(value))
+  return numberFormatter().format(Math.round(value))
 }
 
 export function formatCompact(value: number): string {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace('.', ',')}M`
+  const decimal = getLocale() === 'en' ? '.' : ','
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace('.', decimal)}M`
   if (value >= 10_000) return `${Math.round(value / 1000)}k`
-  if (value >= 1_000) return `${(value / 1000).toFixed(1).replace('.', ',')}k`
+  if (value >= 1_000) return `${(value / 1000).toFixed(1).replace('.', decimal)}k`
   return formatNumber(value)
 }
 
@@ -26,21 +38,21 @@ export function formatTimer(ms: number): string {
 
 export function formatRelativeTime(timestamp: number): string {
   const diff = Date.now() - timestamp
-  if (diff < 60_000) return 'hace un momento'
+  if (diff < 60_000) return t('hace un momento')
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 60) return `hace ${minutes} min`
+  if (minutes < 60) return t('hace {count} min', { count: minutes })
   const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `hace ${hours} h`
+  if (hours < 24) return t('hace {count} h', { count: hours })
   const days = Math.floor(hours / 24)
-  return `hace ${days} d`
+  return t('hace {count} d', { count: days })
 }
 
 export function formatRank(tier: string, division: string, leaguePoints: number): string {
-  const tierLabel = TIER_LABELS[tier.toUpperCase()] ?? tier
+  const tierName = tierLabel(tier)
   if (!division || ['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(tier.toUpperCase())) {
-    return `${tierLabel} · ${leaguePoints} LP`
+    return `${tierName} · ${leaguePoints} LP`
   }
-  return `${tierLabel} ${division} · ${leaguePoints} LP`
+  return `${tierName} ${division} · ${leaguePoints} LP`
 }
 
 export function formatWinrate(wins: number, losses: number): string {

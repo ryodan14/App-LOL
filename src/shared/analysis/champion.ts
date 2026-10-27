@@ -1,5 +1,6 @@
 import type { Champion, Role } from '../types'
-import { ARCHETYPE_LABELS } from './labels'
+import { archetypeLabel } from './labels'
+import { t } from '../i18n'
 import { countMatches, stripHtml } from './text'
 import type {
   Archetype,
@@ -129,21 +130,21 @@ export function analyzeChampion(champion: Champion, role?: Role): ThreatProfile 
     addThreat(
       'HEAL',
       severity(healCount),
-      'Tiene curación, regeneración o robo de vida en su kit'
+      t('Tiene curación, regeneración o robo de vida en su kit')
     )
   }
 
   if (countMatches(text, SHIELD) > 0) {
-    addThreat('SHIELD', 2, 'Puede absorber daño con escudos')
+    addThreat('SHIELD', 2, t('Puede absorber daño con escudos'))
   }
 
   const ccCount = countMatches(text, HARD_CC)
   if (ccCount > 0) {
-    addThreat('HARD_CC', severity(ccCount), 'Su kit incluye control de masas fuerte')
+    addThreat('HARD_CC', severity(ccCount), t('Su kit incluye control de masas fuerte'))
   }
 
   if (countMatches(text, SLOW) > 0) {
-    addThreat('SLOW', 1, 'Puede ralentizar para alcanzar o escapar')
+    addThreat('SLOW', 1, t('Puede ralentizar para alcanzar o escapar'))
   }
 
   const mobilityCount = countMatches(text, MOBILITY)
@@ -151,12 +152,12 @@ export function analyzeChampion(champion: Champion, role?: Role): ThreatProfile 
     addThreat(
       'MOBILITY',
       tags.includes('Assassin') || mobilityCount >= 2 ? 3 : 2,
-      'Tiene dash, salto o reposicionamiento rápido'
+      t('Tiene dash, salto o reposicionamiento rápido')
     )
   }
 
   if (countMatches(text, STEALTH) > 0) {
-    addThreat('STEALTH', tags.includes('Assassin') ? 3 : 2, 'Puede volverse invisible')
+    addThreat('STEALTH', tags.includes('Assassin') ? 3 : 2, t('Puede volverse invisible'))
   }
 
   const pokeSpells = champion.spells.filter(
@@ -166,7 +167,7 @@ export function analyzeChampion(champion: Champion, role?: Role): ThreatProfile 
     addThreat(
       'POKE',
       pokeSpells.length >= 2 ? 3 : 2,
-      'Puede hacer daño desde muy lejos'
+      t('Puede hacer daño desde muy lejos')
     )
   }
 
@@ -174,45 +175,45 @@ export function analyzeChampion(champion: Champion, role?: Role): ThreatProfile 
     addThreat(
       'BURST',
       3,
-      tags.includes('Assassin') ? 'Puede eliminar objetivos en una combo' : 'Tiene burst mágico alto'
+      tags.includes('Assassin') ? t('Puede eliminar objetivos en una combo') : t('Tiene burst mágico alto')
     )
   } else if (tags.includes('Fighter') && info.attack >= 7) {
-    addThreat('BURST', 2, 'Tiene picos de daño altos en peleas cortas')
+    addThreat('BURST', 2, t('Tiene picos de daño altos en peleas cortas'))
   }
 
   if (tags.includes('Tank')) {
-    addThreat('TANK', info.defense >= 8 ? 3 : 2, 'Aguanta mucho daño en peleas prolongadas')
+    addThreat('TANK', info.defense >= 8 ? 3 : 2, t('Aguanta mucho daño en peleas prolongadas'))
   }
 
   if (countMatches(text, MAX_HP) > 0) {
-    addThreat('MAX_HP', 2, 'Castiga objetivos con mucha vida')
+    addThreat('MAX_HP', 2, t('Castiga objetivos con mucha vida'))
   }
 
   if (countMatches(text, TRUE_DAMAGE) > 0) {
-    addThreat('TRUE_DAMAGE', 2, 'Parte de su daño ignora resistencias')
+    addThreat('TRUE_DAMAGE', 2, t('Parte de su daño ignora resistencias'))
   }
 
   if (countMatches(text, EXECUTE) > 0) {
-    addThreat('EXECUTE', 2, 'Puede rematar objetivos con poca vida')
+    addThreat('EXECUTE', 2, t('Puede rematar objetivos con poca vida'))
   }
 
   if (tags.includes('Marksman') || countMatches(text, AUTO_ATTACK) >= 2) {
-    addThreat('AUTO_ATTACK', tags.includes('Marksman') ? 2 : 1, 'Depende de ataques básicos')
+    addThreat('AUTO_ATTACK', tags.includes('Marksman') ? 2 : 1, t('Depende de ataques básicos'))
   }
 
   const keySpells: KeySpell[] = champion.spells
     .map((spell) => {
       const spellText = stripHtml(spell.description)
       const reasons: string[] = []
-      if (countMatches(spellText, HARD_CC) > 0) reasons.push('CC')
-      if (countMatches(spellText, MOBILITY) > 0) reasons.push('Movilidad')
+      if (countMatches(spellText, HARD_CC) > 0) reasons.push(t('CC'))
+      if (countMatches(spellText, MOBILITY) > 0) reasons.push(t('Movilidad'))
       if (countMatches(spellText, HEAL) > 0 || countMatches(spellText, SHIELD) > 0) {
-        reasons.push('Sostenibilidad')
+        reasons.push(t('Sostenibilidad'))
       }
-      if (countMatches(spellText, EXECUTE) > 0) reasons.push('Ejecución')
-      if (countMatches(spellText, MAX_HP) > 0) reasons.push('Daño porcentual')
+      if (countMatches(spellText, EXECUTE) > 0) reasons.push(t('Ejecución'))
+      if (countMatches(spellText, MAX_HP) > 0) reasons.push(t('Daño porcentual'))
       if ((spell.range[0] ?? 0) >= 900 && countMatches(spellText, DAMAGE) > 0) {
-        reasons.push('Poke')
+        reasons.push(t('Poke'))
       }
       return { name: spell.name, reasons }
     })
@@ -221,22 +222,22 @@ export function analyzeChampion(champion: Champion, role?: Role): ThreatProfile 
     .slice(0, 3)
 
   const notes: string[] = []
-  if (damageType === 'AP') notes.push('La mayor parte de su daño es mágico')
-  if (damageType === 'AD') notes.push('La mayor parte de su daño es físico')
-  if (damageType === 'MIXED') notes.push('Tiene daño mixto: necesitás ambas resistencias')
-  if (damageType === 'TRUE') notes.push('Su daño principal ignora resistencias')
+  if (damageType === 'AP') notes.push(t('La mayor parte de su daño es mágico'))
+  if (damageType === 'AD') notes.push(t('La mayor parte de su daño es físico'))
+  if (damageType === 'MIXED') notes.push(t('Tiene daño mixto: necesitas ambas resistencias'))
+  if (damageType === 'TRUE') notes.push(t('Su daño principal ignora resistencias'))
   if (threats.some((threat) => threat.tag === 'HARD_CC')) {
-    notes.push('Su CC condiciona las peleas: guardá tenacidad o movilidad')
+    notes.push(t('Su CC condiciona las peleas: guarda tenacidad o movilidad'))
   }
-  if (tags.includes('Tank')) notes.push('Evitá peleas largas sin penetración de resistencias')
-  if (tags.includes('Assassin')) notes.push('Respetá su rango de burst y wardea sus entradas')
+  if (tags.includes('Tank')) notes.push(t('Evita peleas largas sin penetración de resistencias'))
+  if (tags.includes('Assassin')) notes.push(t('Respeta su rango de burst y wardea sus entradas'))
 
   return {
     championId: champion.key,
     championName: champion.name,
     damageType,
     archetype,
-    archetypeLabel: ARCHETYPE_LABELS[archetype],
+    archetypeLabel: archetypeLabel(archetype),
     difficulty: info.difficulty,
     threats,
     keySpells,

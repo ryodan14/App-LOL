@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import { AlertTriangle, Crosshair, Sparkles } from 'lucide-react'
 import type { Champion, Role } from '@shared/types'
-import { DAMAGE_LABELS, generateCounterTips, type AnalysisIndex } from '@shared/analysis'
+import { damageLabel, generateCounterTips, priorityLabel, type AnalysisIndex } from '@shared/analysis'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { ItemIcon } from '@renderer/components/lol/ItemIcon'
 import { Badge } from '@renderer/components/ui/Badge'
 import { ThreatList } from './ThreatChip'
-import { ROLE_LABELS } from '@shared/constants'
+import { roleLabel } from '@shared/constants'
+import { t } from '@shared/i18n'
 
 const PRIORITY_TONE = {
   ALTA: 'danger',
@@ -38,10 +39,10 @@ export function CounterPanel({
           <div className="flex flex-wrap items-center gap-1.5">
             <h3 className="font-display text-[0.98rem] font-semibold text-ink-100">{enemy.name}</h3>
             <Badge tone="gold">{profile.archetypeLabel}</Badge>
-            <Badge>{DAMAGE_LABELS[profile.damageType]}</Badge>
+            <Badge>{damageLabel(profile.damageType)}</Badge>
           </div>
           <p className="mt-0.5 text-[0.68rem] text-ink-500">
-            {enemy.title} · {myChampion ? `tu ${ROLE_LABELS[myRole ?? 'UNKNOWN'].toLowerCase()}` : 'análisis enemigo'}
+            {enemy.title} · {myChampion ? t('tu {role}', { role: roleLabel(myRole ?? 'UNKNOWN').toLowerCase() }) : t('análisis enemigo')}
           </p>
           <div className="mt-2">
             <ThreatList threats={profile.threats} limit={5} />
@@ -79,7 +80,7 @@ export function CounterPanel({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <p className="text-[0.74rem] font-semibold text-ink-200">{tip.title}</p>
-                  <Badge tone={PRIORITY_TONE[tip.priority]}>{tip.priority}</Badge>
+                  <Badge tone={PRIORITY_TONE[tip.priority]}>{priorityLabel(tip.priority)}</Badge>
                 </div>
                 <p className="mt-0.5 text-[0.67rem] leading-relaxed text-ink-400">{tip.description}</p>
                 {tip.items.length > 0 && (

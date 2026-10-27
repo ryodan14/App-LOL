@@ -14,6 +14,7 @@ import {
 } from './overlay'
 import { createPreviewAccount, createPreviewSnapshot } from './preview'
 import { createAppTray, destroyAppTray, updateAppTray } from './tray'
+import { setLocale } from '@shared/i18n'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
 const gotLock = app.requestSingleInstanceLock()
@@ -54,6 +55,7 @@ function applyLoginItemSettings(settings: AppSettings): void {
 
 function applySettingsRuntime(settings: AppSettings): void {
   activeSettings = settings
+  setLocale(settings.language)
   broadcastSettings(settings)
   applyLoginItemSettings(settings)
   updateAppTray(settings)
@@ -104,6 +106,9 @@ function registerIpc(): void {
   ipcMain.handle('settings:update', async (_event, patch: Partial<AppSettings>) => {
     const settings = await updateSettings(patch)
     applySettingsRuntime(settings)
+    if ('language' in patch) {
+      void dataService?.setLanguage(settings.language)
+    }
     if ('overlayScale' in patch || 'overlayCorner' in patch) {
       setOverlayLayout(settings.overlayScale, settings.overlayCorner)
     }

@@ -1,5 +1,6 @@
 import { app, Menu, nativeImage, Tray } from 'electron'
 import { join } from 'node:path'
+import { t } from '@shared/i18n'
 import type { AppSettings } from '@shared/types'
 
 interface TrayActions {
@@ -35,28 +36,28 @@ export function updateAppTray(settings: AppSettings): void {
   if (!appTray || !trayActions) return
   const actions = trayActions
   const menu = Menu.buildFromTemplate([
-    { label: 'Abrir App-LOL', click: actions.show },
+    { label: t('Abrir App-LOL'), click: actions.show },
     { type: 'separator' },
     {
-      label: 'Overlay de partida',
+      label: t('Overlay de partida'),
       type: 'checkbox',
       checked: settings.overlayEnabled,
       click: actions.toggleOverlay
     },
     {
-      label: 'Iniciar con Windows',
+      label: t('Iniciar con Windows'),
       type: 'checkbox',
       checked: settings.startWithWindows,
       click: actions.toggleStartWithWindows
     },
     {
-      label: 'Mostrar al abrir League',
+      label: t('Mostrar al abrir League'),
       type: 'checkbox',
       checked: settings.showWithLeague,
       click: actions.toggleShowWithLeague
     },
     { type: 'separator' },
-    { label: 'Salir', click: actions.quit }
+    { label: t('Salir'), click: actions.quit }
   ])
   appTray.setContextMenu(menu)
 }

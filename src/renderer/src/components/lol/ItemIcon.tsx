@@ -3,6 +3,7 @@ import type { Item } from '@shared/types'
 import { itemIconUrl } from '@renderer/lib/icons'
 import { cn } from '@renderer/lib/cn'
 import { useGameData } from '@renderer/lib/gameData'
+import { t } from '@shared/i18n'
 
 export function ItemIcon({
   item,
@@ -25,7 +26,7 @@ export function ItemIcon({
 
   return (
     <span
-      title={item?.name ?? 'Objeto'}
+      title={item?.name ?? t('Objeto')}
       className={cn(
         'inline-flex shrink-0 items-center justify-center overflow-hidden border border-line bg-base-800',
         dimensions,
@@ -35,7 +36,7 @@ export function ItemIcon({
       {src ? (
         <img
           src={src}
-          alt={item?.name ?? 'Objeto'}
+          alt={item?.name ?? t('Objeto')}
           className="h-full w-full object-cover"
           loading="lazy"
           draggable={false}

@@ -10,7 +10,7 @@ import {
   WifiOff
 } from 'lucide-react'
 import type { LcuAccount, LcuMastery, LcuRank } from '@shared/types'
-import { QUEUE_LABELS } from '@shared/constants'
+import { queueLabel } from '@shared/constants'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { useGameData } from '@renderer/lib/gameData'
 import { profileIconUrl } from '@renderer/lib/icons'
@@ -22,6 +22,7 @@ import { ButtonLink } from '@renderer/components/ui/ButtonLink'
 import { Badge } from '@renderer/components/ui/Badge'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 const TIER_STYLES: Record<string, string> = {
   IRON: 'border-ink-500/25 bg-ink-500/[0.06] text-ink-300',
@@ -55,7 +56,7 @@ function ProfileAvatar({ account }: { account: LcuAccount }): React.JSX.Element 
       {src && (
         <img
           src={src}
-          alt={`Icono de ${account.summoner.displayName}`}
+          alt={t('Icono de {name}', { name: account.summoner.displayName })}
           className="absolute inset-0 h-full w-full object-cover"
           draggable={false}
           onError={() => setFailed(true)}
@@ -76,11 +77,11 @@ function RankCard({ rank }: { rank: LcuRank }): React.JSX.Element {
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex min-w-0 items-center gap-1.5 text-[0.68rem] font-semibold text-ink-300">
           <Trophy className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">{QUEUE_LABELS[rank.queueType] ?? rank.queueType}</span>
+          <span className="truncate">{queueLabel(rank.queueType)}</span>
         </span>
         {rank.hotStreak && (
           <span className="inline-flex items-center gap-1 text-[0.58rem] font-semibold text-gold-300">
-            <Flame className="h-3 w-3" /> racha
+            <Flame className="h-3 w-3" /> {t('racha')}
           </span>
         )}
       </div>
@@ -95,7 +96,7 @@ function RankCard({ rank }: { rank: LcuRank }): React.JSX.Element {
       </div>
       <div className="mt-2 flex items-center justify-between text-[0.62rem] text-ink-400">
         <span>
-          {formatNumber(rank.wins)}V · {formatNumber(rank.losses)}D
+          {t('{wins}V · {losses}D', { wins: formatNumber(rank.wins), losses: formatNumber(rank.losses) })}
         </span>
         <span className="font-semibold text-ink-300">{formatWinrate(rank.wins, rank.losses)} WR</span>
       </div>
@@ -111,17 +112,17 @@ function MasteryRow({ mastery }: { mastery: LcuMastery }): React.JSX.Element {
       <ChampionIcon champion={champion} size="sm" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[0.74rem] font-semibold text-ink-100">
-          {champion?.name ?? `Campeón #${mastery.championId}`}
+          {champion?.name ?? t('Campeón #{id}', { id: mastery.championId })}
         </p>
         <p
           className="mt-0.5 truncate text-[0.6rem] text-ink-500"
           title={
             mastery.lastPlayTime > 0
-              ? `${formatNumber(mastery.championPoints)} puntos · jugado ${formatRelativeTime(mastery.lastPlayTime)}`
-              : `${formatNumber(mastery.championPoints)} puntos`
+              ? t('{points} puntos · jugado {time}', { points: formatNumber(mastery.championPoints), time: formatRelativeTime(mastery.lastPlayTime) })
+              : t('{points} puntos', { points: formatNumber(mastery.championPoints) })
           }
         >
-          {formatCompact(mastery.championPoints)} pts
+          {t('{points} pts', { points: formatCompact(mastery.championPoints) })}
         </p>
       </div>
       <Badge tone="gold" className="shrink-0">
@@ -136,9 +137,9 @@ function AccountLoading(): React.JSX.Element {
     <Card>
       <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
         <Spinner className="h-6 w-6" />
-        <p className="mt-4 text-[0.84rem] font-semibold text-ink-200">Leyendo tu cuenta del cliente</p>
+        <p className="mt-4 text-[0.84rem] font-semibold text-ink-200">{t('Leyendo tu cuenta del cliente')}</p>
         <p className="mt-1 text-[0.74rem] text-ink-500">
-          Consultamos rango y maestría directamente desde League of Legends.
+          {t('Consultamos rango y maestría directamente desde League of Legends.')}
         </p>
       </div>
     </Card>
@@ -174,13 +175,13 @@ export function AccountPage(): React.JSX.Element {
           setError(null)
         } else {
           setAccount(null)
-          setError('No pudimos leer los datos de tu cuenta. Probá reconectar el cliente.')
+          setError(t('No pudimos leer los datos de tu cuenta. Prueba a reconectar el cliente.'))
         }
       })
       .catch((reason: unknown) => {
         if (!active) return
         setAccount(null)
-        setError(reason instanceof Error ? reason.message : 'No pudimos leer los datos de tu cuenta.')
+        setError(reason instanceof Error ? reason.message : t('No pudimos leer los datos de tu cuenta.'))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -196,15 +197,15 @@ export function AccountPage(): React.JSX.Element {
       <Card>
         <EmptyState
           icon={<WifiOff className="h-6 w-6" />}
-          title="Tu cuenta aparece cuando abrís el cliente"
-          description="Detectamos tu invocador, rango y maestría directamente desde el cliente de League of Legends, sin pedirte la contraseña."
+          title={t('Tu cuenta aparece cuando abres el cliente')}
+          description={t('Detectamos tu invocador, rango y maestría directamente desde el cliente de League of Legends, sin pedirte la contraseña.')}
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <ButtonLink to="/ajustes" variant="ghost">
-                Revisar detección del cliente
+                {t('Revisar detección del cliente')}
               </ButtonLink>
               <ButtonLink to="/" variant="quiet">
-                Volver al inicio
+                {t('Volver al inicio')}
               </ButtonLink>
             </div>
           }
@@ -220,15 +221,15 @@ export function AccountPage(): React.JSX.Element {
       <Card>
         <EmptyState
           icon={<ShieldQuestion className="h-6 w-6" />}
-          title="No pudimos cargar tu cuenta"
-          description={error ?? 'El cliente está conectado, pero todavía no devolvió los datos de la cuenta.'}
+          title={t('No pudimos cargar tu cuenta')}
+          description={error ?? t('El cliente está conectado, pero todavía no devolvió los datos de la cuenta.')}
           action={
             <Button
               variant="primary"
               icon={<RefreshCw className="h-4 w-4" />}
               onClick={() => setReloadKey((value) => value + 1)}
             >
-              Volver a intentar
+              {t('Volver a intentar')}
             </Button>
           }
         />
@@ -255,16 +256,16 @@ export function AccountPage(): React.JSX.Element {
           <div className="flex min-w-0 items-center gap-4">
             <ProfileAvatar account={account} />
             <div className="min-w-0">
-              <p className="eyebrow">Invocador</p>
+              <p className="eyebrow">{t('Invocador')}</p>
               <h1 className="font-display mt-1 truncate text-2xl font-semibold tracking-tight text-ink-100">
                 {account.summoner.displayName}
               </h1>
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 <Badge tone="gold">
-                  <Sparkles className="h-3 w-3" /> Nivel {account.summoner.summonerLevel}
+                  <Sparkles className="h-3 w-3" /> {t('Nivel {level}', { level: account.summoner.summonerLevel })}
                 </Badge>
                 <Badge tone="teal">
-                  <Award className="h-3 w-3" /> Cliente local
+                  <Award className="h-3 w-3" /> {t('Cliente local')}
                 </Badge>
                 <Badge>{formatRelativeTime(account.fetchedAt)}</Badge>
               </div>
@@ -276,7 +277,7 @@ export function AccountPage(): React.JSX.Element {
             onClick={() => setReloadKey((value) => value + 1)}
             disabled={loading}
           >
-            Actualizar cuenta
+            {t('Actualizar cuenta')}
           </Button>
         </div>
       </section>
@@ -290,9 +291,9 @@ export function AccountPage(): React.JSX.Element {
       <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <Card className="p-5">
           <SectionHeading
-            eyebrow="Clasificatorias"
-            title="Tus rangos"
-            description="Datos actuales de Solo/Dúo y Flex 5v5."
+            eyebrow={t('Clasificatorias')}
+            title={t('Tus rangos')}
+            description={t('Datos actuales de Solo/Dúo y Flex 5v5.')}
           />
           {ranks.length > 0 ? (
             <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
@@ -303,9 +304,9 @@ export function AccountPage(): React.JSX.Element {
           ) : (
             <div className="mt-4 rounded-xl border border-line bg-base-950/35 px-4 py-8 text-center">
               <Trophy className="mx-auto h-6 w-6 text-ink-600" />
-              <p className="mt-2 text-[0.8rem] font-semibold text-ink-300">Sin clasificatorias este split</p>
+              <p className="mt-2 text-[0.8rem] font-semibold text-ink-300">{t('Sin clasificatorias este split')}</p>
               <p className="mt-1 text-[0.7rem] text-ink-500">
-                Cuando juegues tus primeras partidas rankeadas, el rango va a aparecer acá.
+                {t('Cuando juegues tus primeras partidas clasificatorias, el rango aparecerá aquí.')}
               </p>
             </div>
           )}
@@ -314,7 +315,7 @@ export function AccountPage(): React.JSX.Element {
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div className="rounded-xl border border-line bg-base-950/35 p-3">
                 <p className="text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
-                  Partidas rankeadas
+                  {t('Partidas clasificatorias')}
                 </p>
                 <p className="font-display mt-1 text-lg font-semibold text-ink-100">
                   {formatNumber(totalGames)}
@@ -322,7 +323,7 @@ export function AccountPage(): React.JSX.Element {
               </div>
               <div className="rounded-xl border border-line bg-base-950/35 p-3">
                 <p className="text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
-                  Winrate combinado
+                  {t('Winrate combinado')}
                 </p>
                 <p className="font-display mt-1 text-lg font-semibold text-gold-200">
                   {overallWinrate}%
@@ -333,7 +334,7 @@ export function AccountPage(): React.JSX.Element {
         </Card>
 
         <Card className="flex flex-col p-5">
-          <SectionHeading eyebrow="Maestría" title="Tus campeones" />
+          <SectionHeading eyebrow={t('Maestría')} title={t('Tus campeones')} />
           {mastery.length > 0 ? (
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {mastery.map((entry) => (
@@ -343,15 +344,15 @@ export function AccountPage(): React.JSX.Element {
           ) : (
             <div className="mt-4 rounded-xl border border-line bg-base-950/35 px-4 py-8 text-center">
               <Sparkles className="mx-auto h-6 w-6 text-ink-600" />
-              <p className="mt-2 text-[0.8rem] font-semibold text-ink-300">Sin datos de maestría</p>
+              <p className="mt-2 text-[0.8rem] font-semibold text-ink-300">{t('Sin datos de maestría')}</p>
               <p className="mt-1 text-[0.7rem] text-ink-500">
-                El cliente todavía no devolvió tus campeones con más puntos.
+                {t('El cliente todavía no devolvió tus campeones con más puntos.')}
               </p>
             </div>
           )}
           <div className="mt-auto pt-4">
             <p className="rounded-lg border border-line bg-base-950/40 px-3 py-2 text-[0.66rem] leading-relaxed text-ink-500">
-              La maestría se lee del cliente local. No se envía a ningún servidor externo.
+              {t('La maestría se lee del cliente local. No se envía a ningún servidor externo.')}
             </p>
           </div>
         </Card>
@@ -359,7 +360,7 @@ export function AccountPage(): React.JSX.Element {
 
       <p className="flex items-center gap-1.5 rounded-xl border border-line bg-base-900/30 px-4 py-3 text-[0.68rem] text-ink-500">
         <Award className="h-3.5 w-3.5 text-gold-300/80" />
-        Rango y maestría son datos de tu cuenta. App-LOL no pide usuario ni contraseña.
+        {t('Rango y maestría son datos de tu cuenta. App-LOL no pide usuario ni contraseña.')}
       </p>
     </div>
   )

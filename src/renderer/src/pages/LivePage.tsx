@@ -14,7 +14,7 @@ import {
   UsersRound
 } from 'lucide-react'
 import type { Champion, ChampSelectSlot, LivePlayer, Role } from '@shared/types'
-import { ROLE_LABELS } from '@shared/constants'
+import { roleLabel } from '@shared/constants'
 import {
   analyzeTeam,
   estimatePlayerGold,
@@ -40,6 +40,7 @@ import { LaneGoldBoard } from '@renderer/components/live/LaneGoldBoard'
 import { ObjectiveTimerList } from '@renderer/components/live/ObjectiveTimerList'
 import { ChampSelectBoard } from '@renderer/components/live/ChampSelectBoard'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 function findActivePlayer(players: LivePlayer[], activeRiotId: string, activeChampionName: string) {
   return (
@@ -63,9 +64,9 @@ function OverlayToggle(): React.JSX.Element {
       onClick={() => void updateSettings({ overlayEnabled: !enabled })}
       aria-pressed={enabled}
       className={enabled ? 'border-teal-400/30 text-teal-200' : ''}
-      title={enabled ? 'Ocultar overlay de partida' : 'Mostrar overlay de partida'}
+      title={enabled ? t('Ocultar overlay de partida') : t('Mostrar overlay de partida')}
     >
-      {enabled ? 'Overlay activo' : 'Overlay oculto'}
+      {enabled ? t('Overlay activo') : t('Overlay oculto')}
     </Button>
   )
 }
@@ -156,11 +157,11 @@ export function LivePage(): React.JSX.Element {
       <Card>
         <EmptyState
           icon={<MonitorPlay className="h-6 w-6" />}
-          title={data.status === 'error' ? 'No pudieron cargar los datos de Riot' : 'Cargando datos de Riot'}
+          title={data.status === 'error' ? t('No pudieron cargar los datos de Riot') : t('Cargando datos de Riot')}
           description={
             data.status === 'error'
-              ? 'Sin los datos del parche no podemos identificar campeones, objetos ni runas.'
-              : 'Estamos preparando campeones, objetos y runas para analizar la partida.'
+              ? t('Sin los datos del parche no podemos identificar campeones, objetos ni runas.')
+              : t('Estamos preparando campeones, objetos y runas para analizar la partida.')
           }
           action={
             data.status === 'error' ? (
@@ -169,7 +170,7 @@ export function LivePage(): React.JSX.Element {
                 icon={<RefreshCw className="h-4 w-4" />}
                 onClick={() => void refreshData()}
               >
-                Reintentar
+                {t('Reintentar')}
               </Button>
             ) : (
               <Spinner />
@@ -185,8 +186,8 @@ export function LivePage(): React.JSX.Element {
       <Card>
         <EmptyState
           icon={<MonitorPlay className="h-6 w-6" />}
-          title="Todavía no hay una partida"
-          description={`Abrí League of Legends y entrá a champ select o a una partida. Estado actual: ${phaseLabel(snapshot.phase)}.`}
+          title={t('Todavía no hay una partida')}
+          description={t('Abre League of Legends y entra en champ select o en una partida. Estado actual: {phase}.', { phase: phaseLabel(snapshot.phase) })}
           action={
             <div className="flex flex-wrap justify-center gap-2">
               <Button
@@ -194,10 +195,10 @@ export function LivePage(): React.JSX.Element {
                 icon={<RefreshCw className="h-4 w-4" />}
                 onClick={() => void reconnect()}
               >
-                Buscar cliente
+                {t('Buscar cliente')}
               </Button>
               <ButtonLink to="/ajustes" variant="ghost">
-                Configurar detección
+                {t('Configurar detección')}
               </ButtonLink>
             </div>
           }
@@ -212,17 +213,17 @@ export function LivePage(): React.JSX.Element {
       <div className="space-y-5">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="eyebrow">Champ select</p>
+            <p className="eyebrow">{t('Champ select')}</p>
             <h1 className="font-display mt-1 text-2xl font-semibold text-ink-100">
-              Elegí con información
+              {t('Elige con información')}
             </h1>
             <p className="mt-1 text-[0.82rem] text-ink-400">
-              Detectamos tu línea y sugerimos counters para el rival revelado.
+              {t('Detectamos tu línea y sugerimos counters para el rival revelado.')}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge tone="gold">
-              <Radio className="h-3 w-3" /> En selección
+              <Radio className="h-3 w-3" /> {t('En selección')}
             </Badge>
             {timer && <Badge tone="teal">{Math.ceil(timer.remainingMs / 1000)} s</Badge>}
             <OverlayToggle />
@@ -239,7 +240,7 @@ export function LivePage(): React.JSX.Element {
               <BuildPanel build={model.build} />
             ) : (
               <div className="py-10 text-center text-[0.82rem] text-ink-400">
-                Elegí tu campeón para ver la build adaptada a tu línea.
+                {t('Elige tu campeón para ver la build adaptada a tu línea.')}
               </div>
             )}
           </Card>
@@ -256,9 +257,9 @@ export function LivePage(): React.JSX.Element {
         </div>
 
         <div className="flex items-center justify-between rounded-xl border border-line bg-base-900/30 px-4 py-3 text-[0.68rem] text-ink-500">
-          <span>Los counters se actualizan cuando cambia el pick rival.</span>
+          <span>{t('Los counters se actualizan cuando cambia el pick rival.')}</span>
           <Link to="/campeones" className="font-semibold text-gold-300">
-            Explorar campeones
+            {t('Explorar campeones')}
           </Link>
         </div>
       </div>
@@ -275,12 +276,12 @@ export function LivePage(): React.JSX.Element {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="eyebrow">Partida en vivo</p>
+          <p className="eyebrow">{t('Partida en vivo')}</p>
           <h1 className="font-display mt-1 text-2xl font-semibold text-ink-100">
-            {model.myChampion?.name ?? 'Tu partida'}
+            {model.myChampion?.name ?? t('Tu partida')}
           </h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-[0.8rem] text-ink-400">
-            <span>{ROLE_LABELS[model.myRole]}</span>
+            <span>{roleLabel(model.myRole)}</span>
             <span className="text-ink-600">·</span>
             <span>{formatDuration(live.gameTime)}</span>
             <span className="text-ink-600">·</span>
@@ -293,7 +294,7 @@ export function LivePage(): React.JSX.Element {
           <Badge tone="teal">
             <Radio className="h-3 w-3" /> LIVE
           </Badge>
-          <Badge>{live.mapName || 'Grieta del Invocador'}</Badge>
+          <Badge>{live.mapName || t('Grieta del Invocador')}</Badge>
           <OverlayToggle />
         </div>
       </div>
@@ -302,13 +303,13 @@ export function LivePage(): React.JSX.Element {
         <Card className="p-5">
           <div className="mb-4 flex items-center justify-between gap-2">
             <div>
-              <p className="eyebrow">Marcador por línea</p>
+              <p className="eyebrow">{t('Marcador por línea')}</p>
               <h2 className="font-display mt-1 text-xl font-semibold text-ink-100">
-                Diferencia de oro
+                {t('Diferencia de oro')}
               </h2>
             </div>
             <Badge tone="gold">
-              <TrendingUp className="h-3 w-3" /> estimado
+              <TrendingUp className="h-3 w-3" /> {t('estimado')}
             </Badge>
           </div>
           <LaneGoldBoard live={live} />
@@ -319,9 +320,9 @@ export function LivePage(): React.JSX.Element {
             <div className="mb-3 flex items-center gap-2">
               <TimerReset className="h-4 w-4 text-teal-300" />
               <div>
-                <p className="eyebrow">Relojes</p>
+                <p className="eyebrow">{t('Relojes')}</p>
                 <h2 className="font-display mt-0.5 text-xl font-semibold text-ink-100">
-                  Objetivos
+                  {t('Objetivos')}
                 </h2>
               </div>
             </div>
@@ -335,7 +336,7 @@ export function LivePage(): React.JSX.Element {
                   <ChampionIcon champion={model.myChampion} size="md" />
                   <div>
                     <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
-                      Tu rendimiento
+                      {t('Tu rendimiento')}
                     </p>
                     <p className="font-display text-lg font-semibold text-ink-100">
                       {model.activePlayer.kills}/{model.activePlayer.deaths}/{model.activePlayer.assists}
@@ -351,13 +352,13 @@ export function LivePage(): React.JSX.Element {
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <div className="rounded-lg border border-line bg-base-950/35 p-2">
-                  <p className="text-[0.58rem] text-ink-500">Oro estimado</p>
+                  <p className="text-[0.58rem] text-ink-500">{t('Oro estimado')}</p>
                   <p className="font-mono text-sm font-bold text-gold-200">
                     ≈ {model.myGold ? formatCompact(model.myGold.total) : '—'}
                   </p>
                 </div>
                 <div className="rounded-lg border border-line bg-base-950/35 p-2">
-                  <p className="text-[0.58rem] text-ink-500">Nivel</p>
+                  <p className="text-[0.58rem] text-ink-500">{t('Nivel')}</p>
                   <p className="font-mono text-sm font-bold text-ink-200">
                     {model.activePlayer.level}
                   </p>
@@ -374,7 +375,7 @@ export function LivePage(): React.JSX.Element {
             <BuildPanel build={model.build} />
           ) : (
             <div className="py-10 text-center text-[0.82rem] text-ink-400">
-              No pudimos identificar tu campeón en la partida.
+              {t('No pudimos identificar tu campeón en la partida.')}
             </div>
           )}
         </Card>
@@ -387,7 +388,7 @@ export function LivePage(): React.JSX.Element {
               <div className="mb-3 flex items-center gap-2">
                 <UsersRound className="h-4 w-4 text-gold-300" />
                 <h2 className="font-display text-lg font-semibold text-ink-100">
-                  Composición enemiga
+                  {t('Composición enemiga')}
                 </h2>
               </div>
               <TeamPanel team={model.team} />
@@ -399,11 +400,11 @@ export function LivePage(): React.JSX.Element {
       <div className={cn('flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-base-900/30 px-4 py-3 text-[0.68rem] text-ink-500')}>
         <span className="inline-flex items-center gap-1.5">
           <Crosshair className="h-3.5 w-3.5 text-gold-300/80" />
-          Oro estimado con objetos, CS, KDA y oro pasivo. No es el oro exacto del marcador.
+          {t('Oro estimado con objetos, CS, KDA y oro pasivo. No es el oro exacto del marcador.')}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <Swords className="h-3.5 w-3.5" />
-          Overlay: Ctrl+Shift+O · Oro: Ctrl+Shift+G
+          {t('Overlay: Ctrl+Shift+O · Oro: Ctrl+Shift+G')}
         </span>
       </div>
     </div>

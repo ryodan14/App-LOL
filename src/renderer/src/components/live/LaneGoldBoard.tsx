@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { ArrowLeft, ArrowRight, Minus } from 'lucide-react'
 import type { Champion, LiveGameState, LivePlayer, Role } from '@shared/types'
-import { ROLE_LABELS } from '@shared/constants'
+import { roleLabel } from '@shared/constants'
 import {
   assignRoles,
   compareLaneGold,
@@ -13,6 +13,7 @@ import { formatCompact, formatNumber } from '@renderer/lib/format'
 import { cn } from '@renderer/lib/cn'
 import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
+import { t } from '@shared/i18n'
 
 function playerChampion(
   index: GameDataIndex,
@@ -117,9 +118,9 @@ export function LaneGoldBoard({
     <div className={cn('space-y-1.5', !compact && 'space-y-2')}>
       <div className="grid grid-cols-[20px_minmax(0,1fr)_60px_minmax(0,1fr)] items-center gap-1.5 px-1 text-[0.52rem] font-bold uppercase tracking-[0.12em] text-ink-600">
         <span />
-        <span>Tu equipo</span>
-        <span className="text-center">Oro ≈</span>
-        <span className="text-right">Rival</span>
+        <span>{t('Tu equipo')}</span>
+        <span className="text-center">{t('Oro ≈')}</span>
+        <span className="text-right">{t('Rival')}</span>
       </div>
 
       {LANE_ROLES.map((role) => {
@@ -159,7 +160,7 @@ export function LaneGoldBoard({
             <LaneSide player={ally} champion={allyChampion} side="ally" compact={compact} />
             <div
               className="flex flex-col items-center leading-none"
-              title={`${ROLE_LABELS[role]}: ${formatNumber(comparison.allyGold)} vs ${formatNumber(comparison.enemyGold)} de oro estimado`}
+              title={t('{role}: {ally} vs {enemy} de oro estimado', { role: roleLabel(role), ally: formatNumber(comparison.allyGold), enemy: formatNumber(comparison.enemyGold) })}
             >
               {arrow}
               <span
@@ -182,7 +183,7 @@ export function LaneGoldBoard({
 
       {!compact && (
         <p className="px-1 pt-1 text-[0.55rem] text-ink-600">
-          Azul = tu equipo adelante · Rojo = el rival adelante · Oro estimado con objetos, CS y KDA.
+          {t('Azul = tu equipo adelante · Rojo = el rival adelante · Oro estimado con objetos, CS y KDA.')}
         </p>
       )}
     </div>

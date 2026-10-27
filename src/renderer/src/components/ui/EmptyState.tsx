@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 export function EmptyState({
   icon,
@@ -33,7 +34,7 @@ export function Spinner({ className }: { className?: string }): React.JSX.Elemen
         'inline-block h-4 w-4 animate-spin rounded-full border-2 border-gold-400/25 border-t-gold-300',
         className
       )}
-      aria-label="Cargando"
+      aria-label={t('Cargando')}
     />
   )
 }

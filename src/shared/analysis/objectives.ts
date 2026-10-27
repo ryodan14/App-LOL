@@ -1,3 +1,4 @@
+import { t } from '../i18n'
 import type { LiveGameState } from '../types'
 import type { ObjectiveTimer } from './types'
 
@@ -36,7 +37,7 @@ function parseInhibitor(turret: string | undefined): {
 }
 
 function teamLabel(team: 'ORDER' | 'CHAOS'): string {
-  return team === 'ORDER' ? 'azul' : 'rojo'
+  return t(team === 'ORDER' ? 'azul' : 'rojo')
 }
 
 export function computeObjectiveTimers(
@@ -56,8 +57,8 @@ export function computeObjectiveTimers(
   timers.push({
     id: 'dragon',
     kind: 'DRAGON',
-    label: lastDragon?.dragonType ? `Dragón ${lastDragon.dragonType}` : 'Dragón',
-    shortLabel: 'Dragón',
+    label: lastDragon?.dragonType ? t('Dragón {type}', { type: lastDragon.dragonType }) : t('Dragón'),
+    shortLabel: t('Dragón'),
     respawnAt: dragonAt,
     remaining: Math.max(0, dragonRemaining),
     status: dragonRemaining > 0 ? 'countdown' : lastDragon ? 'ready' : 'active',
@@ -71,8 +72,8 @@ export function computeObjectiveTimers(
   timers.push({
     id: 'baron',
     kind: 'BARON',
-    label: 'Barón',
-    shortLabel: 'Barón',
+    label: t('Barón'),
+    shortLabel: t('Barón'),
     respawnAt: baronAt,
     remaining: Math.max(0, baronRemaining),
     status: baronRemaining > 0 ? 'countdown' : lastBaron ? 'ready' : 'active'
@@ -94,12 +95,12 @@ export function computeObjectiveTimers(
     const respawnAt = value.time + INHIBITOR_RESPAWN
     const remaining = respawnAt - now
     if (remaining <= 0) continue
-    const label = `Inhibidor ${LANE_LABEL[value.lane]} ${teamLabel(value.team)}`
+    const label = t('Inhibidor {lane} {team}', { lane: t(LANE_LABEL[value.lane]), team: teamLabel(value.team) })
     timers.push({
       id: `inhibitor-${key}`,
       kind: 'INHIBITOR',
       label,
-      shortLabel: label.replace('Inhibidor ', 'Inhib. '),
+      shortLabel: label.replace(t('Inhibidor ') + ' ', t('Inhib. ') + ' '),
       respawnAt,
       remaining,
       status: 'countdown',

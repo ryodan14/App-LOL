@@ -1,3 +1,4 @@
+import { t } from '@shared/i18n'
 import type { ClientPhase, Snapshot } from '@shared/types'
 
 export function phaseLabel(phase: ClientPhase): string {
@@ -13,7 +14,7 @@ export function phaseLabel(phase: ClientPhase): string {
     EndOfGame: 'Fin de partida',
     Unknown: 'Cliente conectado'
   }
-  return labels[phase]
+  return t(labels[phase])
 }
 
 export function phaseTone(phase: ClientPhase): 'online' | 'idle' | 'busy' | 'error' {

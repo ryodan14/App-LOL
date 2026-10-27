@@ -18,7 +18,7 @@ describe.skipIf(!live)('carga real de datos de Riot', () => {
       const versions = await fetchJson<string[]>(
         'https://ddragon.leagueoflegends.com/api/versions.json'
       )
-      const data = await fetchStaticData(versions[0])
+      const data = await fetchStaticData(versions[0], 'es')
 
       expect(data.champions.length).toBeGreaterThan(160)
       expect(data.items.length).toBeGreaterThan(200)

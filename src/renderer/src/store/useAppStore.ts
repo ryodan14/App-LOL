@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { DEFAULT_SETTINGS } from '@shared/constants'
+import { setLocale } from '@shared/i18n'
 import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
 interface AppState {
@@ -23,6 +24,8 @@ const offlineSnapshot: Snapshot = {
 }
 
 function applyVisualSettings(settings: AppSettings): void {
+  setLocale(settings.language)
+  document.documentElement.lang = settings.language
   document.documentElement.classList.toggle('reduce-motion', settings.reduceMotion)
 }
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Bot, Crosshair, Hourglass } from 'lucide-react'
 import type { ChampSelectSlot, ChampSelectState, Champion, Role } from '@shared/types'
-import { ROLE_LABELS } from '@shared/constants'
+import { roleLabel } from '@shared/constants'
 import {
   analyzeChampion,
   assignRoles,
@@ -14,6 +14,7 @@ import { ChampionIcon } from '@renderer/components/lol/ChampionIcon'
 import { RoleMark } from '@renderer/components/lol/RoleMark'
 import { Badge } from '@renderer/components/ui/Badge'
 import { cn } from '@renderer/lib/cn'
+import { t } from '@shared/i18n'
 
 function slotChampion(index: GameDataIndex, slot: ChampSelectSlot | undefined) {
   if (!slot) return null
@@ -89,7 +90,7 @@ export function ChampSelectBoard({
       <div className="flex items-center justify-between gap-2 rounded-lg border border-line/70 bg-base-950/25 px-2 py-1.5">
         <div className="flex min-w-0 items-center gap-2">
           <span className="text-[0.55rem] font-bold uppercase tracking-[0.14em] text-ink-600">
-            Tu pick
+            {t('Tu pick')}
           </span>
           {model.myChampion ? (
             <>
@@ -100,12 +101,12 @@ export function ChampSelectBoard({
             </>
           ) : (
             <span className="inline-flex items-center gap-1 text-[0.68rem] text-ink-500">
-              <Hourglass className="h-3 w-3" /> Esperando campeón
+              <Hourglass className="h-3 w-3" /> {t('Esperando campeón')}
             </span>
           )}
         </div>
         <Badge tone={model.myRole === 'UNKNOWN' ? 'neutral' : 'gold'}>
-          {ROLE_LABELS[model.myRole]}
+          {roleLabel(model.myRole)}
         </Badge>
       </div>
 
@@ -116,7 +117,7 @@ export function ChampSelectBoard({
               <ChampionIcon champion={model.opponentChampion} size="sm" />
               <div className="min-w-0">
                 <p className="text-[0.55rem] font-bold uppercase tracking-[0.14em] text-gold-300/80">
-                  Rival de línea{model.opponentInferred ? ' (probable)' : ''}
+                  {t('Rival de línea')}{model.opponentInferred ? ' ' + t('(probable)') : ''}
                 </p>
                 <p className="truncate text-[0.82rem] font-semibold text-ink-100">
                   {model.opponentChampion.name}
@@ -138,7 +139,7 @@ export function ChampSelectBoard({
               <div className="flex items-center gap-1.5 px-0.5">
                 <Crosshair className="h-3 w-3 text-teal-300" />
                 <p className="text-[0.58rem] font-bold uppercase tracking-[0.13em] text-teal-300">
-                  Counters sugeridos
+                  {t('Counters sugeridos')}
                 </p>
               </div>
               {model.report.suggestions.slice(0, count).map((suggestion) => (
@@ -154,13 +155,13 @@ export function ChampSelectBoard({
                       </p>
                       {suggestion.curated && (
                         <span className="text-[0.5rem] font-bold uppercase tracking-[0.1em] text-gold-300/70">
-                          matchup
+                          {t('matchup')}
                         </span>
                       )}
                     </div>
                     {!compact && (
                       <p className="mt-0.5 text-[0.6rem] leading-snug text-ink-500">
-                        {suggestion.reasons[0] ?? 'Herramientas favorables contra su kit.'}
+                        {suggestion.reasons[0] ?? t('Herramientas favorables contra su kit.')}
                       </p>
                     )}
                   </div>
@@ -178,8 +179,8 @@ export function ChampSelectBoard({
         <div className="rounded-xl border border-line/70 bg-base-950/25 p-3">
           <p className="text-[0.68rem] font-medium text-ink-300">
             {model.myRole === 'UNKNOWN'
-              ? 'Elegí tu campeón para detectar tu línea.'
-              : `Esperando el pick rival en ${ROLE_LABELS[model.myRole].toLowerCase()}.`}
+              ? t('Elige tu campeón para detectar tu línea.')
+              : t('Esperando el pick rival en {role}.', { role: roleLabel(model.myRole).toLowerCase() })}
           </p>
           {model.enemyPicks.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -200,8 +201,7 @@ export function ChampSelectBoard({
       {model.myChampion && model.enemyPicks.length > 0 && !compact && (
         <div className="flex items-start gap-1.5 text-[0.58rem] leading-snug text-ink-600">
           <Bot className="mt-0.5 h-3 w-3 shrink-0" />
-          Los counters se recalculan cuando cambia el pick rival. Si el rival todavía no está
-          revelado, los sugerimos cuando aparezca.
+          {t('Los counters se recalculan cuando cambia el pick rival. Si el rival todavía no está revelado, los sugerimos cuando aparezca.')}
         </div>
       )}
     </div>
