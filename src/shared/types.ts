@@ -194,6 +194,7 @@ export interface LcuSummoner {
   profileIconId: number
   puuid: string
   summonerId?: number
+  accountId?: number
 }
 
 export interface LcuRank {
@@ -220,6 +221,41 @@ export interface LcuAccount {
   fetchedAt: number
 }
 
+export interface LcuItemSetExport {
+  championId: number
+  championName: string
+  role: Role
+  mapId?: number
+  starting: number[]
+  first: number[]
+  boots: number[]
+  core: number[]
+  situational: number[]
+}
+
+export interface LcuRuneExport {
+  championId: number
+  championName: string
+  role: Role
+  primaryStyleId: number
+  subStyleId: number
+  selectedPerkIds: number[]
+}
+
+export interface LcuRunePagePayload {
+  name: string
+  primaryStyleId: number
+  subStyleId: number
+  selectedPerkIds: number[]
+  current: boolean
+}
+
+export interface LcuExportResult {
+  ok: boolean
+  message?: string
+  error?: string
+}
+
 export interface ChampSelectSlot {
   cellId: number
   team: 'ALLY' | 'ENEMY'
@@ -234,6 +270,8 @@ export interface ChampSelectSlot {
 export interface ChampSelectState {
   localCellId: number
   localPlayerChampionId: number
+  mapId?: number
+  gameMode?: string
   myTeam: ChampSelectSlot[]
   theirTeam: ChampSelectSlot[]
   bans: number[]
@@ -322,6 +360,10 @@ export interface AppApi {
   }
   account: {
     get: () => Promise<LcuAccount | null>
+  }
+  lcu: {
+    exportItemSet: (payload: LcuItemSetExport) => Promise<LcuExportResult>
+    exportRunePage: (payload: LcuRuneExport) => Promise<LcuExportResult>
   }
   updates: {
     get: () => Promise<UpdateState>

@@ -112,11 +112,9 @@ export function createOverlayWindow(
   })
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    const url = new URL(process.env['ELECTRON_RENDERER_URL'])
-    url.searchParams.set('overlay', '1')
-    void window.loadURL(url.toString())
+    void window.loadURL(new URL('overlay.html', process.env['ELECTRON_RENDERER_URL']).toString())
   } else {
-    void window.loadFile(join(__dirname, '../renderer/index.html'), { query: { overlay: '1' } })
+    void window.loadFile(join(__dirname, '../renderer/overlay.html'))
   }
 
   return window

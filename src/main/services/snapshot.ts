@@ -2,13 +2,18 @@ import type {
   ChampSelectState,
   ClientPhase,
   LcuAccount,
+  LcuExportResult,
+  LcuItemSetExport,
+  LcuRuneExport,
   LiveGameState,
   LcuSummoner,
   Snapshot
 } from '@shared/types'
+import { t } from '@shared/i18n'
 import { LcuClient } from './lcu'
 import { fetchLiveGame } from './liveClient'
 import { getSettings } from './settings'
+import { liveProbeDelay, resolvePollDelay } from './polling'
 
 const PHASE_MAP: Record<string, ClientPhase> = {
   None: 'Online',
@@ -45,6 +50,9 @@ export class SnapshotService {
   private stopped = false
   private lcu = new LcuClient()
   private listeners = new Set<(snapshot: Snapshot) => void>()
+  private liveFailures = 0
+  private liveNextProbeAt = 0
+  private lastRawPhase = ''
 
   get(): Snapshot {
     return this.snapshot
@@ -89,6 +97,22 @@ export class SnapshotService {
     return this.lcu.getAccount()
   }
 
+  async exportItemSet(payload: LcuItemSetExport): Promise<LcuExportResult> {
+    const settings = await getSettings()
+    if (!(await this.lcu.ensureConnected(settings))) {
+      return { ok: false, error: this.lcu.getError() ?? t('El cliente de League no está disponible.') }
+    }
+    return this.lcu.exportItemSet(payload)
+  }
+
+  async exportRunePage(payload: LcuRuneExport): Promise<LcuExportResult> {
+    const settings = await getSettings()
+    if (!(await this.lcu.ensureConnected(settings))) {
+      return { ok: false, error: this.lcu.getError() ?? t('El cliente de League no está disponible.') }
+    }
+    return this.lcu.exportRunePage(payload)
+  }
+
   private schedule(delayMs: number): void {
     if (this.stopped) return
     if (this.timer) clearTimeout(this.timer)
@@ -102,7 +126,20 @@ export class SnapshotService {
   private async reschedule(): Promise<void> {
     if (this.stopped) return
     const settings = await getSettings()
-    this.schedule(Math.max(500, settings.pollIntervalMs))
+    this.schedule(resolvePollDelay(this.snapshot.phase, settings.pollIntervalMs))
+  }
+
+  private async probeLive(force: boolean): Promise<LiveGameState | undefined> {
+    if (!force && Date.now() < this.liveNextProbeAt) return undefined
+    const live = await fetchLiveGame()
+    if (live) {
+      this.liveFailures = 0
+      this.liveNextProbeAt = 0
+      return live
+    }
+    this.liveFailures += 1
+    this.liveNextProbeAt = Date.now() + liveProbeDelay(this.liveFailures)
+    return undefined
   }
 
   private cycle(force: boolean): Promise<Snapshot> {
@@ -122,7 +159,6 @@ export class SnapshotService {
     let champSelect: ChampSelectState | undefined
     let live: LiveGameState | undefined
     let rawPhase = ''
-    let liveProbed = false
 
     if (lcuConnected) {
       summoner = (await this.lcu.getSummoner()) ?? undefined
@@ -134,11 +170,6 @@ export class SnapshotService {
           champSelect = (await this.lcu.getChampSelect()) ?? undefined
           if (champSelect) phase = 'ChampSelect'
         }
-
-        if (rawPhase === 'InProgress' || rawPhase === 'GameStart' || rawPhase === 'Reconnect') {
-          live = (await fetchLiveGame()) ?? undefined
-          liveProbed = true
-        }
       } catch (error) {
         lcuConnected = false
         lcuError = sanitizeError(error)
@@ -147,12 +178,14 @@ export class SnapshotService {
       }
     }
 
-    if (!live && !liveProbed) {
-      const probed = await fetchLiveGame()
-      if (probed) {
-        live = probed
-        lcuError = lcuConnected ? lcuError : undefined
-      }
+    const inGamePhase =
+      rawPhase === 'InProgress' || rawPhase === 'GameStart' || rawPhase === 'Reconnect'
+    if (inGamePhase && this.lastRawPhase !== rawPhase) this.liveNextProbeAt = 0
+    this.lastRawPhase = rawPhase
+
+    if (!live) {
+      live = await this.probeLive(force || inGamePhase)
+      if (live && !lcuConnected) lcuError = undefined
     }
 
     if (live) {

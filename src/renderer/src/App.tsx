@@ -1,19 +1,38 @@
-import { useEffect } from 'react'
+import { lazy, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Swords } from 'lucide-react'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { GameDataProvider } from '@renderer/lib/gameData'
 import { AppShell } from '@renderer/components/layout/AppShell'
-import { HomePage } from '@renderer/pages/HomePage'
-import { LivePage } from '@renderer/pages/LivePage'
-import { ChampionsPage } from '@renderer/pages/ChampionsPage'
-import { ItemsPage } from '@renderer/pages/ItemsPage'
-import { ChampionDetailPage } from '@renderer/pages/ChampionDetailPage'
-import { AccountPage } from '@renderer/pages/AccountPage'
-import { SettingsPage } from '@renderer/pages/SettingsPage'
-import { NotFoundPage } from '@renderer/pages/NotFoundPage'
 import { Button } from '@renderer/components/ui/Button'
 import { t } from '@shared/i18n'
+
+const HomePage = lazy(() =>
+  import('@renderer/pages/HomePage').then((module) => ({ default: module.HomePage }))
+)
+const LivePage = lazy(() =>
+  import('@renderer/pages/LivePage').then((module) => ({ default: module.LivePage }))
+)
+const ChampionsPage = lazy(() =>
+  import('@renderer/pages/ChampionsPage').then((module) => ({ default: module.ChampionsPage }))
+)
+const ItemsPage = lazy(() =>
+  import('@renderer/pages/ItemsPage').then((module) => ({ default: module.ItemsPage }))
+)
+const ChampionDetailPage = lazy(() =>
+  import('@renderer/pages/ChampionDetailPage').then((module) => ({
+    default: module.ChampionDetailPage
+  }))
+)
+const AccountPage = lazy(() =>
+  import('@renderer/pages/AccountPage').then((module) => ({ default: module.AccountPage }))
+)
+const SettingsPage = lazy(() =>
+  import('@renderer/pages/SettingsPage').then((module) => ({ default: module.SettingsPage }))
+)
+const NotFoundPage = lazy(() =>
+  import('@renderer/pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage }))
+)
 
 function BootScreen({ error }: { error?: string | null }): React.JSX.Element {
   return (

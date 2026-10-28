@@ -1,9 +1,12 @@
+import { memo } from 'react'
 import type { RunePlan } from '@shared/analysis'
-import type { RuneDef } from '@shared/types'
+import type { LcuExportResult, Role, RuneDef } from '@shared/types'
 import { SpellIcon } from '@renderer/components/lol/SpellIcon'
 import { RuneIcon } from '@renderer/components/lol/RuneIcon'
 import { Badge } from '@renderer/components/ui/Badge'
+import { isArenaMap } from '@shared/analysis'
 import { t } from '@shared/i18n'
+import { LcuExportButton } from './LcuExportButton'
 
 function RuneRow({ runes }: { runes: RuneDef[] }): React.JSX.Element {
   return (
@@ -23,23 +26,56 @@ function RuneRow({ runes }: { runes: RuneDef[] }): React.JSX.Element {
   )
 }
 
-export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Element {
+export const RunePanel = memo(function RunePanel({
+  plan,
+  championName,
+  role,
+  mapId
+}: {
+  plan: RunePlan | null
+  championName?: string
+  role?: Role
+  mapId?: number
+}): React.JSX.Element {
   if (!plan) {
     return (
       <div className="rounded-xl border border-line bg-base-900/35 p-4 text-[0.78rem] text-ink-400">
-        {t('No hay una página de runas recomendada para este campeón y rol en este parche.')}
+        {mapId !== undefined && isArenaMap(mapId)
+          ? t('Arena no usa páginas de runas.')
+          : t('No hay una página de runas recomendada para este campeón y rol en este parche.')}
       </div>
     )
   }
 
+  const exportRunes = (): Promise<LcuExportResult> => {
+    if (!window.api?.lcu) {
+      return Promise.resolve({ ok: false, error: t('El cliente de League no está disponible.') })
+    }
+    return window.api.lcu.exportRunePage({
+      championId: plan.recommendation.championId,
+      championName: championName ?? `Campeón ${plan.recommendation.championId}`,
+      role: role ?? 'MIDDLE',
+      primaryStyleId: plan.recommendation.primaryPerkStyleId,
+      subStyleId: plan.recommendation.secondaryPerkStyleId,
+      selectedPerkIds: plan.recommendation.perkIds
+    })
+  }
+
   return (
     <div className="space-y-4">
-      <div>
-        <p className="eyebrow">{t('Runas oficiales')}</p>
-        <h2 className="font-display mt-1 text-xl font-semibold text-ink-100">{t('Página recomendada')}</h2>
-        <p className="mt-1 text-[0.78rem] text-ink-400">
-          {t('Recomendación de Riot para {role} en Grieta del Invocador.', { role: t(plan.recommendation.position.toLowerCase()) })}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="eyebrow">{t('Runas oficiales')}</p>
+          <h2 className="font-display mt-1 text-xl font-semibold text-ink-100">{t('Página recomendada')}</h2>
+          <p className="mt-1 text-[0.78rem] text-ink-400">
+            {t('Recomendación de Riot para {role} en Grieta del Invocador.', { role: t(plan.recommendation.position.toLowerCase()) })}
+          </p>
+        </div>
+        <LcuExportButton
+          idleLabel={t('Exportar runas')}
+          doneLabel={t('Runas exportadas')}
+          onExport={exportRunes}
+        />
       </div>
 
       <div>
@@ -103,4 +139,4 @@ export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Elemen
       </div>
     </div>
   )
-}
+})

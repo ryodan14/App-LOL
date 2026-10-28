@@ -1,4 +1,5 @@
 import type { Item, Role } from '../types'
+import { MAP_SUMMONERS_RIFT } from './gameModes'
 import type {
   ChampionItemGuideData,
   ChampionItemGuideSource,
@@ -83,10 +84,10 @@ function hasEntry(entry: { starting?: number[][]; ranges?: number[][] } | undefi
   return Boolean(entry && ((entry.starting?.length ?? 0) > 0 || (entry.ranges?.length ?? 0) > 0))
 }
 
-function isBuildable(item: Item | undefined): item is Item {
+function isBuildable(item: Item | undefined, mapId = MAP_SUMMONERS_RIFT): item is Item {
   return Boolean(
     item &&
-      item.maps['11'] === true &&
+      item.maps[String(mapId)] === true &&
       item.gold.purchasable &&
       item.gold.total > 0 &&
       item.inStore !== false &&
@@ -112,11 +113,11 @@ export function resolveChampionItemGuide(
   if (!base) return null
 
   const roleEntry = base.roles?.[role]
-  if (hasEntry(roleEntry)) {
-    return {
-      source: base.source,
-      starting: roleEntry?.starting ?? [],
-      ranges: roleEntry?.ranges ?? []
+  if (roleEntry) {
+    const starting = (roleEntry.starting?.length ?? 0) > 0 ? roleEntry.starting : base.starting
+    const ranges = (roleEntry.ranges?.length ?? 0) > 0 ? roleEntry.ranges : base.ranges
+    if (hasEntry({ starting, ranges })) {
+      return { source: base.source, starting: starting ?? [], ranges: ranges ?? [] }
     }
   }
 
@@ -138,7 +139,8 @@ export function resolveChampionItemGuide(
 
 export function normalizeChampionItemGuide(
   guide: ResolvedChampionItemGuide | null,
-  itemById: Map<number, Item>
+  itemById: Map<number, Item>,
+  mapId = MAP_SUMMONERS_RIFT
 ): NormalizedChampionItemGuide {
   if (!guide) {
     return {
@@ -154,10 +156,10 @@ export function normalizeChampionItemGuide(
   }
 
   const starting = (guide.starting ?? [])
-    .map((bundle) => bundle.filter((id) => isBuildable(itemById.get(id))))
+    .map((bundle) => bundle.filter((id) => isBuildable(itemById.get(id), mapId)))
     .filter((bundle) => bundle.length > 0)
   const groups = (guide.ranges ?? [])
-    .map((range) => range.filter((id) => isBuildable(itemById.get(id))))
+    .map((range) => range.filter((id) => isBuildable(itemById.get(id), mapId)))
     .filter((range) => range.length > 0)
 
   const first: number[] = []

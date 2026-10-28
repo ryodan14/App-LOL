@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Package, RefreshCw, Search, SlidersHorizontal } from 'lucide-react'
 import type { Item } from '@shared/types'
@@ -42,26 +42,42 @@ export function ItemsPage(): React.JSX.Element {
   const [query, setQuery] = useState(params.get('buscar') ?? '')
   const [category, setCategory] = useState<ItemCategory | 'all'>('all')
   const [sort, setSort] = useState<SortMode>('name')
+  const deferredQuery = useDeferredValue(query)
+
+  const categorized = useMemo(() => {
+    if (!index) return []
+    return index.data.items
+      .filter((item) => item.maps['11'] === true)
+      .map((item) => ({ item, category: itemCategory(item) }))
+  }, [index])
+
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<ItemCategory, number>()
+    for (const entry of categorized) {
+      counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1)
+    }
+    return counts
+  }, [categorized])
 
   const filtered = useMemo(() => {
-    if (!index) return []
-    const term = normalize(query.trim())
-    return index.data.items
-      .filter((item) => {
-        if (category !== 'all' && itemCategory(item) !== category) return false
+    const term = normalize(deferredQuery.trim())
+    return categorized
+      .filter((entry) => {
+        if (category !== 'all' && entry.category !== category) return false
         if (!term) return true
         return (
-          normalize(item.name).includes(term) ||
-          normalize(item.plaintext).includes(term) ||
-          normalize(item.description).includes(term)
+          normalize(entry.item.name).includes(term) ||
+          normalize(entry.item.plaintext).includes(term) ||
+          normalize(entry.item.description).includes(term)
         )
       })
+      .map((entry) => entry.item)
       .sort((a, b) => {
         if (sort === 'gold-asc') return a.gold.total - b.gold.total
         if (sort === 'gold-desc') return b.gold.total - a.gold.total
         return a.name.localeCompare(b.name, 'es')
       })
-  }, [category, index, query, sort])
+  }, [categorized, category, deferredQuery, sort])
 
   if (!index) {
     return (
@@ -134,7 +150,7 @@ export function ItemsPage(): React.JSX.Element {
               {t('Todos')}
             </CategoryButton>
             {ITEM_CATEGORY_ORDER.map((item) => {
-              const count = index.data.items.filter((entry) => itemCategory(entry) === item).length
+              const count = categoryCounts.get(item) ?? 0
               if (count === 0) return null
               return (
                 <CategoryButton

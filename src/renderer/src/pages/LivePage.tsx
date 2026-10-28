@@ -22,7 +22,9 @@ import {
   findChampionForLivePlayer,
   generateBuild,
   generateRunePlan,
-  inferChampionRole
+  inferChampionRole,
+  MAP_SUMMONERS_RIFT,
+  mapIdFromGameMode
 } from '@shared/analysis'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { useGameData } from '@renderer/lib/gameData'
@@ -78,7 +80,7 @@ export function LivePage(): React.JSX.Element {
   const refreshData = useAppStore((state) => state.refreshData)
   const index = useGameData()
 
-  const model = useMemo(() => {
+  const scene = useMemo(() => {
     if (!index) return null
 
     if (snapshot.champSelect) {
@@ -93,18 +95,17 @@ export function LivePage(): React.JSX.Element {
           : myChampion
             ? inferChampionRole(index, myChampion)
             : 'UNKNOWN'
-      const enemies = state.theirTeam
+      const enemyKeys = state.theirTeam
         .map((enemy) => findChampionForId(index, enemy.championId || enemy.pickIntentId))
         .filter((champion): champion is Champion => Boolean(champion))
-      const effectiveRole: Role = myRole === 'UNKNOWN' ? 'MIDDLE' : myRole
+        .map((champion) => champion.key)
       return {
         mode: 'champ-select' as const,
         myChampion,
         myRole,
-        enemies,
-        team: analyzeTeam(enemies),
-        build: myChampion ? generateBuild(myChampion, effectiveRole, enemies, index) : null,
-        runes: myChampion ? generateRunePlan(myChampion, effectiveRole, index) : null,
+        mapId: state.mapId ?? MAP_SUMMONERS_RIFT,
+        effectiveRole: (myRole === 'UNKNOWN' ? 'MIDDLE' : myRole) as Role,
+        enemyKeys,
         activePlayer: undefined,
         allies: [] as LivePlayer[],
         enemyPlayers: [] as LivePlayer[],
@@ -130,18 +131,17 @@ export function LivePage(): React.JSX.Element {
             : 'UNKNOWN'
       const allies = live.players.filter((player) => player.team === live.activeTeam)
       const enemyPlayers = live.players.filter((player) => player.team !== live.activeTeam)
-      const enemies = enemyPlayers
+      const enemyKeys = enemyPlayers
         .map((player) => findChampionForLivePlayer(index, player.championId, player.championName))
         .filter((champion): champion is Champion => Boolean(champion))
-      const effectiveRole: Role = myRole === 'UNKNOWN' ? 'MIDDLE' : myRole
+        .map((champion) => champion.key)
       return {
         mode: 'live' as const,
         myChampion,
         myRole,
-        enemies,
-        team: analyzeTeam(enemies),
-        build: myChampion ? generateBuild(myChampion, effectiveRole, enemies, index) : null,
-        runes: myChampion ? generateRunePlan(myChampion, effectiveRole, index) : null,
+        mapId: mapIdFromGameMode(live.gameMode),
+        effectiveRole: (myRole === 'UNKNOWN' ? 'MIDDLE' : myRole) as Role,
+        enemyKeys,
         activePlayer,
         allies,
         enemyPlayers,
@@ -151,6 +151,40 @@ export function LivePage(): React.JSX.Element {
 
     return null
   }, [index, snapshot.champSelect, snapshot.live])
+
+  const enemySignature = scene?.enemyKeys.join(',') ?? ''
+  const enemies = useMemo(() => {
+    if (!index || !enemySignature) return []
+    return enemySignature
+      .split(',')
+      .map(Number)
+      .map((key) => index.championByKey.get(key))
+      .filter((champion): champion is Champion => Boolean(champion))
+  }, [enemySignature, index])
+
+  const build = useMemo(
+    () =>
+      index && scene?.myChampion
+        ? generateBuild(scene.myChampion, scene.effectiveRole, enemies, index, {
+            mapId: scene.mapId
+          })
+        : null,
+    [enemies, index, scene?.effectiveRole, scene?.mapId, scene?.myChampion]
+  )
+  const runes = useMemo(
+    () =>
+      index && scene?.myChampion
+        ? generateRunePlan(scene.myChampion, scene.effectiveRole, index, {
+            mapId: scene.mapId
+          })
+        : null,
+    [index, scene?.effectiveRole, scene?.mapId, scene?.myChampion]
+  )
+  const team = useMemo(() => analyzeTeam(enemies), [enemies])
+  const model = useMemo(
+    () => (scene ? { ...scene, enemies, team, build, runes } : null),
+    [build, enemies, runes, scene, team]
+  )
 
   if (!index) {
     return (
@@ -237,7 +271,7 @@ export function LivePage(): React.JSX.Element {
         <div className="grid gap-4 xl:grid-cols-[1.25fr_0.85fr]">
           <Card className="p-5">
             {model.build ? (
-              <BuildPanel build={model.build} />
+              <BuildPanel build={model.build} championName={model.myChampion?.name} />
             ) : (
               <div className="py-10 text-center text-[0.82rem] text-ink-400">
                 {t('Elige tu campeón para ver la build adaptada a tu línea.')}
@@ -246,7 +280,12 @@ export function LivePage(): React.JSX.Element {
           </Card>
           <div className="space-y-4">
             <Card className="p-5">
-              <RunePanel plan={model.runes} />
+              <RunePanel
+                plan={model.runes}
+                championName={model.myChampion?.name}
+                role={model.effectiveRole}
+                mapId={model.mapId}
+              />
             </Card>
             {model.enemies.length > 0 && (
               <Card className="p-5">
@@ -372,7 +411,7 @@ export function LivePage(): React.JSX.Element {
       <div className="grid gap-4 xl:grid-cols-[1.25fr_0.85fr]">
         <Card className="p-5">
           {model.build ? (
-            <BuildPanel build={model.build} />
+            <BuildPanel build={model.build} championName={model.myChampion?.name} />
           ) : (
             <div className="py-10 text-center text-[0.82rem] text-ink-400">
               {t('No pudimos identificar tu campeón en la partida.')}
@@ -381,7 +420,12 @@ export function LivePage(): React.JSX.Element {
         </Card>
         <div className="space-y-4">
           <Card className="p-5">
-            <RunePanel plan={model.runes} />
+            <RunePanel
+              plan={model.runes}
+              championName={model.myChampion?.name}
+              role={model.effectiveRole}
+              mapId={model.mapId}
+            />
           </Card>
           {model.enemies.length > 0 && (
             <Card className="p-5">

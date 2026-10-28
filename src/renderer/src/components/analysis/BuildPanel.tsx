@@ -1,13 +1,17 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { Coins, Info, ShieldCheck, Sparkles, Swords } from 'lucide-react'
 import type { BuildGuide, BuildItem, BuildPlan, CounterNeed, SkillOrder } from '@shared/analysis'
+import type { LcuExportResult } from '@shared/types'
 import { Badge } from '@renderer/components/ui/Badge'
 import { ItemIcon } from '@renderer/components/lol/ItemIcon'
 import { SpellIcon } from '@renderer/components/lol/SpellIcon'
 import { roleLabel } from '@shared/constants'
 import { formatNumber } from '@renderer/lib/format'
 import { cn } from '@renderer/lib/cn'
+import { mapLabelKey } from '@shared/analysis'
 import { t } from '@shared/i18n'
+import { LcuExportButton } from './LcuExportButton'
 
 function NeedBadge({ need }: { need: CounterNeed }): React.JSX.Element {
   const tone = need.priority === 'ALTA' ? 'danger' : need.priority === 'MEDIA' ? 'gold' : 'neutral'
@@ -186,7 +190,31 @@ function SkillPanel({ order }: { order: SkillOrder }): React.JSX.Element | null 
   )
 }
 
-export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
+export const BuildPanel = memo(function BuildPanel({
+  build,
+  championName
+}: {
+  build: BuildPlan
+  championName?: string
+}): React.JSX.Element {
+  const mode = mapLabelKey(build.mapId)
+  const exportBuild = (): Promise<LcuExportResult> => {
+    if (!window.api?.lcu) {
+      return Promise.resolve({ ok: false, error: t('El cliente de League no está disponible.') })
+    }
+    return window.api.lcu.exportItemSet({
+      championId: build.championId,
+      championName: championName ?? `Campeón ${build.championId}`,
+      role: build.role,
+      mapId: build.mapId,
+      starting: build.starting.map((entry) => entry.item.id),
+      first: build.firstItem ? [build.firstItem.item.id] : [],
+      boots: build.boots ? [build.boots.item.id] : [],
+      core: build.core.map((entry) => entry.item.id),
+      situational: build.situational.map((entry) => entry.item.id)
+    })
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -196,13 +224,21 @@ export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
             {build.archetypeLabel}
           </h2>
           <p className="mt-1 text-[0.78rem] text-ink-400">
+            {mode ? `${t(mode)} · ` : ''}
             {roleLabel(build.role)} ·{' '}
             {t('{gold} de oro estimado', { gold: formatNumber(build.totalGold) })}
           </p>
         </div>
-        <Badge tone="gold">
-          <Coins className="h-3 w-3" /> {t('6 objetos')}
-        </Badge>
+        <div className="flex flex-col items-end gap-2">
+          <Badge tone="gold">
+            <Coins className="h-3 w-3" /> {t('6 objetos')}
+          </Badge>
+          <LcuExportButton
+            idleLabel={t('Exportar build')}
+            doneLabel={t('Build exportada')}
+            onExport={exportBuild}
+          />
+        </div>
       </div>
 
       {build.needs.length > 0 && (
@@ -258,4 +294,4 @@ export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
       </div>
     </div>
   )
-}
+})

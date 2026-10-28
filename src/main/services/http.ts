@@ -1,5 +1,8 @@
 import https from 'node:https'
 import { URL } from 'node:url'
+import type { Transform } from 'node:stream'
+import { createBrotliDecompress, createGunzip, createInflate } from 'node:zlib'
+import { isRetryableStatus, retryDelayMs } from './retry'
 
 export class HttpError extends Error {
   constructor(
@@ -16,15 +19,42 @@ interface JsonOptions {
   auth?: string
   rejectUnauthorized?: boolean
   redirects?: number
+  retries?: number
+  method?: string
+  body?: unknown
 }
 
-export function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
+function decompressor(encoding: string): Transform | null {
+  if (encoding === 'gzip' || encoding === 'x-gzip') return createGunzip()
+  if (encoding === 'deflate') return createInflate()
+  if (encoding === 'br') return createBrotliDecompress()
+  return null
+}
+
+export async function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
+  const { retries = 2, ...requestOptions } = options
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await requestJson<T>(url, requestOptions)
+    } catch (error) {
+      const status = error instanceof HttpError ? error.status : 0
+      const retryable = error instanceof HttpError ? isRetryableStatus(status) : true
+      if (attempt >= retries || !retryable) throw error
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs(attempt)))
+    }
+  }
+}
+
+function requestJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
   const {
     timeoutMs = 20_000,
     auth,
     rejectUnauthorized = true,
-    redirects = 3
+    redirects = 3,
+    method = 'GET',
+    body
   } = options
+  const payload = body === undefined ? undefined : JSON.stringify(body)
 
   return new Promise<T>((resolve, reject) => {
     let settled = false
@@ -35,10 +65,17 @@ export function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T>
         hostname: parsed.hostname,
         port: parsed.port,
         path: `${parsed.pathname}${parsed.search}`,
-        method: 'GET',
+        method,
         headers: {
           Accept: 'application/json',
-          'User-Agent': 'App-LOL/0.1 (+https://github.com/ryodan14/App-LOL)',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'User-Agent': 'App-LOL (+https://github.com/ryodan14/App-LOL)',
+          ...(payload
+            ? {
+                'Content-Type': 'application/json',
+                'Content-Length': String(Buffer.byteLength(payload))
+              }
+            : {}),
           ...(auth ? { Authorization: `Basic ${Buffer.from(auth).toString('base64')}` } : {})
         },
         rejectUnauthorized,
@@ -54,7 +91,7 @@ export function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T>
             return
           }
           const next = new URL(response.headers.location, url).toString()
-          fetchJson<T>(next, { ...options, redirects: redirects - 1 }).then(resolve, reject)
+          requestJson<T>(next, { ...options, redirects: redirects - 1 }).then(resolve, reject)
           return
         }
 
@@ -71,21 +108,23 @@ export function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T>
         }
 
         const chunks: Buffer[] = []
-        response.on('data', (chunk: Buffer) => chunks.push(chunk))
-        response.on('end', () => {
-          if (settled) return
-          settled = true
-          try {
-            const text = Buffer.concat(chunks).toString('utf8')
-            resolve(JSON.parse(text) as T)
-          } catch (error) {
-            reject(new Error(`Respuesta inválida de ${parsed.hostname}: ${(error as Error).message}`))
-          }
-        })
-        response.on('error', (error) => {
+        const decoder = decompressor(String(response.headers['content-encoding'] ?? '').toLowerCase())
+        const stream = decoder ? response.pipe(decoder) : response
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+        stream.on('error', (error) => {
           if (settled) return
           settled = true
           reject(error)
+        })
+        stream.on('end', () => {
+          if (settled) return
+          settled = true
+          try {
+            const text = Buffer.concat(chunks).toString('utf8').trim()
+            resolve((text ? JSON.parse(text) : undefined) as T)
+          } catch (error) {
+            reject(new Error(`Respuesta inválida de ${parsed.hostname}: ${(error as Error).message}`))
+          }
         })
       }
     )
@@ -98,6 +137,6 @@ export function fetchJson<T>(url: string, options: JsonOptions = {}): Promise<T>
       settled = true
       reject(error)
     })
-    request.end()
+    request.end(payload)
   })
 }
