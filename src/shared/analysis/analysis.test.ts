@@ -22,6 +22,7 @@ import {
   generateCounterTips,
   generateRunePlan,
   inferChampionRole,
+  inferRolesFromTags,
   suggestBanTargets,
   suggestLaneCounters
 } from './index'
@@ -218,6 +219,22 @@ describe('análisis de campeones', () => {
     expect(classifyArchetype(champions[6], 'UTILITY')).toBe('enchanter')
     expect(classifyArchetype(champions[7], 'UTILITY')).toBe('mage')
     expect(classifyArchetype(champions[3], 'BOTTOM')).toBe('marksman')
+  })
+})
+
+describe('roles de campeón', () => {
+  it('asigna al menos un rol a cada campeón aunque no tenga runas recomendadas', () => {
+    for (const entry of champions) {
+      expect(index.rolesByChampion.get(entry.key)?.length ?? 0).toBeGreaterThan(0)
+    }
+    expect(index.rolesByChampion.get(222)).toContain('BOTTOM')
+    expect(index.rolesByChampion.get(16)).toEqual(['UTILITY'])
+  })
+
+  it('infiere roles por etiquetas cuando faltan datos oficiales', () => {
+    expect(inferRolesFromTags(champions[3])).toContain('BOTTOM')
+    expect(inferRolesFromTags(champions[5])).toEqual(expect.arrayContaining(['TOP', 'JUNGLE']))
+    expect(inferRolesFromTags(champions[7])).toEqual(expect.arrayContaining(['MIDDLE', 'UTILITY']))
   })
 })
 
