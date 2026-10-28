@@ -6,6 +6,11 @@ import { analyzeTeam } from './team'
 import { generateSkillOrder } from './skills'
 import { stripHtml } from './text'
 import type { AnalysisIndex, Archetype, BuildItem, BuildPlan, CounterNeed } from './types'
+import {
+  normalizeChampionItemGuide,
+  resolveChampionItemGuide
+} from './championItemGuides'
+import type { NormalizedChampionItemGuide } from './championItemTypes'
 
 const NEED_ITEM_IDS: Record<string, Partial<Record<Archetype, number[]>>> = {
   antiheal: {
@@ -533,7 +538,8 @@ function findNeedItem(
 function chooseBoots(
   archetype: Archetype,
   team: ReturnType<typeof analyzeTeam>,
-  index: AnalysisIndex
+  index: AnalysisIndex,
+  recommended: number[] = []
 ): BuildItem | null {
   const hardCc = team.threatCounts.HARD_CC ?? 0
   const ad = team.damage.AD + team.damage.MIXED * 0.5
@@ -569,20 +575,64 @@ function chooseBoots(
   }
 
   const preferred = findItem(index, preferredId)
+  const strongTeamSignal = hardCc >= 2 || ap >= 2 || ad >= 2
+  const guided = recommended
+    .map((id) => findItem(index, id))
+    .filter((item): item is Item => Boolean(item && isPurchasable(item) && isBoots(item)))
+
   if (preferred && isPurchasable(preferred) && isBoots(preferred)) {
+    if (!strongTeamSignal && guided.length > 0 && !guided.some((item) => item.id === preferred.id)) {
+      return toBuildItem(guided[0], t('Botas recomendadas para tu campeón'))
+    }
     return toBuildItem(preferred, reason)
   }
 
+  if (guided.length > 0) return toBuildItem(guided[0], t('Botas recomendadas para tu campeón'))
+
   const fallback = index.data.items.find((item) => isPurchasable(item) && isBoots(item))
   return fallback ? toBuildItem(fallback, t('Botas situacionales')) : null
+}
+
+function chooseGuidedStarting(
+  guide: NormalizedChampionItemGuide,
+  role: Role,
+  index: AnalysisIndex
+): BuildItem[] | null {
+  if (guide.starting.length === 0) return null
+  const reason =
+    guide.source === 'curated'
+      ? t('Salida de línea de la build curada de App-LOL')
+      : t('Salida de línea recomendada por los datos del juego')
+
+  for (const bundle of guide.starting) {
+    const items = bundle
+      .map((id) => findItem(index, id))
+      .filter((item): item is Item => Boolean(item && isPurchasable(item)))
+    if (items.length === 0) continue
+
+    const hasSupportItem = items.some((item) => item.tags.includes('GoldPer'))
+    const hasJungleItem = items.some((item) => item.tags.includes('Jungle'))
+    if (role === 'UTILITY' && !hasSupportItem) continue
+    if (role === 'JUNGLE' && !hasJungleItem) continue
+    if (role !== 'UTILITY' && hasSupportItem) continue
+    if (role !== 'JUNGLE' && hasJungleItem) continue
+
+    return items.map((item) => toBuildItem(item, reason))
+  }
+
+  return null
 }
 
 function chooseStarting(
   archetype: Archetype,
   role: Role,
   team: ReturnType<typeof analyzeTeam>,
-  index: AnalysisIndex
+  index: AnalysisIndex,
+  guide: NormalizedChampionItemGuide
 ): BuildItem[] {
+  const guided = chooseGuidedStarting(guide, role, index)
+  if (guided) return guided
+
   const items: BuildItem[] = []
   const add = (id: number, reason: string): void => {
     const item = findItem(index, id)
@@ -635,6 +685,45 @@ function chooseStarting(
   return items
 }
 
+function guideReason(guide: NormalizedChampionItemGuide, champion: Champion, detail: string): string {
+  if (guide.source === 'riot') {
+    return t('{detail} Recomendado para {champion} en los datos del juego.', {
+      detail,
+      champion: champion.name
+    })
+  }
+  if (guide.source === 'curated') {
+    return t('{detail} Build curada de App-LOL para {champion}.', {
+      detail,
+      champion: champion.name
+    })
+  }
+  return detail
+}
+
+function chooseGuideCandidate(
+  ids: number[],
+  archetype: Archetype,
+  index: AnalysisIndex,
+  used: Set<number>,
+  reason: string,
+  opening = false
+): BuildItem | null {
+  const candidates = ids
+    .map((id) => findItem(index, id))
+    .filter((item): item is Item => Boolean(item && isPurchasable(item) && !used.has(item.id)))
+  if (candidates.length === 0) return null
+
+  candidates.sort((a, b) =>
+    opening
+      ? laneOpeningScore(b, archetype) - laneOpeningScore(a, archetype)
+      : scoreItem(b, archetype) - scoreItem(a, archetype)
+  )
+  const chosen = candidates[0]
+  used.add(chosen.id)
+  return toBuildItem(chosen, reason)
+}
+
 export function generateBuild(
   champion: Champion,
   role: Role,
@@ -645,6 +734,11 @@ export function generateBuild(
   const team = analyzeTeam(enemies)
   const pool = legendaryPool(index)
   const used = new Set<number>()
+  const guide = normalizeChampionItemGuide(
+    resolveChampionItemGuide(champion.key, role),
+    index.itemById
+  )
+  const guideIds = new Set(guide.itemIds)
 
   const takeAdaptive = (priority: 'ALTA' | 'MEDIA', limit: number): BuildItem[] => {
     const picked: BuildItem[] = []
@@ -659,25 +753,78 @@ export function generateBuild(
     return picked
   }
 
+  const firstGuided = chooseGuideCandidate(
+    guide.first,
+    archetype,
+    index,
+    used,
+    guideReason(guide, champion, t('Primer objeto clave.')),
+    true
+  )
   const highAdaptive = takeAdaptive('ALTA', 3)
   const coreAdaptive = highAdaptive.slice(0, 1)
   const situationalAdaptive = highAdaptive.slice(1)
   const natural = pool
     .filter((item) => !used.has(item.id))
-    .map((item) => ({ item, score: scoreItem(item, archetype) + earlyItemBonus(item, archetype) }))
+    .map((item) => ({
+      item,
+      score:
+        scoreItem(item, archetype) +
+        earlyItemBonus(item, archetype) +
+        (guideIds.has(item.id) ? 45 : 0)
+    }))
     .sort((a, b) => b.score - a.score)
     .map(({ item }) => item)
 
-  const core: BuildItem[] = [...coreAdaptive]
+  const core: BuildItem[] = []
+  if (firstGuided) core.push(firstGuided)
+  for (const entry of coreAdaptive) {
+    if (core.length >= 3) break
+    core.push(entry)
+  }
+
+  for (const group of guide.core) {
+    if (core.length >= 3) break
+    const item = chooseGuideCandidate(
+      group,
+      archetype,
+      index,
+      used,
+      guideReason(guide, champion, t('Objeto de núcleo.'))
+    )
+    if (item) core.push(item)
+  }
+
   for (const item of natural) {
     if (core.length >= 3) break
     if (used.has(item.id)) continue
-    core.push(toBuildItem(item, t('Núcleo de {archetype}: {stats}', { archetype: archetypeLabel(archetype).toLocaleLowerCase(), stats: statSummary(item) })))
+    core.push(
+      toBuildItem(
+        item,
+        t('Núcleo de {archetype}: {stats}', {
+          archetype: archetypeLabel(archetype).toLocaleLowerCase(),
+          stats: statSummary(item)
+        })
+      )
+    )
     used.add(item.id)
   }
 
   const mediumAdaptive = takeAdaptive('MEDIA', Math.max(0, 2 - situationalAdaptive.length))
   const situational: BuildItem[] = [...situationalAdaptive, ...mediumAdaptive]
+
+  for (const group of guide.situational) {
+    if (situational.length >= 2) break
+    const item = chooseGuideCandidate(
+      group,
+      archetype,
+      index,
+      used,
+      guideReason(guide, champion, t('Objeto situacional.'))
+    )
+    if (item) situational.push(item)
+  }
+
   for (const item of natural) {
     if (situational.length >= 2) break
     if (used.has(item.id)) continue
@@ -685,8 +832,8 @@ export function generateBuild(
     used.add(item.id)
   }
 
-  const boots = chooseBoots(archetype, team, index)
-  const starting = chooseStarting(archetype, role, team, index)
+  const boots = chooseBoots(archetype, team, index, guide.boots)
+  const starting = chooseStarting(archetype, role, team, index, guide)
   const opening = [...core].sort(
     (a, b) => laneOpeningScore(b.item, archetype) - laneOpeningScore(a.item, archetype)
   )[0]
@@ -706,7 +853,26 @@ export function generateBuild(
     core.reduce((total, item) => total + item.item.gold.total, 0) +
     situational.reduce((total, item) => total + item.item.gold.total, 0)
 
+  const guideItems = guide.itemIds
+    .map((id) => findItem(index, id))
+    .filter((item): item is Item => Boolean(item))
+    .slice(0, 6)
+    .map((item) => toBuildItem(item, guideReason(guide, champion, t('Objeto recomendado.'))))
+
   const notes: string[] = []
+  if (guide.source === 'riot') {
+    notes.push(
+      t('Objetos recomendados por los datos del juego para {champion}; App-LOL los adapta a la composición enemiga.', {
+        champion: champion.name
+      })
+    )
+  } else if (guide.source === 'curated') {
+    notes.push(
+      t('Riot no publica una guía de objetos para {champion} en este parche; se usa una build curada por App-LOL.', {
+        champion: champion.name
+      })
+    )
+  }
   if (enemies.length > 0) {
     notes.push(
       t('Build ajustada contra {champions}.', { champions: enemies.map((enemy) => enemy.name).join(', ') })
@@ -717,7 +883,7 @@ export function generateBuild(
       )
     }
   } else {
-    notes.push(t('Sin composición enemiga: build base por arquetipo.'))
+    notes.push(t('Sin composición enemiga: build base por campeón y arquetipo.'))
   }
   notes.push(t('El primer objeto busca tu pico de línea; adelanta las botas si necesitas moverte antes.'))
   notes.push(t('Los objetos situacionales son una guía; adapta el orden según cómo vaya la partida.'))
@@ -727,6 +893,10 @@ export function generateBuild(
     role,
     archetype,
     archetypeLabel: archetypeLabel(archetype),
+    guide: {
+      source: guide.source,
+      items: guideItems
+    },
     starting,
     firstItem,
     purchaseOrder,

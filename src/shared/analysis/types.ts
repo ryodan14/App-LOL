@@ -9,6 +9,7 @@ import type {
   StaticData,
   SummonerSpell
 } from '../types'
+import type { ChampionItemGuideSource } from './championItemTypes'
 
 export type ThreatTag =
   | 'HEAL'
@@ -107,11 +108,17 @@ export interface SkillOrder {
   note: string
 }
 
+export interface BuildGuide {
+  source: ChampionItemGuideSource
+  items: BuildItem[]
+}
+
 export interface BuildPlan {
   championId: number
   role: Role
   archetype: Archetype
   archetypeLabel: string
+  guide: BuildGuide
   starting: BuildItem[]
   firstItem: BuildItem | null
   purchaseOrder: BuildItem[]
