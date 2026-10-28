@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { RefreshCw, Search, SlidersHorizontal, UsersRound } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { RefreshCw, Search, SlidersHorizontal, UsersRound, X } from 'lucide-react'
 import type { Role } from '@shared/types'
 import { roleLabel, ROLE_ORDER } from '@shared/constants'
 import { useGameData } from '@renderer/lib/gameData'
@@ -36,13 +36,23 @@ export function ChampionsPage(): React.JSX.Element {
   const index = useGameData()
   const data = useAppStore((state) => state.data)
   const refreshData = useAppStore((state) => state.refreshData)
+  const [params] = useSearchParams()
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<Role | 'ALL'>('ALL')
+  const [itemFilter, setItemFilter] = useState<string | null>(params.get('objeto'))
+
+  const itemChampionKeys = useMemo(() => {
+    if (!index || !itemFilter) return null
+    const item = index.data.items.find((entry) => entry.name === itemFilter)
+    if (!item) return null
+    return new Set(index.championKeysByItemId.get(item.id) ?? [])
+  }, [index, itemFilter])
 
   const filtered = useMemo(() => {
     if (!index) return []
     const term = normalize(query.trim())
     return index.champions.filter((champion) => {
+      if (itemChampionKeys && !itemChampionKeys.has(champion.key)) return false
       const matchesRole =
         role === 'ALL' || (index.rolesByChampion.get(champion.key) ?? []).includes(role)
       if (!matchesRole) return false
@@ -53,7 +63,7 @@ export function ChampionsPage(): React.JSX.Element {
         champion.id.toLowerCase().includes(term)
       )
     })
-  }, [index, query, role])
+  }, [index, itemChampionKeys, query, role])
 
   if (!index) {
     return (
@@ -117,6 +127,22 @@ export function ChampionsPage(): React.JSX.Element {
               </RoleButton>
             ))}
           </div>
+          {itemFilter && (
+            <div className="flex items-center gap-1.5 rounded-lg border border-gold-400/25 bg-gold-400/[0.06] px-2.5 py-1.5">
+              <span className="text-[0.64rem] text-ink-400">{t('Objeto')}:</span>
+              <span className="max-w-[14rem] truncate text-[0.66rem] font-semibold text-gold-200">
+                {itemFilter}
+              </span>
+              <button
+                type="button"
+                onClick={() => setItemFilter(null)}
+                className="rounded p-0.5 text-ink-500 hover:text-ink-200"
+                aria-label={t('Quitar filtro de objeto')}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
         </div>
       </Card>
 
@@ -177,6 +203,7 @@ export function ChampionsPage(): React.JSX.Element {
                 onClick={() => {
                   setQuery('')
                   setRole('ALL')
+                  setItemFilter(null)
                 }}
                 className="btn btn-ghost"
               >

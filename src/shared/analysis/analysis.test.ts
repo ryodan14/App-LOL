@@ -22,6 +22,7 @@ import {
   generateCounterTips,
   generateRunePlan,
   inferChampionRole,
+  inferRolesFromTags,
   suggestBanTargets,
   suggestLaneCounters
 } from './index'
@@ -221,6 +222,22 @@ describe('análisis de campeones', () => {
   })
 })
 
+describe('roles de campeón', () => {
+  it('asigna al menos un rol a cada campeón aunque no tenga runas recomendadas', () => {
+    for (const entry of champions) {
+      expect(index.rolesByChampion.get(entry.key)?.length ?? 0).toBeGreaterThan(0)
+    }
+    expect(index.rolesByChampion.get(222)).toContain('BOTTOM')
+    expect(index.rolesByChampion.get(16)).toEqual(['UTILITY'])
+  })
+
+  it('infiere roles por etiquetas cuando faltan datos oficiales', () => {
+    expect(inferRolesFromTags(champions[3])).toContain('BOTTOM')
+    expect(inferRolesFromTags(champions[5])).toEqual(expect.arrayContaining(['TOP', 'JUNGLE']))
+    expect(inferRolesFromTags(champions[7])).toEqual(expect.arrayContaining(['MIDDLE', 'UTILITY']))
+  })
+})
+
 describe('análisis de composición', () => {
   it('detecta necesidades defensivas y anti-curación', () => {
     const team = analyzeTeam([champions[2], champions[1], champions[3], champions[4], champions[5]])
@@ -256,6 +273,8 @@ describe('builds', () => {
     expect(build.skillOrder.note.length).toBeGreaterThan(0)
     expect(build.notes.length).toBeGreaterThan(0)
     expect(build.totalGold).toBeGreaterThan(0)
+    expect(build.guide.items.length).toBeGreaterThan(0)
+    expect(['riot', 'curated', 'heuristic']).toContain(build.guide.source)
   })
 
   it('prioriza el objeto de arranque antes que penetración tardía', () => {

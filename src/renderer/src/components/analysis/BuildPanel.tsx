@@ -1,5 +1,6 @@
+import { Link } from 'react-router-dom'
 import { Coins, Info, ShieldCheck, Sparkles, Swords } from 'lucide-react'
-import type { BuildItem, BuildPlan, CounterNeed, SkillOrder } from '@shared/analysis'
+import type { BuildGuide, BuildItem, BuildPlan, CounterNeed, SkillOrder } from '@shared/analysis'
 import { Badge } from '@renderer/components/ui/Badge'
 import { ItemIcon } from '@renderer/components/lol/ItemIcon'
 import { SpellIcon } from '@renderer/components/lol/SpellIcon'
@@ -62,6 +63,50 @@ function ItemRow({
       <span className="ml-auto shrink-0 text-[0.62rem] tabular-nums text-ink-600">
         {formatNumber(entry.item.gold.total)}g
       </span>
+    </div>
+  )
+}
+
+function GuideSection({ guide }: { guide: BuildGuide }): React.JSX.Element | null {
+  if (guide.items.length === 0) return null
+
+  const sourceLabel =
+    guide.source === 'riot'
+      ? t('Datos del juego')
+      : guide.source === 'curated'
+        ? t('Build curada')
+        : t('Por arquetipo')
+  const sourceNote =
+    guide.source === 'riot'
+      ? t('Objetos recomendados por el cliente del juego. La build final se ajusta a la composición enemiga.')
+      : guide.source === 'curated'
+        ? t('Riot no publica recomendaciones para este campeón en el parche actual; esta build está curada por App-LOL.')
+        : t('Sin guía específica: la selección se genera por arquetipo, rol y estadísticas oficiales.')
+
+  return (
+    <div className="rounded-xl border border-line bg-base-900/45 p-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-ink-500">
+          <Sparkles className="h-3.5 w-3.5 text-gold-300" /> {t('Objetos recomendados')}
+        </p>
+        <Badge tone={guide.source === 'riot' ? 'teal' : 'gold'}>{sourceLabel}</Badge>
+      </div>
+      <p className="mb-2.5 text-[0.68rem] leading-relaxed text-ink-500">{sourceNote}</p>
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+        {guide.items.map((entry) => (
+          <Link
+            key={entry.item.id}
+            to={`/objetos?buscar=${encodeURIComponent(entry.item.name)}`}
+            className="flex min-w-0 flex-col items-center gap-1 rounded-lg border border-line/70 bg-base-950/35 p-1.5 text-center transition-colors hover:border-gold-400/30 hover:bg-gold-400/[0.04]"
+            title={entry.item.name}
+          >
+            <ItemIcon item={entry.item} size="md" />
+            <span className="line-clamp-2 text-[0.58rem] font-medium leading-tight text-ink-300">
+              {entry.item.name}
+            </span>
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }
@@ -172,6 +217,8 @@ export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
           </div>
         </div>
       )}
+
+      <GuideSection guide={build.guide} />
 
       <div>
         <p className="mb-2 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-ink-500">

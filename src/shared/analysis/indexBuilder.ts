@@ -1,4 +1,5 @@
 import type {
+  Champion,
   Role,
   RuneDef,
   RuneRecommendation,
@@ -6,6 +7,34 @@ import type {
   StaticData
 } from '../types'
 import type { AnalysisIndex } from './types'
+import { CHAMPION_KEYS_BY_ITEM_ID } from './championItemGuides'
+
+const ROLE_BY_TAG: Record<string, Role[]> = {
+  Marksman: ['BOTTOM'],
+  Support: ['UTILITY'],
+  Tank: ['TOP', 'JUNGLE'],
+  Fighter: ['TOP', 'JUNGLE'],
+  Assassin: ['MIDDLE', 'JUNGLE'],
+  Mage: ['MIDDLE', 'UTILITY']
+}
+
+const ENCHANTER_KEYS = new Set([16, 26, 37, 40, 43, 117, 147, 267, 350, 497, 888, 902])
+
+export function inferRolesFromTags(champion: Champion): Role[] {
+  if (ENCHANTER_KEYS.has(champion.key)) return ['UTILITY']
+  if (champion.tags.includes('Support')) {
+    return champion.tags.includes('Mage') ? ['UTILITY', 'MIDDLE'] : ['UTILITY']
+  }
+
+  const roles: Role[] = []
+  for (const tag of champion.tags) {
+    for (const role of ROLE_BY_TAG[tag] ?? []) {
+      if (!roles.includes(role)) roles.push(role)
+    }
+  }
+  if (roles.length === 0) roles.push('MIDDLE')
+  return roles
+}
 
 export const POSITION_TO_ROLE: Record<string, Role> = {
   TOP: 'TOP',
@@ -48,6 +77,12 @@ export function createAnalysisIndex(data: StaticData): AnalysisIndex {
     }
   }
 
+  for (const champion of data.champions) {
+    if ((rolesByChampion.get(champion.key) ?? []).length === 0) {
+      rolesByChampion.set(champion.key, inferRolesFromTags(champion))
+    }
+  }
+
   return {
     data,
     championById,
@@ -58,6 +93,7 @@ export function createAnalysisIndex(data: StaticData): AnalysisIndex {
     spellById,
     shardById,
     recommendationsByChampion,
-    rolesByChampion
+    rolesByChampion,
+    championKeysByItemId: CHAMPION_KEYS_BY_ITEM_ID
   }
 }
