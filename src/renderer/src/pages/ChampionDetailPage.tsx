@@ -51,6 +51,7 @@ function RoleSelector({
           key={option}
           type="button"
           onClick={() => onChange(option)}
+          aria-pressed={role === option}
           className={cn(
             'flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[0.7rem] font-semibold transition-colors',
             role === option

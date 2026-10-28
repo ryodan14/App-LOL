@@ -126,6 +126,7 @@ export function ItemsPage(): React.JSX.Element {
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={t('Buscar objeto, estadística o texto…')}
+                aria-label={t('Buscar objeto, estadística o texto…')}
                 className="h-10 flex-1 bg-transparent text-[0.84rem] text-ink-100 outline-none placeholder:text-ink-500"
               />
             </div>
@@ -316,6 +317,7 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         'rounded-lg border px-2 py-1.5 text-[0.64rem] font-semibold transition-colors',
         active
@@ -341,6 +343,7 @@ function CategoryButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         'rounded-lg border px-2.5 py-1.5 text-[0.66rem] font-semibold transition-colors',
         active

@@ -234,6 +234,7 @@ export function SettingsPage(): React.JSX.Element {
             </div>
             <select
               className="input select w-36"
+              aria-label={t('Frecuencia de actualización')}
               value={settings.pollIntervalMs}
               onChange={(event) => void updateSettings({ pollIntervalMs: Number(event.target.value) })}
             >
