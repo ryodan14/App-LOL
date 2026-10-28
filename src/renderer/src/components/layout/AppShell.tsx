@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
+import { PageFallback } from '@renderer/components/ui/PageFallback'
 import { MobileNav } from './MobileNav'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -19,7 +20,9 @@ export function AppShell(): React.JSX.Element {
         <Topbar />
         <main ref={mainRef} className="min-h-0 flex-1 overflow-y-auto pb-[4.6rem] md:pb-0">
           <div className="mx-auto w-full max-w-[1480px] px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-7">
-            <Outlet />
+            <Suspense fallback={<PageFallback />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
         <MobileNav />
