@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Item } from '../types'
+import type { Role } from '../types'
 import {
+  CHAMPION_ITEM_IDS,
   CURATED_CHAMPION_ITEM_GUIDES,
   normalizeChampionItemGuide,
   resolveChampionItemGuide
@@ -65,6 +67,36 @@ describe('guías de objetos por campeón', () => {
     const missFortune = resolveChampionItemGuide(21, 'BOTTOM')
     expect(missFortune?.source).toBe('curated')
     expect(missFortune?.ranges.flat()).toContain(3031)
+  })
+
+  it('resuelve y normaliza una guía para todos los campeones y roles', () => {
+    const roles: Role[] = ['TOP', 'JUNGLE', 'MIDDLE', 'BOTTOM', 'UTILITY']
+    const boots = new Set([3006, 3020, 3047, 3111, 3117, 3158])
+    const items = itemMap(
+      [...new Set(Object.values(CHAMPION_ITEM_IDS).flat())].map((id) =>
+        item(id, boots.has(id) ? ['Boots'] : [])
+      )
+    )
+
+    for (const key of PATCH_CHAMPION_KEYS) {
+      expect(CHAMPION_ITEM_IDS[key]?.length, `campeón ${key}`).toBeGreaterThan(0)
+      for (const role of roles) {
+        const resolved = resolveChampionItemGuide(key, role)
+        expect(resolved, `campeón ${key} en ${role}`).not.toBeNull()
+        const guide = normalizeChampionItemGuide(resolved, items)
+        expect(guide.source, `campeón ${key} en ${role}`).not.toBe('heuristic')
+        expect(
+          guide.starting.length + guide.itemIds.length,
+          `campeón ${key} en ${role}`
+        ).toBeGreaterThan(0)
+      }
+    }
+  })
+
+  it('hereda la parte genérica cuando una guía de rol está incompleta', () => {
+    const trundleTop = resolveChampionItemGuide(48, 'TOP')
+    expect(trundleTop?.starting.length).toBeGreaterThan(0)
+    expect(trundleTop?.ranges.length).toBeGreaterThan(0)
   })
 
   it('normaliza la guía y descarta objetos que no existen en el parche', () => {

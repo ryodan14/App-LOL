@@ -112,11 +112,11 @@ export function resolveChampionItemGuide(
   if (!base) return null
 
   const roleEntry = base.roles?.[role]
-  if (hasEntry(roleEntry)) {
-    return {
-      source: base.source,
-      starting: roleEntry?.starting ?? [],
-      ranges: roleEntry?.ranges ?? []
+  if (roleEntry) {
+    const starting = (roleEntry.starting?.length ?? 0) > 0 ? roleEntry.starting : base.starting
+    const ranges = (roleEntry.ranges?.length ?? 0) > 0 ? roleEntry.ranges : base.ranges
+    if (hasEntry({ starting, ranges })) {
+      return { source: base.source, starting: starting ?? [], ranges: ranges ?? [] }
     }
   }
 
