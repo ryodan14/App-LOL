@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Activity, Crosshair, Droplets, ShieldAlert } from 'lucide-react'
 import { damageLabel, priorityLabel, threatLabel, type TeamAnalysis, type ThreatTag } from '@shared/analysis'
 import { Badge } from '@renderer/components/ui/Badge'
@@ -31,7 +32,7 @@ function Score({ label, value, icon }: { label: string; value: number; icon: Rea
   )
 }
 
-export function TeamPanel({ team }: { team: TeamAnalysis }): React.JSX.Element {
+export const TeamPanel = memo(function TeamPanel({ team }: { team: TeamAnalysis }): React.JSX.Element {
   const total = team.damage.AD + team.damage.AP + team.damage.MIXED + team.damage.TRUE
   const threatEntries = Object.entries(team.threatCounts)
     .filter((entry): entry is [ThreatTag, number] => typeof entry[1] === 'number')
@@ -109,4 +110,4 @@ export function TeamPanel({ team }: { team: TeamAnalysis }): React.JSX.Element {
       </div>
     </div>
   )
-}
+})
