@@ -78,6 +78,7 @@ describe('exportación al cliente de League', () => {
     ])
     const exported = document.itemSets?.[0]
     expect(exported?.associatedChampions).toEqual([222])
+    expect(exported?.associatedMaps).toEqual([11])
     expect(exported?.blocks.map((entry) => entry.type)).toEqual([
       'Salida',
       'Primer completado',
@@ -87,6 +88,9 @@ describe('exportación al cliente de League', () => {
     ])
     const situational = exported?.blocks.at(-1)
     expect(situational?.items.map((item) => item.id)).toEqual(['3026', '6676'])
+
+    const aram = buildItemSetDocument({ ...build, mapId: 12 }, 42, { itemSets: [] }, 123)
+    expect(aram.itemSets?.[0].associatedMaps).toEqual([12])
   })
 
   it('genera la página de runas y la marca como actual', () => {

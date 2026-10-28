@@ -34,6 +34,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 - **Catálogo de objetos**: buscador, filtros por categoría, orden por precio, estadísticas, ruta de construcción y campeones que recomiendan cada objeto.
 - **Análisis de builds**: salida de línea, primer objeto completado, botas, orden de compra y prioridad de habilidades, además de runas, hechizos de invocador y counters directos.
 - **Exportar al cliente**: guarda la build como conjunto de objetos y la página de runas en League of Legends con un clic, sin copiar nada a mano.
+- **ARAM y Arena**: detecta el modo desde el champ select o la partida en vivo, limita los objetos a los disponibles en el mapa y usa los zumos de Arena. Arena no genera página de runas.
 - **Champ select**: composición aliada y enemiga, picks, bans, counters, baneos recomendados para tu pick y temporizador.
 - **Partida en vivo**: KDA, CS, objetos, nivel, oro estimado por personaje y diferencia total y por línea, además de timers de objetivos.
 - **Idiomas**: interfaz y datos de Riot en español, inglés o portugués de Brasil, con selector en Ajustes.
@@ -149,7 +150,7 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 ## Builds y orden de objetos
 
-App-LOL cruza tres fuentes para proponer una compra: la guía de objetos del campeón, su rol y arquetipo, y la composición enemiga.
+App-LOL cruza tres fuentes para proponer una compra: la guía de objetos del campeón, su rol y arquetipo, y la composición enemiga. En ARAM y Arena se usan solo los objetos disponibles en ese mapa; el catálogo de objetos muestra los de Grieta del Invocador.
 
 La ficha de build se divide en:
 

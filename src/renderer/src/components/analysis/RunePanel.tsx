@@ -4,6 +4,7 @@ import type { LcuExportResult, Role, RuneDef } from '@shared/types'
 import { SpellIcon } from '@renderer/components/lol/SpellIcon'
 import { RuneIcon } from '@renderer/components/lol/RuneIcon'
 import { Badge } from '@renderer/components/ui/Badge'
+import { isArenaMap } from '@shared/analysis'
 import { t } from '@shared/i18n'
 import { LcuExportButton } from './LcuExportButton'
 
@@ -28,16 +29,20 @@ function RuneRow({ runes }: { runes: RuneDef[] }): React.JSX.Element {
 export const RunePanel = memo(function RunePanel({
   plan,
   championName,
-  role
+  role,
+  mapId
 }: {
   plan: RunePlan | null
   championName?: string
   role?: Role
+  mapId?: number
 }): React.JSX.Element {
   if (!plan) {
     return (
       <div className="rounded-xl border border-line bg-base-900/35 p-4 text-[0.78rem] text-ink-400">
-        {t('No hay una página de runas recomendada para este campeón y rol en este parche.')}
+        {mapId !== undefined && isArenaMap(mapId)
+          ? t('Arena no usa páginas de runas.')
+          : t('No hay una página de runas recomendada para este campeón y rol en este parche.')}
       </div>
     )
   }

@@ -16,6 +16,7 @@ import type {
   Role
 } from '@shared/types'
 import { t } from '@shared/i18n'
+import { MAP_SUMMONERS_RIFT, mapIdFromGameMode } from '@shared/analysis/gameModes'
 import { HttpError, fetchJson } from './http'
 import {
   buildItemSetDocument,
@@ -65,6 +66,14 @@ interface RawSummoner {
   puuid?: string
   summonerId?: number
   accountId?: number
+}
+
+interface RawGameflowSession {
+  gameData?: {
+    gameMode?: string
+    mapId?: number
+    queue?: { mapId?: number }
+  }
 }
 
 interface RawRunePage {
@@ -301,9 +310,24 @@ export class LcuClient {
     return this.request<string>('/lol-gameflow/v1/gameflow-phase')
   }
 
+  private async getGameflowInfo(): Promise<{ mapId: number; gameMode: string } | null> {
+    try {
+      const raw = await this.request<RawGameflowSession>('/lol-gameflow/v1/session')
+      const gameMode = raw.gameData?.gameMode ?? ''
+      const mapId =
+        raw.gameData?.queue?.mapId ??
+        raw.gameData?.mapId ??
+        mapIdFromGameMode(gameMode, MAP_SUMMONERS_RIFT)
+      return { mapId, gameMode }
+    } catch {
+      return null
+    }
+  }
+
   async getChampSelect(): Promise<ChampSelectState | null> {
     try {
       const raw = await this.request<RawChampSelect>('/lol-champ-select/v1/session')
+      const gameflow = await this.getGameflowInfo()
       const myTeam = (raw.myTeam ?? []).map((slot) => mapSlot(slot, 'ALLY'))
       const theirTeam = (raw.theirTeam ?? []).map((slot) => mapSlot(slot, 'ENEMY'))
       const localCellId = raw.localPlayerCellId ?? 0
@@ -321,6 +345,8 @@ export class LcuClient {
       return {
         localCellId,
         localPlayerChampionId: me?.championId || me?.pickIntentId || 0,
+        mapId: gameflow?.mapId ?? MAP_SUMMONERS_RIFT,
+        gameMode: gameflow?.gameMode,
         myTeam,
         theirTeam,
         bans: [...bans],

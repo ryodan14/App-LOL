@@ -61,6 +61,20 @@ describe.skipIf(!live)('carga real de datos de Riot', () => {
 
       const runes = generateRunePlan(jinx!, 'BOTTOM', index)
       expect(runes?.primaryRunes.length).toBeGreaterThan(0)
+
+      const aram = generateBuild(jinx!, 'BOTTOM', enemies, index, { mapId: 12 })
+      expect(aram.core.length).toBeGreaterThan(0)
+      expect(aram.core.every((entry) => entry.item.maps['12'] === true)).toBe(true)
+
+      const arena = generateBuild(jinx!, 'BOTTOM', enemies, index, { mapId: 30 })
+      expect(arena.core.length).toBeGreaterThan(0)
+      expect(arena.starting.length).toBeGreaterThan(0)
+      expect(
+        [...arena.core, ...arena.starting, ...arena.situational].every(
+          (entry) => entry.item.maps['30'] === true
+        )
+      ).toBe(true)
+      expect(generateRunePlan(jinx!, 'BOTTOM', index, { mapId: 30 })).toBeNull()
       expect(runes?.summonerSpells.length).toBeGreaterThan(0)
 
       const counters = generateCounterTips(jinx!, index, jinx!, 'BOTTOM')

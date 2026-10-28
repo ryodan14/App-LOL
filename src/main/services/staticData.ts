@@ -194,9 +194,9 @@ function transformItems(raw: RawItems, locale: Locale): Item[] {
   const items: Item[] = []
   for (const [rawId, item] of Object.entries(raw.data)) {
     const id = Number(rawId)
-    if (!Number.isFinite(id) || id <= 0 || id >= 100_000) continue
+    if (!Number.isFinite(id) || id <= 0 || id >= 1_000_000) continue
     if (seen.has(id)) continue
-    if (item.maps?.['11'] !== true) continue
+    if (!['11', '12', '30'].some((mapId) => item.maps?.[mapId] === true)) continue
     if (item.gold?.purchasable === false || item.gold?.total <= 0) continue
     if (item.inStore === false) continue
     if (item.requiredChampion) continue
@@ -289,7 +289,7 @@ export async function fetchStaticData(version: string, locale: Locale): Promise<
 }
 
 function cachePath(locale: Locale): string {
-  return join(app.getPath('userData'), 'cache', `static-data-v2-${DDRAGON_LOCALE[locale]}.json`)
+  return join(app.getPath('userData'), 'cache', `static-data-v3-${DDRAGON_LOCALE[locale]}.json`)
 }
 
 function isValidCache(value: unknown): value is StaticData {

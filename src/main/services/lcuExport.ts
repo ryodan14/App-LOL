@@ -105,7 +105,7 @@ export function buildItemSetDocument(
     uid: randomUUID(),
     title,
     associatedChampions: [payload.championId],
-    associatedMaps: [11],
+    associatedMaps: [payload.mapId ?? 11],
     blocks,
     map: 'any',
     mode: 'any',
