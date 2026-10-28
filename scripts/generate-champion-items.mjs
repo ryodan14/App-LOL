@@ -3,8 +3,8 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const CDRAGON = 'https://raw.communitydragon.org/latest'
-const SUMMARY_URL = `${CDRAGON}/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json`
+const DDRAGON = 'https://ddragon.leagueoflegends.com'
+const CDRAGON_ROOT = 'https://raw.communitydragon.org'
 const OUTPUT = resolve(
   dirname(fileURLToPath(import.meta.url)),
   '../src/shared/analysis/data/championItemGuides.generated.ts'
@@ -99,6 +99,15 @@ async function fetchJson(url) {
   return response.json()
 }
 
+const versions = await fetchJson(`${DDRAGON}/api/versions.json`)
+const version = versions[0]
+if (!version) throw new Error('Data Dragon no devolvió ninguna versión')
+const patch = version.split('.').slice(0, 2).join('.')
+const CDRAGON = `${CDRAGON_ROOT}/${patch}`
+const SUMMARY_URL = `${CDRAGON}/plugins/rcp-be-lol-game-data/global/default/v1/champion-summary.json`
+const itemData = await fetchJson(`${DDRAGON}/cdn/${version}/data/en_US/item.json`)
+const validItemIds = new Set(Object.keys(itemData.data).map(Number))
+
 async function fetchChampion(champion) {
   const alias = champion.alias.toLowerCase()
   const url = `${CDRAGON}/game/data/characters/${alias}/${alias}.bin.json`
@@ -157,9 +166,27 @@ await mapLimit(champions, CONCURRENCY, async (champion) => {
 const sorted = Object.fromEntries(
   Object.entries(guides).sort(([left], [right]) => Number(left) - Number(right))
 )
+const usedItemIds = new Set()
+for (const guide of Object.values(sorted)) {
+  for (const entry of [guide, ...Object.values(guide.roles ?? {})]) {
+    for (const bundle of entry.starting ?? []) bundle.forEach((id) => usedItemIds.add(id))
+    for (const range of entry.ranges ?? []) range.forEach((id) => usedItemIds.add(id))
+  }
+}
+const invalidItems = [...usedItemIds].filter((id) => !validItemIds.has(id))
+if (invalidItems.length > 0) {
+  throw new Error(`Objetos inexistentes en ${version}: ${invalidItems.join(', ')}`)
+}
+
+const patchChampionKeys = champions.map((champion) => champion.id)
 const body = `// Archivo generado por scripts/generate-champion-items.mjs. No editar a mano.
+// Parche ${patch} (Data Dragon ${version}).
 // Fuente: datos del juego publicados por Riot Games en CommunityDragon.
 import type { ChampionItemGuideData } from '../championItemTypes'
+
+export const GENERATED_CHAMPION_ITEMS_PATCH = '${patch}'
+
+export const PATCH_CHAMPION_KEYS = ${JSON.stringify(patchChampionKeys)}
 
 export const GENERATED_CHAMPION_ITEM_GUIDES: Record<number, ChampionItemGuideData> = ${JSON.stringify(
   sorted,
@@ -170,4 +197,4 @@ export const GENERATED_CHAMPION_ITEM_GUIDES: Record<number, ChampionItemGuideDat
 
 await mkdir(dirname(OUTPUT), { recursive: true })
 await writeFile(OUTPUT, body, 'utf8')
-console.log(`Guías escritas: ${Object.keys(sorted).length} en ${OUTPUT}`)
+console.log(`Guías escritas: ${Object.keys(sorted).length} para el parche ${patch} en ${OUTPUT}`)

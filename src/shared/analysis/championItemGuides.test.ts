@@ -5,7 +5,11 @@ import {
   normalizeChampionItemGuide,
   resolveChampionItemGuide
 } from './championItemGuides'
-import { GENERATED_CHAMPION_ITEM_GUIDES } from './data/championItemGuides.generated'
+import {
+  GENERATED_CHAMPION_ITEM_GUIDES,
+  GENERATED_CHAMPION_ITEMS_PATCH,
+  PATCH_CHAMPION_KEYS
+} from './data/championItemGuides.generated'
 
 function item(id: number, tags: string[] = []): Item {
   return {
@@ -27,14 +31,16 @@ function itemMap(items: Item[]): Map<number, Item> {
 }
 
 describe('guías de objetos por campeón', () => {
-  it('cubre a todos los campeones jugables del parche', () => {
-    const keys = new Set([
-      ...Object.keys(GENERATED_CHAMPION_ITEM_GUIDES).map(Number),
-      ...Object.keys(CURATED_CHAMPION_ITEM_GUIDES).map(Number)
-    ])
+  it('cubre exactamente a todos los campeones jugables del parche', () => {
+    const generated = Object.keys(GENERATED_CHAMPION_ITEM_GUIDES).map(Number)
+    const curated = Object.keys(CURATED_CHAMPION_ITEM_GUIDES).map(Number)
+    const keys = [...generated, ...curated].sort((left, right) => left - right)
+    const patchKeys = [...PATCH_CHAMPION_KEYS].sort((left, right) => left - right)
 
-    expect(keys.size).toBeGreaterThanOrEqual(170)
-    expect([2, 16, 64, 202, 222, 902].every((key) => keys.has(key))).toBe(true)
+    expect(GENERATED_CHAMPION_ITEMS_PATCH).toMatch(/^\d+\.\d+$/)
+    expect(new Set(patchKeys).size).toBe(patchKeys.length)
+    expect(keys).toEqual(patchKeys)
+    expect(generated.filter((key) => curated.includes(key))).toEqual([])
   })
 
   it('no deja grupos vacíos ni identificadores fuera de rango', () => {

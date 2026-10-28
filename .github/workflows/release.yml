@@ -27,6 +27,9 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Validate champion item guides
+        run: npm run validate:items
+
       - name: Build Windows artifacts
         run: npm run build:win
 
