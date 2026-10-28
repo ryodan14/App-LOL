@@ -261,7 +261,8 @@ export class LcuClient {
         {
           auth: `riot:${this.credentials.password}`,
           rejectUnauthorized: false,
-          timeoutMs: 3_500
+          timeoutMs: 3_500,
+          retries: 0
         }
       )
     } catch (error) {

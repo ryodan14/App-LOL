@@ -147,7 +147,8 @@ export async function fetchLiveGame(): Promise<LiveGameState | null> {
   try {
     const raw = await fetchJson<RawLiveGame>(LIVE_URL, {
       rejectUnauthorized: false,
-      timeoutMs: 1_800
+      timeoutMs: 1_800,
+      retries: 0
     })
     const players = (raw.allPlayers ?? []).map(normalizePlayer)
     const activeRiotId = raw.activePlayer?.riotId ?? ''
