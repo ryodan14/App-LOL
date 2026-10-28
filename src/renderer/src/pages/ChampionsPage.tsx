@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { RefreshCw, Search, SlidersHorizontal, UsersRound, X } from 'lucide-react'
 import type { Role } from '@shared/types'
@@ -36,10 +36,20 @@ export function ChampionsPage(): React.JSX.Element {
   const index = useGameData()
   const data = useAppStore((state) => state.data)
   const refreshData = useAppStore((state) => state.refreshData)
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const [query, setQuery] = useState('')
   const [role, setRole] = useState<Role | 'ALL'>('ALL')
   const [itemFilter, setItemFilter] = useState<string | null>(params.get('objeto'))
+
+  useEffect(() => {
+    setItemFilter(params.get('objeto'))
+  }, [params])
+
+  const clearItemFilter = (): void => {
+    const next = new URLSearchParams(params)
+    next.delete('objeto')
+    setParams(next, { replace: true })
+  }
 
   const itemChampionKeys = useMemo(() => {
     if (!index || !itemFilter) return null
@@ -135,7 +145,7 @@ export function ChampionsPage(): React.JSX.Element {
               </span>
               <button
                 type="button"
-                onClick={() => setItemFilter(null)}
+                onClick={clearItemFilter}
                 className="rounded p-0.5 text-ink-500 hover:text-ink-200"
                 aria-label={t('Quitar filtro de objeto')}
               >
