@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { Coins, Info, ShieldCheck, Sparkles, Swords } from 'lucide-react'
 import type { BuildGuide, BuildItem, BuildPlan, CounterNeed, SkillOrder } from '@shared/analysis'
@@ -186,7 +187,7 @@ function SkillPanel({ order }: { order: SkillOrder }): React.JSX.Element | null 
   )
 }
 
-export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
+export const BuildPanel = memo(function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -258,4 +259,4 @@ export function BuildPanel({ build }: { build: BuildPlan }): React.JSX.Element {
       </div>
     </div>
   )
-}
+})

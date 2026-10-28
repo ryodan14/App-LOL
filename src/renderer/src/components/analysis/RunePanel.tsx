@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { RunePlan } from '@shared/analysis'
 import type { RuneDef } from '@shared/types'
 import { SpellIcon } from '@renderer/components/lol/SpellIcon'
@@ -23,7 +24,7 @@ function RuneRow({ runes }: { runes: RuneDef[] }): React.JSX.Element {
   )
 }
 
-export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Element {
+export const RunePanel = memo(function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Element {
   if (!plan) {
     return (
       <div className="rounded-xl border border-line bg-base-900/35 p-4 text-[0.78rem] text-ink-400">
@@ -103,4 +104,4 @@ export function RunePanel({ plan }: { plan: RunePlan | null }): React.JSX.Elemen
       </div>
     </div>
   )
-}
+})
