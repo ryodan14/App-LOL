@@ -1,5 +1,7 @@
 # App-LOL
 
+**Español** · [English](README.en.md)
+
 Compañero de escritorio para League of Legends. Reúne builds, counters, runas, datos del cliente y un overlay de partida en una sola app, sin publicidad y sin pedir tu cuenta de Riot.
 
 ![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows11&logoColor=white)
@@ -379,7 +381,7 @@ npm test
 npm run build
 ```
 
-Los mensajes de commit y la documentación se mantienen en español.
+Los mensajes de commit se mantienen en español. El README está disponible en [español](README.md) e [inglés](README.en.md).
 
 ## Aviso legal
 
