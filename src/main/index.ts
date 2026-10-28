@@ -242,13 +242,26 @@ app.whenReady().then(async () => {
   applySettingsRuntime(settings)
 
   if (!process.env['ELECTRON_RENDERER_URL']) {
+    const contentSecurityPolicy = [
+      "default-src 'none'",
+      "script-src 'self'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https://ddragon.leagueoflegends.com https://raw.communitydragon.org https://cdn.communitydragon.org",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "object-src 'none'",
+      "media-src 'none'",
+      "worker-src 'none'",
+      "frame-src 'none'",
+      "frame-ancestors 'none'",
+      "base-uri 'none'",
+      "form-action 'none'"
+    ].join('; ')
     session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
       callback({
         responseHeaders: {
           ...details.responseHeaders,
-          'Content-Security-Policy': [
-            "default-src 'self'; img-src 'self' https://ddragon.leagueoflegends.com https://raw.communitydragon.org https://cdn.communitydragon.org data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'; connect-src 'self'"
-          ]
+          'Content-Security-Policy': [contentSecurityPolicy]
         }
       })
     })
@@ -257,6 +270,7 @@ app.whenReady().then(async () => {
   session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
     callback(false)
   })
+  session.defaultSession.setPermissionCheckHandler(() => false)
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
