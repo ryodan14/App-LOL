@@ -1,5 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { AppApi, AppSettings, DataResult, Snapshot, UpdateState } from '@shared/types'
+import type {
+  AppApi,
+  AppSettings,
+  DataResult,
+  LcuItemSetExport,
+  LcuRuneExport,
+  Snapshot,
+  UpdateState
+} from '@shared/types'
 
 const api: AppApi = {
   app: {
@@ -39,6 +47,12 @@ const api: AppApi = {
   },
   account: {
     get: () => ipcRenderer.invoke('account:get')
+  },
+  lcu: {
+    exportItemSet: (payload: LcuItemSetExport) =>
+      ipcRenderer.invoke('lcu:export-item-set', payload),
+    exportRunePage: (payload: LcuRuneExport) =>
+      ipcRenderer.invoke('lcu:export-rune-page', payload)
   },
   updates: {
     get: () => ipcRenderer.invoke('updates:get'),

@@ -33,6 +33,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 - **Objetos por campeón**: cada ficha muestra los objetos que recomienda el cliente del juego para ese campeón, con build curada cuando Riot no publica datos y adaptación a la composición enemiga.
 - **Catálogo de objetos**: buscador, filtros por categoría, orden por precio, estadísticas, ruta de construcción y campeones que recomiendan cada objeto.
 - **Análisis de builds**: salida de línea, primer objeto completado, botas, orden de compra y prioridad de habilidades, además de runas, hechizos de invocador y counters directos.
+- **Exportar al cliente**: guarda la build como conjunto de objetos y la página de runas en League of Legends con un clic, sin copiar nada a mano.
 - **Champ select**: composición aliada y enemiga, picks, bans, counters, baneos recomendados para tu pick y temporizador.
 - **Partida en vivo**: KDA, CS, objetos, nivel, oro estimado por personaje y diferencia total y por línea, además de timers de objetivos.
 - **Idiomas**: interfaz y datos de Riot en español, inglés o portugués de Brasil, con selector en Ajustes.

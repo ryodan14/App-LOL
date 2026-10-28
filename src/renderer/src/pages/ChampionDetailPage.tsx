@@ -270,11 +270,11 @@ export function ChampionDetailPage(): React.JSX.Element {
 
       <div className="grid gap-4 xl:grid-cols-[1.35fr_0.9fr]">
         <Card className="p-5">
-          <BuildPanel build={build} />
+          <BuildPanel build={build} championName={champion.name} />
         </Card>
         <div className="space-y-4">
           <Card className="p-5">
-            <RunePanel plan={runes} />
+            <RunePanel plan={runes} championName={champion.name} role={selectedRole} />
           </Card>
           <Card className="p-5">
             <ChampionStats champion={champion} />

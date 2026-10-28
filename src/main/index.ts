@@ -16,7 +16,13 @@ import { createPreviewAccount, createPreviewSnapshot } from './preview'
 import { createAppTray, destroyAppTray, updateAppTray } from './tray'
 import { checkForUpdates, getUpdateState, initUpdater, restartAndInstall } from './services/updater'
 import { setLocale } from '@shared/i18n'
-import type { AppSettings, DataResult, Snapshot } from '@shared/types'
+import type {
+  AppSettings,
+  DataResult,
+  LcuItemSetExport,
+  LcuRuneExport,
+  Snapshot
+} from '@shared/types'
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -150,6 +156,14 @@ function registerIpc(): void {
   ipcMain.handle('account:get', async () => {
     if (process.argv.includes('--app-lol-account-preview')) return createPreviewAccount()
     return snapshotService?.getAccount() ?? null
+  })
+  ipcMain.handle('lcu:export-item-set', async (_event, payload: LcuItemSetExport) => {
+    if (!snapshotService) return { ok: false, error: 'Servicio no disponible' }
+    return snapshotService.exportItemSet(payload)
+  })
+  ipcMain.handle('lcu:export-rune-page', async (_event, payload: LcuRuneExport) => {
+    if (!snapshotService) return { ok: false, error: 'Servicio no disponible' }
+    return snapshotService.exportRunePage(payload)
   })
 
   ipcMain.handle('updates:get', () => getUpdateState())

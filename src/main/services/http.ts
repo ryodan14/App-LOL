@@ -20,6 +20,8 @@ interface JsonOptions {
   rejectUnauthorized?: boolean
   redirects?: number
   retries?: number
+  method?: string
+  body?: unknown
 }
 
 function decompressor(encoding: string): Transform | null {
@@ -48,8 +50,11 @@ function requestJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
     timeoutMs = 20_000,
     auth,
     rejectUnauthorized = true,
-    redirects = 3
+    redirects = 3,
+    method = 'GET',
+    body
   } = options
+  const payload = body === undefined ? undefined : JSON.stringify(body)
 
   return new Promise<T>((resolve, reject) => {
     let settled = false
@@ -60,11 +65,17 @@ function requestJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
         hostname: parsed.hostname,
         port: parsed.port,
         path: `${parsed.pathname}${parsed.search}`,
-        method: 'GET',
+        method,
         headers: {
           Accept: 'application/json',
           'Accept-Encoding': 'gzip, deflate, br',
           'User-Agent': 'App-LOL (+https://github.com/ryodan14/App-LOL)',
+          ...(payload
+            ? {
+                'Content-Type': 'application/json',
+                'Content-Length': String(Buffer.byteLength(payload))
+              }
+            : {}),
           ...(auth ? { Authorization: `Basic ${Buffer.from(auth).toString('base64')}` } : {})
         },
         rejectUnauthorized,
@@ -109,8 +120,8 @@ function requestJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
           if (settled) return
           settled = true
           try {
-            const text = Buffer.concat(chunks).toString('utf8')
-            resolve(JSON.parse(text) as T)
+            const text = Buffer.concat(chunks).toString('utf8').trim()
+            resolve((text ? JSON.parse(text) : undefined) as T)
           } catch (error) {
             reject(new Error(`Respuesta inválida de ${parsed.hostname}: ${(error as Error).message}`))
           }
@@ -126,6 +137,6 @@ function requestJson<T>(url: string, options: JsonOptions = {}): Promise<T> {
       settled = true
       reject(error)
     })
-    request.end()
+    request.end(payload)
   })
 }
