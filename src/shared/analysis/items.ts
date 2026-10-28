@@ -511,6 +511,10 @@ function statSummary(item: Item): string {
   return parts.slice(0, 3).join(t(' y ')) || t('Estadísticas defensivas')
 }
 
+export function itemStatSummary(item: Item): string {
+  return statSummary(item)
+}
+
 function toBuildItem(item: Item, reason: string): BuildItem {
   return { item, reason }
 }

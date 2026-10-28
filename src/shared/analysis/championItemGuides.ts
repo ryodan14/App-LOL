@@ -2,7 +2,8 @@ import type { Item, Role } from '../types'
 import type {
   ChampionItemGuideData,
   ChampionItemGuideSource,
-  NormalizedChampionItemGuide
+  NormalizedChampionItemGuide,
+  ResolvedChampionItemGuide
 } from './championItemTypes'
 import { GENERATED_CHAMPION_ITEM_GUIDES } from './data/championItemGuides.generated'
 
@@ -104,7 +105,7 @@ function unique(values: number[]): number[] {
 export function resolveChampionItemGuide(
   championKey: number,
   role: Role
-): ChampionItemGuideData | null {
+): ResolvedChampionItemGuide | null {
   const generated = GENERATED_CHAMPION_ITEM_GUIDES[championKey]
   const curated = CURATED_CHAMPION_ITEM_GUIDES[championKey]
   const base = generated ?? curated
@@ -136,7 +137,7 @@ export function resolveChampionItemGuide(
 }
 
 export function normalizeChampionItemGuide(
-  guide: ChampionItemGuideData | null,
+  guide: ResolvedChampionItemGuide | null,
   itemById: Map<number, Item>
 ): NormalizedChampionItemGuide {
   if (!guide) {
@@ -202,3 +203,36 @@ export function normalizeChampionItemGuide(
 export function championItemGuideSource(source: ChampionItemGuideSource): string {
   return source
 }
+
+function collectGuideItemIds(guide: ChampionItemGuideData): number[] {
+  const entries = [guide, ...Object.values(guide.roles ?? {})]
+  const ids: number[] = []
+  for (const entry of entries) {
+    if (!entry) continue
+    for (const bundle of entry.starting ?? []) ids.push(...bundle)
+    for (const range of entry.ranges ?? []) ids.push(...range)
+  }
+  return unique(ids)
+}
+
+export const CHAMPION_ITEM_IDS: Record<number, number[]> = Object.fromEntries(
+  [...Object.keys(GENERATED_CHAMPION_ITEM_GUIDES), ...Object.keys(CURATED_CHAMPION_ITEM_GUIDES)]
+    .map(Number)
+    .filter((key, index, keys) => keys.indexOf(key) === index)
+    .map((key) => {
+      const guide = GENERATED_CHAMPION_ITEM_GUIDES[key] ?? CURATED_CHAMPION_ITEM_GUIDES[key]
+      return [key, collectGuideItemIds(guide)]
+    })
+)
+
+export const CHAMPION_KEYS_BY_ITEM_ID: ReadonlyMap<number, number[]> = (() => {
+  const map = new Map<number, number[]>()
+  for (const [key, ids] of Object.entries(CHAMPION_ITEM_IDS)) {
+    for (const id of ids) {
+      const champions = map.get(id) ?? []
+      champions.push(Number(key))
+      map.set(id, champions)
+    }
+  }
+  return map
+})()

@@ -6,6 +6,7 @@ import type {
   StaticData
 } from '../types'
 import type { AnalysisIndex } from './types'
+import { CHAMPION_KEYS_BY_ITEM_ID } from './championItemGuides'
 
 export const POSITION_TO_ROLE: Record<string, Role> = {
   TOP: 'TOP',
@@ -58,6 +59,7 @@ export function createAnalysisIndex(data: StaticData): AnalysisIndex {
     spellById,
     shardById,
     recommendationsByChampion,
-    rolesByChampion
+    rolesByChampion,
+    championKeysByItemId: CHAMPION_KEYS_BY_ITEM_ID
   }
 }

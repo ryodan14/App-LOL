@@ -12,6 +12,10 @@ export interface ChampionItemGuideData extends Partial<ChampionItemGuideEntry> {
   roles?: Partial<Record<Role, ChampionItemGuideEntry>>
 }
 
+export interface ResolvedChampionItemGuide extends ChampionItemGuideEntry {
+  source: ChampionItemGuideSource
+}
+
 export interface NormalizedChampionItemGuide extends ChampionItemGuideEntry {
   source: ChampionItemGuideSource
   first: number[]
