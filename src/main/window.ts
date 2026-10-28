@@ -2,6 +2,7 @@ import { app, BrowserWindow, screen, shell, type Rectangle } from 'electron'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
+import { parseExternalUrl } from './ipcValidation'
 
 const DEFAULT_WIDTH = 1080
 const DEFAULT_HEIGHT = 720
@@ -114,10 +115,11 @@ export function createMainWindow(alwaysOnTop: boolean, startHidden = false): Bro
     alwaysOnTop,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
-      spellcheck: false
+      spellcheck: false,
+      safeDialogs: true
     }
   })
 
@@ -153,13 +155,16 @@ export function createMainWindow(alwaysOnTop: boolean, startHidden = false): Bro
   })
 
   window.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https://') || url.startsWith('http://')) {
-      void shell.openExternal(url)
-    }
+    try {
+      void shell.openExternal(parseExternalUrl(url))
+    } catch {}
     return { action: 'deny' }
   })
 
   window.webContents.on('will-navigate', (event) => {
+    event.preventDefault()
+  })
+  window.webContents.on('will-redirect', (event) => {
     event.preventDefault()
   })
 

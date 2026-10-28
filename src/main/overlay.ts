@@ -2,6 +2,7 @@ import { BrowserWindow, screen, shell } from 'electron'
 import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { DEFAULT_OVERLAY_SCALE } from '@shared/constants'
+import { parseExternalUrl } from './ipcValidation'
 import type { AppSettings, OverlayCorner, Snapshot } from '@shared/types'
 
 const OVERLAY_WIDTH = 448
@@ -80,10 +81,11 @@ export function createOverlayWindow(
     roundedCorners: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: true,
       contextIsolation: true,
       nodeIntegration: false,
       spellcheck: false,
+      safeDialogs: true,
       zoomFactor: safeScale
     }
   })
@@ -98,12 +100,15 @@ export function createOverlayWindow(
   }
 
   window.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https://') || url.startsWith('http://')) {
-      void shell.openExternal(url)
-    }
+    try {
+      void shell.openExternal(parseExternalUrl(url))
+    } catch {}
     return { action: 'deny' }
   })
   window.webContents.on('will-navigate', (event) => {
+    event.preventDefault()
+  })
+  window.webContents.on('will-redirect', (event) => {
     event.preventDefault()
   })
 
