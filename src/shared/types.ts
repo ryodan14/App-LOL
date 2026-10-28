@@ -225,6 +225,7 @@ export interface LcuItemSetExport {
   championId: number
   championName: string
   role: Role
+  mapId?: number
   starting: number[]
   first: number[]
   boots: number[]
@@ -269,6 +270,8 @@ export interface ChampSelectSlot {
 export interface ChampSelectState {
   localCellId: number
   localPlayerChampionId: number
+  mapId?: number
+  gameMode?: string
   myTeam: ChampSelectSlot[]
   theirTeam: ChampSelectSlot[]
   bans: number[]

@@ -9,6 +9,7 @@ import { SpellIcon } from '@renderer/components/lol/SpellIcon'
 import { roleLabel } from '@shared/constants'
 import { formatNumber } from '@renderer/lib/format'
 import { cn } from '@renderer/lib/cn'
+import { mapLabelKey } from '@shared/analysis'
 import { t } from '@shared/i18n'
 import { LcuExportButton } from './LcuExportButton'
 
@@ -196,6 +197,7 @@ export const BuildPanel = memo(function BuildPanel({
   build: BuildPlan
   championName?: string
 }): React.JSX.Element {
+  const mode = mapLabelKey(build.mapId)
   const exportBuild = (): Promise<LcuExportResult> => {
     if (!window.api?.lcu) {
       return Promise.resolve({ ok: false, error: t('El cliente de League no está disponible.') })
@@ -204,6 +206,7 @@ export const BuildPanel = memo(function BuildPanel({
       championId: build.championId,
       championName: championName ?? `Campeón ${build.championId}`,
       role: build.role,
+      mapId: build.mapId,
       starting: build.starting.map((entry) => entry.item.id),
       first: build.firstItem ? [build.firstItem.item.id] : [],
       boots: build.boots ? [build.boots.item.id] : [],
@@ -221,6 +224,7 @@ export const BuildPanel = memo(function BuildPanel({
             {build.archetypeLabel}
           </h2>
           <p className="mt-1 text-[0.78rem] text-ink-400">
+            {mode ? `${t(mode)} · ` : ''}
             {roleLabel(build.role)} ·{' '}
             {t('{gold} de oro estimado', { gold: formatNumber(build.totalGold) })}
           </p>

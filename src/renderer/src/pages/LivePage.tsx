@@ -22,7 +22,9 @@ import {
   findChampionForLivePlayer,
   generateBuild,
   generateRunePlan,
-  inferChampionRole
+  inferChampionRole,
+  MAP_SUMMONERS_RIFT,
+  mapIdFromGameMode
 } from '@shared/analysis'
 import { useAppStore } from '@renderer/store/useAppStore'
 import { useGameData } from '@renderer/lib/gameData'
@@ -101,6 +103,7 @@ export function LivePage(): React.JSX.Element {
         mode: 'champ-select' as const,
         myChampion,
         myRole,
+        mapId: state.mapId ?? MAP_SUMMONERS_RIFT,
         effectiveRole: (myRole === 'UNKNOWN' ? 'MIDDLE' : myRole) as Role,
         enemyKeys,
         activePlayer: undefined,
@@ -136,6 +139,7 @@ export function LivePage(): React.JSX.Element {
         mode: 'live' as const,
         myChampion,
         myRole,
+        mapId: mapIdFromGameMode(live.gameMode),
         effectiveRole: (myRole === 'UNKNOWN' ? 'MIDDLE' : myRole) as Role,
         enemyKeys,
         activePlayer,
@@ -161,16 +165,20 @@ export function LivePage(): React.JSX.Element {
   const build = useMemo(
     () =>
       index && scene?.myChampion
-        ? generateBuild(scene.myChampion, scene.effectiveRole, enemies, index)
+        ? generateBuild(scene.myChampion, scene.effectiveRole, enemies, index, {
+            mapId: scene.mapId
+          })
         : null,
-    [enemies, index, scene?.effectiveRole, scene?.myChampion]
+    [enemies, index, scene?.effectiveRole, scene?.mapId, scene?.myChampion]
   )
   const runes = useMemo(
     () =>
       index && scene?.myChampion
-        ? generateRunePlan(scene.myChampion, scene.effectiveRole, index)
+        ? generateRunePlan(scene.myChampion, scene.effectiveRole, index, {
+            mapId: scene.mapId
+          })
         : null,
-    [index, scene?.effectiveRole, scene?.myChampion]
+    [index, scene?.effectiveRole, scene?.mapId, scene?.myChampion]
   )
   const team = useMemo(() => analyzeTeam(enemies), [enemies])
   const model = useMemo(
@@ -276,6 +284,7 @@ export function LivePage(): React.JSX.Element {
                 plan={model.runes}
                 championName={model.myChampion?.name}
                 role={model.effectiveRole}
+                mapId={model.mapId}
               />
             </Card>
             {model.enemies.length > 0 && (
@@ -415,6 +424,7 @@ export function LivePage(): React.JSX.Element {
               plan={model.runes}
               championName={model.myChampion?.name}
               role={model.effectiveRole}
+              mapId={model.mapId}
             />
           </Card>
           {model.enemies.length > 0 && (

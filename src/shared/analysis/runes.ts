@@ -1,4 +1,5 @@
 import type { Champion, Role } from '../types'
+import { isArenaMap } from './gameModes'
 import type { AnalysisIndex, RunePlan } from './types'
 
 function chooseRecommendation(
@@ -20,8 +21,10 @@ function chooseRecommendation(
 export function generateRunePlan(
   champion: Champion,
   role: Role,
-  index: AnalysisIndex
+  index: AnalysisIndex,
+  options: { mapId?: number } = {}
 ): RunePlan | null {
+  if (options.mapId !== undefined && isArenaMap(options.mapId)) return null
   const recommendation = chooseRecommendation(champion, role, index)
   if (!recommendation) return null
 

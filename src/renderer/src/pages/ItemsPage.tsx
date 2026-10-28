@@ -46,7 +46,9 @@ export function ItemsPage(): React.JSX.Element {
 
   const categorized = useMemo(() => {
     if (!index) return []
-    return index.data.items.map((item) => ({ item, category: itemCategory(item) }))
+    return index.data.items
+      .filter((item) => item.maps['11'] === true)
+      .map((item) => ({ item, category: itemCategory(item) }))
   }, [index])
 
   const categoryCounts = useMemo(() => {

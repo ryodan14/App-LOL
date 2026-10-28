@@ -11,6 +11,7 @@ import {
   resolveChampionItemGuide
 } from './championItemGuides'
 import type { NormalizedChampionItemGuide } from './championItemTypes'
+import { MAP_ARENA, MAP_ARAM, MAP_SUMMONERS_RIFT } from './gameModes'
 
 const NEED_ITEM_IDS: Record<string, Partial<Record<Archetype, number[]>>> = {
   antiheal: {
@@ -243,9 +244,9 @@ const STARTING_IDS = {
   scorchclaw: 1101
 } as const
 
-function isPurchasable(item: Item): boolean {
+function isPurchasable(item: Item, mapId = MAP_SUMMONERS_RIFT): boolean {
   return (
-    item.maps['11'] === true &&
+    item.maps[String(mapId)] === true &&
     item.gold.purchasable &&
     item.gold.total > 0 &&
     item.inStore !== false &&
@@ -257,10 +258,10 @@ function isBoots(item: Item): boolean {
   return item.tags.includes('Boots')
 }
 
-function legendaryPool(index: AnalysisIndex): Item[] {
+function legendaryPool(index: AnalysisIndex, mapId = MAP_SUMMONERS_RIFT): Item[] {
   return index.data.items.filter(
     (item) =>
-      isPurchasable(item) &&
+      isPurchasable(item, mapId) &&
       !isBoots(item) &&
       !item.tags.includes('Jungle') &&
       !item.tags.includes('Lane') &&
@@ -268,6 +269,7 @@ function legendaryPool(index: AnalysisIndex): Item[] {
       !item.tags.includes('Consumable') &&
       !item.tags.includes('Trinket') &&
       item.gold.total >= 2200 &&
+      item.gold.total <= 4000 &&
       (!item.into || item.into.length === 0)
   )
 }
@@ -527,13 +529,14 @@ function findNeedItem(
   need: CounterNeed,
   archetype: Archetype,
   index: AnalysisIndex,
-  used: Set<number>
+  used: Set<number>,
+  mapId = MAP_SUMMONERS_RIFT
 ): BuildItem | null {
   const ids = NEED_ITEM_IDS[need.id]?.[archetype] ?? []
   for (const id of ids) {
     if (used.has(id)) continue
     const item = findItem(index, id)
-    if (!item || !isPurchasable(item) || isBoots(item)) continue
+    if (!item || !isPurchasable(item, mapId) || isBoots(item)) continue
     return toBuildItem(item, `${need.label}: ${need.description}`)
   }
   return null
@@ -543,7 +546,8 @@ function chooseBoots(
   archetype: Archetype,
   team: ReturnType<typeof analyzeTeam>,
   index: AnalysisIndex,
-  recommended: number[] = []
+  recommended: number[] = [],
+  mapId = MAP_SUMMONERS_RIFT
 ): BuildItem | null {
   const hardCc = team.threatCounts.HARD_CC ?? 0
   const ad = team.damage.AD + team.damage.MIXED * 0.5
@@ -582,9 +586,9 @@ function chooseBoots(
   const strongTeamSignal = hardCc >= 2 || ap >= 2 || ad >= 2
   const guided = recommended
     .map((id) => findItem(index, id))
-    .filter((item): item is Item => Boolean(item && isPurchasable(item) && isBoots(item)))
+    .filter((item): item is Item => Boolean(item && isPurchasable(item, mapId) && isBoots(item)))
 
-  if (preferred && isPurchasable(preferred) && isBoots(preferred)) {
+  if (preferred && isPurchasable(preferred, mapId) && isBoots(preferred)) {
     if (!strongTeamSignal && guided.length > 0 && !guided.some((item) => item.id === preferred.id)) {
       return toBuildItem(guided[0], t('Botas recomendadas para tu campeón'))
     }
@@ -593,14 +597,17 @@ function chooseBoots(
 
   if (guided.length > 0) return toBuildItem(guided[0], t('Botas recomendadas para tu campeón'))
 
-  const fallback = index.data.items.find((item) => isPurchasable(item) && isBoots(item))
+  const fallback = index.data.items.find(
+    (item) => isPurchasable(item, mapId) && isBoots(item)
+  )
   return fallback ? toBuildItem(fallback, t('Botas situacionales')) : null
 }
 
 function chooseGuidedStarting(
   guide: NormalizedChampionItemGuide,
   role: Role,
-  index: AnalysisIndex
+  index: AnalysisIndex,
+  mapId = MAP_SUMMONERS_RIFT
 ): BuildItem[] | null {
   if (guide.starting.length === 0) return null
   const reason =
@@ -611,7 +618,7 @@ function chooseGuidedStarting(
   for (const bundle of guide.starting) {
     const items = bundle
       .map((id) => findItem(index, id))
-      .filter((item): item is Item => Boolean(item && isPurchasable(item)))
+      .filter((item): item is Item => Boolean(item && isPurchasable(item, mapId)))
     if (items.length === 0) continue
 
     const hasSupportItem = items.some((item) => item.tags.includes('GoldPer'))
@@ -632,16 +639,40 @@ function chooseStarting(
   role: Role,
   team: ReturnType<typeof analyzeTeam>,
   index: AnalysisIndex,
-  guide: NormalizedChampionItemGuide
+  guide: NormalizedChampionItemGuide,
+  mapId = MAP_SUMMONERS_RIFT
 ): BuildItem[] {
-  const guided = chooseGuidedStarting(guide, role, index)
-  if (guided) return guided
-
   const items: BuildItem[] = []
   const add = (id: number, reason: string): void => {
     const item = findItem(index, id)
-    if (item && isPurchasable(item)) items.push(toBuildItem(item, reason))
+    if (item && isPurchasable(item, mapId)) items.push(toBuildItem(item, reason))
   }
+
+  if (mapId === MAP_ARENA) {
+    const juice =
+      archetype === 'marksman' || archetype === 'ad-assassin'
+        ? { id: 2144, reason: t('Zumito de velocidad para empezar en Arena') }
+        : archetype === 'tank' || archetype === 'bruiser' || archetype === 'support'
+          ? { id: 2143, reason: t('Zumito de vitalidad para empezar en Arena') }
+          : { id: 2142, reason: t('Zumito de poder para empezar en Arena') }
+    add(juice.id, juice.reason)
+    return items
+  }
+
+  if (mapId === MAP_ARAM) {
+    const guardian =
+      archetype === 'mage' || archetype === 'ap-assassin' || archetype === 'ap-bruiser'
+        ? 3112
+        : archetype === 'marksman' || archetype === 'ad-assassin'
+          ? 3184
+          : 2051
+    add(guardian, t('Objeto de guardián para empezar en ARAM'))
+    add(STARTING_IDS.potion, t('Poción para aguantar en ARAM'))
+    return items
+  }
+
+  const guided = chooseGuidedStarting(guide, role, index, mapId)
+  if (guided) return guided
 
   if (role === 'JUNGLE') {
     if (
@@ -711,11 +742,12 @@ function chooseGuideCandidate(
   index: AnalysisIndex,
   used: Set<number>,
   reason: string,
-  opening = false
+  opening = false,
+  mapId = MAP_SUMMONERS_RIFT
 ): BuildItem | null {
   const candidates = ids
     .map((id) => findItem(index, id))
-    .filter((item): item is Item => Boolean(item && isPurchasable(item) && !used.has(item.id)))
+    .filter((item): item is Item => Boolean(item && isPurchasable(item, mapId) && !used.has(item.id)))
   if (candidates.length === 0) return null
 
   candidates.sort((a, b) =>
@@ -732,15 +764,18 @@ export function generateBuild(
   champion: Champion,
   role: Role,
   enemies: Champion[],
-  index: AnalysisIndex
+  index: AnalysisIndex,
+  options: { mapId?: number } = {}
 ): BuildPlan {
+  const mapId = options.mapId ?? MAP_SUMMONERS_RIFT
   const archetype = classifyArchetype(champion, role)
   const team = analyzeTeam(enemies)
-  const pool = legendaryPool(index)
+  const pool = legendaryPool(index, mapId)
   const used = new Set<number>()
   const guide = normalizeChampionItemGuide(
     resolveChampionItemGuide(champion.key, role),
-    index.itemById
+    index.itemById,
+    mapId
   )
   const guideIds = new Set(guide.itemIds)
 
@@ -749,7 +784,7 @@ export function generateBuild(
     for (const need of team.needs) {
       if (picked.length >= limit) break
       if (need.priority !== priority) continue
-      const item = findNeedItem(need, archetype, index, used)
+      const item = findNeedItem(need, archetype, index, used, mapId)
       if (!item) continue
       picked.push(item)
       used.add(item.item.id)
@@ -763,7 +798,8 @@ export function generateBuild(
     index,
     used,
     guideReason(guide, champion, t('Primer objeto clave.')),
-    true
+    true,
+    mapId
   )
   const highAdaptive = takeAdaptive('ALTA', 3)
   const coreAdaptive = highAdaptive.slice(0, 1)
@@ -794,7 +830,9 @@ export function generateBuild(
       archetype,
       index,
       used,
-      guideReason(guide, champion, t('Objeto de núcleo.'))
+      guideReason(guide, champion, t('Objeto de núcleo.')),
+      false,
+      mapId
     )
     if (item) core.push(item)
   }
@@ -824,7 +862,9 @@ export function generateBuild(
       archetype,
       index,
       used,
-      guideReason(guide, champion, t('Objeto situacional.'))
+      guideReason(guide, champion, t('Objeto situacional.')),
+      false,
+      mapId
     )
     if (item) situational.push(item)
   }
@@ -836,8 +876,8 @@ export function generateBuild(
     used.add(item.id)
   }
 
-  const boots = chooseBoots(archetype, team, index, guide.boots)
-  const starting = chooseStarting(archetype, role, team, index, guide)
+  const boots = chooseBoots(archetype, team, index, guide.boots, mapId)
+  const starting = chooseStarting(archetype, role, team, index, guide, mapId)
   const opening = [...core].sort(
     (a, b) => laneOpeningScore(b.item, archetype) - laneOpeningScore(a.item, archetype)
   )[0]
@@ -864,13 +904,18 @@ export function generateBuild(
     .map((item) => toBuildItem(item, guideReason(guide, champion, t('Objeto recomendado.'))))
 
   const notes: string[] = []
-  if (guide.source === 'riot') {
+  if (mapId === MAP_ARAM) {
+    notes.push(t('Build adaptada a ARAM: prioriza objetos disponibles en el Abismo de los Lamentos.'))
+  } else if (mapId === MAP_ARENA) {
+    notes.push(t('Build adaptada a Arena: usa objetos y zumos disponibles en el modo.'))
+  }
+  if (guide.source === 'riot' && guideItems.length > 0) {
     notes.push(
       t('Objetos recomendados por los datos del juego para {champion}; App-LOL los adapta a la composición enemiga.', {
         champion: champion.name
       })
     )
-  } else if (guide.source === 'curated') {
+  } else if (guide.source === 'curated' && guideItems.length > 0) {
     notes.push(
       t('Riot no publica una guía de objetos para {champion} en este parche; se usa una build curada por App-LOL.', {
         champion: champion.name
@@ -889,16 +934,20 @@ export function generateBuild(
   } else {
     notes.push(t('Sin composición enemiga: build base por campeón y arquetipo.'))
   }
-  notes.push(t('El primer objeto busca tu pico de línea; adelanta las botas si necesitas moverte antes.'))
+  if (mapId === MAP_SUMMONERS_RIFT) {
+    notes.push(t('El primer objeto busca tu pico de línea; adelanta las botas si necesitas moverte antes.'))
+  }
   notes.push(t('Los objetos situacionales son una guía; adapta el orden según cómo vaya la partida.'))
 
+  const guideSource = guideItems.length > 0 ? guide.source : 'heuristic'
   return {
     championId: champion.key,
     role,
+    mapId,
     archetype,
     archetypeLabel: archetypeLabel(archetype),
     guide: {
-      source: guide.source,
+      source: guideSource,
       items: guideItems
     },
     starting,

@@ -730,6 +730,16 @@ const EN: Record<string, string> = {
   "La página de runas no tiene estilos válidos.": "The rune page has no valid styles.",
   "La página de runas está incompleta.": "The rune page is incomplete.",
   "Situacional": "Situational",
+  "ARAM": "ARAM",
+  "Arena": "Arena",
+  "Build adaptada a ARAM: prioriza objetos disponibles en el Abismo de los Lamentos.": "ARAM build: prioritizes items available in the Howling Abyss.",
+  "Build adaptada a Arena: usa objetos y zumos disponibles en el modo.": "Arena build: uses items and juices available in the mode.",
+  "Zumito de velocidad para empezar en Arena": "Speed juice to start in Arena",
+  "Zumito de vitalidad para empezar en Arena": "Vitality juice to start in Arena",
+  "Zumito de poder para empezar en Arena": "Power juice to start in Arena",
+  "Arena no usa páginas de runas.": "Arena does not use rune pages.",
+  "Objeto de guardián para empezar en ARAM": "Guardian item to start in ARAM",
+  "Poción para aguantar en ARAM": "Potion for sustain in ARAM",
 }
 
 const PT: Record<string, string> = {
@@ -1415,4 +1425,14 @@ const PT: Record<string, string> = {
   "La página de runas no tiene estilos válidos.": "A página de runas não tem estilos válidos.",
   "La página de runas está incompleta.": "A página de runas está incompleta.",
   "Situacional": "Situacional",
+  "ARAM": "ARAM",
+  "Arena": "Arena",
+  "Build adaptada a ARAM: prioriza objetos disponibles en el Abismo de los Lamentos.": "Build adaptada ao ARAM: prioriza itens disponíveis no Abismo Uivante.",
+  "Build adaptada a Arena: usa objetos y zumos disponibles en el modo.": "Build adaptada à Arena: usa itens e sucos disponíveis no modo.",
+  "Zumito de velocidad para empezar en Arena": "Suco de velocidade para começar na Arena",
+  "Zumito de vitalidad para empezar en Arena": "Suco de vitalidade para começar na Arena",
+  "Zumito de poder para empezar en Arena": "Suco de poder para começar na Arena",
+  "Arena no usa páginas de runas.": "A Arena não usa páginas de runas.",
+  "Objeto de guardián para empezar en ARAM": "Item de guardião para começar no ARAM",
+  "Poción para aguantar en ARAM": "Poção para aguentar no ARAM",
 }

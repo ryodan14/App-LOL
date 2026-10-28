@@ -116,6 +116,7 @@ export interface BuildGuide {
 export interface BuildPlan {
   championId: number
   role: Role
+  mapId: number
   archetype: Archetype
   archetypeLabel: string
   guide: BuildGuide
