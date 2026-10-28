@@ -7,12 +7,21 @@ import type {
   ChampSelectSlot,
   ChampSelectState,
   LcuAccount,
+  LcuExportResult,
+  LcuItemSetExport,
   LcuMastery,
   LcuRank,
+  LcuRuneExport,
   LcuSummoner,
   Role
 } from '@shared/types'
-import { fetchJson } from './http'
+import { t } from '@shared/i18n'
+import { HttpError, fetchJson } from './http'
+import {
+  buildItemSetDocument,
+  buildRunePagePayload,
+  type LcuItemSetsDocument
+} from './lcuExport'
 
 interface LcuCredentials {
   port: number
@@ -55,6 +64,14 @@ interface RawSummoner {
   profileIconId?: number
   puuid?: string
   summonerId?: number
+  accountId?: number
+}
+
+interface RawRunePage {
+  id?: number
+  name?: string
+  current?: boolean
+  isDeletable?: boolean
 }
 
 interface RawRank {
@@ -251,7 +268,10 @@ export class LcuClient {
     return discoverFromProcess()
   }
 
-  private async request<T>(path: string): Promise<T> {
+  private async request<T>(
+    path: string,
+    init: { method?: string; body?: unknown } = {}
+  ): Promise<T> {
     if (!this.credentials) {
       throw new Error('Sin credenciales del cliente')
     }
@@ -262,7 +282,8 @@ export class LcuClient {
           auth: `riot:${this.credentials.password}`,
           rejectUnauthorized: false,
           timeoutMs: 3_500,
-          retries: 0
+          retries: 0,
+          ...init
         }
       )
     } catch (error) {
@@ -330,7 +351,8 @@ export class LcuClient {
         summonerLevel: raw.summonerLevel ?? 0,
         profileIconId: raw.profileIconId ?? 29,
         puuid: raw.puuid ?? '',
-        summonerId: raw.summonerId
+        summonerId: raw.summonerId,
+        accountId: raw.accountId
       }
       this.summonerCache = { value: summoner, at: Date.now() }
       return summoner
@@ -405,6 +427,58 @@ export class LcuClient {
       }
     }
     return []
+  }
+
+  async exportItemSet(payload: LcuItemSetExport): Promise<LcuExportResult> {
+    try {
+      const summoner = await this.getSummoner(true)
+      if (!summoner?.summonerId) {
+        return { ok: false, error: t('No se pudo identificar tu invocador.') }
+      }
+      const path = `/lol-item-sets/v1/item-sets/${summoner.summonerId}/sets`
+      let existing: LcuItemSetsDocument = { itemSets: [] }
+      try {
+        existing = await this.request<LcuItemSetsDocument>(path)
+      } catch (error) {
+        if (!(error instanceof HttpError) || error.status !== 404) throw error
+      }
+      const document = buildItemSetDocument(
+        payload,
+        summoner.summonerId,
+        { ...existing, accountId: existing.accountId ?? summoner.accountId }
+      )
+      await this.request(path, { method: 'PUT', body: document })
+      return { ok: true, message: t('Conjunto de objetos exportado al cliente.') }
+    } catch (error) {
+      return { ok: false, error: sanitizeLcuError(error) }
+    }
+  }
+
+  async exportRunePage(payload: LcuRuneExport): Promise<LcuExportResult> {
+    try {
+      const page = buildRunePagePayload(payload)
+      const pages = await this.request<RawRunePage[]>('/lol-perks/v1/pages')
+      const existing = (Array.isArray(pages) ? pages : []).find(
+        (entry) => entry.name === page.name && typeof entry.id === 'number'
+      )
+      if (existing?.id) {
+        await this.request(`/lol-perks/v1/pages/${existing.id}`, {
+          method: 'PUT',
+          body: page
+        })
+      } else {
+        await this.request('/lol-perks/v1/pages', { method: 'POST', body: page })
+      }
+      return { ok: true, message: t('Página de runas exportada al cliente.') }
+    } catch (error) {
+      if (error instanceof HttpError && (error.status === 400 || error.status === 409)) {
+        return {
+          ok: false,
+          error: t('El cliente rechazó la página. Cierra una página de runas e inténtalo de nuevo.')
+        }
+      }
+      return { ok: false, error: sanitizeLcuError(error) }
+    }
   }
 
   disconnect(): void {

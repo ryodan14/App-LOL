@@ -263,7 +263,7 @@ export function LivePage(): React.JSX.Element {
         <div className="grid gap-4 xl:grid-cols-[1.25fr_0.85fr]">
           <Card className="p-5">
             {model.build ? (
-              <BuildPanel build={model.build} />
+              <BuildPanel build={model.build} championName={model.myChampion?.name} />
             ) : (
               <div className="py-10 text-center text-[0.82rem] text-ink-400">
                 {t('Elige tu campeón para ver la build adaptada a tu línea.')}
@@ -272,7 +272,11 @@ export function LivePage(): React.JSX.Element {
           </Card>
           <div className="space-y-4">
             <Card className="p-5">
-              <RunePanel plan={model.runes} />
+              <RunePanel
+                plan={model.runes}
+                championName={model.myChampion?.name}
+                role={model.effectiveRole}
+              />
             </Card>
             {model.enemies.length > 0 && (
               <Card className="p-5">
@@ -398,7 +402,7 @@ export function LivePage(): React.JSX.Element {
       <div className="grid gap-4 xl:grid-cols-[1.25fr_0.85fr]">
         <Card className="p-5">
           {model.build ? (
-            <BuildPanel build={model.build} />
+            <BuildPanel build={model.build} championName={model.myChampion?.name} />
           ) : (
             <div className="py-10 text-center text-[0.82rem] text-ink-400">
               {t('No pudimos identificar tu campeón en la partida.')}
@@ -407,7 +411,11 @@ export function LivePage(): React.JSX.Element {
         </Card>
         <div className="space-y-4">
           <Card className="p-5">
-            <RunePanel plan={model.runes} />
+            <RunePanel
+              plan={model.runes}
+              championName={model.myChampion?.name}
+              role={model.effectiveRole}
+            />
           </Card>
           {model.enemies.length > 0 && (
             <Card className="p-5">

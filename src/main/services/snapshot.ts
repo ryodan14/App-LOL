@@ -2,10 +2,14 @@ import type {
   ChampSelectState,
   ClientPhase,
   LcuAccount,
+  LcuExportResult,
+  LcuItemSetExport,
+  LcuRuneExport,
   LiveGameState,
   LcuSummoner,
   Snapshot
 } from '@shared/types'
+import { t } from '@shared/i18n'
 import { LcuClient } from './lcu'
 import { fetchLiveGame } from './liveClient'
 import { getSettings } from './settings'
@@ -91,6 +95,22 @@ export class SnapshotService {
     const connected = await this.lcu.ensureConnected(settings, true)
     if (!connected) return null
     return this.lcu.getAccount()
+  }
+
+  async exportItemSet(payload: LcuItemSetExport): Promise<LcuExportResult> {
+    const settings = await getSettings()
+    if (!(await this.lcu.ensureConnected(settings))) {
+      return { ok: false, error: this.lcu.getError() ?? t('El cliente de League no está disponible.') }
+    }
+    return this.lcu.exportItemSet(payload)
+  }
+
+  async exportRunePage(payload: LcuRuneExport): Promise<LcuExportResult> {
+    const settings = await getSettings()
+    if (!(await this.lcu.ensureConnected(settings))) {
+      return { ok: false, error: this.lcu.getError() ?? t('El cliente de League no está disponible.') }
+    }
+    return this.lcu.exportRunePage(payload)
   }
 
   private schedule(delayMs: number): void {
