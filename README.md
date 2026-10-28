@@ -30,6 +30,8 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 ## Características
 
 - **Datos oficiales**: campeones, objetos, hechizos, runas y recomendaciones desde Data Dragon y Community Dragon. El parche se detecta automáticamente y se guarda en caché local.
+- **Objetos por campeón**: cada ficha muestra los objetos que recomienda el cliente del juego para ese campeón, con build curada cuando Riot no publica datos y adaptación a la composición enemiga.
+- **Catálogo de objetos**: buscador, filtros por categoría, orden por precio, estadísticas, ruta de construcción y campeones que recomiendan cada objeto.
 - **Análisis de builds**: salida de línea, primer objeto completado, botas, orden de compra y prioridad de habilidades, además de runas, hechizos de invocador y counters directos.
 - **Champ select**: composición aliada y enemiga, picks, bans, counters, baneos recomendados para tu pick y temporizador.
 - **Partida en vivo**: KDA, CS, objetos, nivel, oro estimado por personaje y diferencia total y por línea, además de timers de objetivos.
@@ -123,7 +125,11 @@ Champ select y partida en vivo:
 
 ### Campeones
 
-Buscador y filtros por rol, con detalle de cada campeón: estadísticas, habilidades, pasiva, lore, builds, runas y counters.
+Buscador y filtros por rol, con detalle de cada campeón: estadísticas, habilidades, pasiva, lore, builds, runas y counters. La ficha incluye los objetos recomendados para ese campeón y enlaza al catálogo.
+
+### Objetos
+
+Catálogo completo de objetos del parche con buscador, filtros por categoría, orden por precio, estadísticas, objetos que lo componen y campeones para los que el juego lo recomienda. Desde cada objeto puedes saltar a los campeones asociados.
 
 ### Mi cuenta
 
@@ -142,13 +148,14 @@ Los datos de la cuenta se leen del cliente local. Si League está cerrado, la p�
 
 ## Builds y orden de objetos
 
-App-LOL no usa una lista fija: cruza el campeón, el rol, el arquetipo y la composición enemiga para proponer una compra.
+App-LOL cruza tres fuentes para proponer una compra: la guía de objetos del campeón, su rol y arquetipo, y la composición enemiga.
 
 La ficha de build se divide en:
 
-- **Salida de línea**: Doran + poción, World Atlas + pociones si eres soporte, o mascota de jungla + poción si jungleas. Se adapta al poke y al arquetipo.
+- **Objetos recomendados**: hasta seis objetos de la guía del campeón, con la fuente indicada (datos del juego, build curada o arquetipo).
+- **Salida de línea**: Doran + poción, World Atlas + pociones si eres soporte, o mascota de jungla + poción si jungleas. Se usa la salida del campeón cuando encaja con el rol y, si no, se adapta al poke y al arquetipo.
 - **Primer objeto completado**: el que más ayuda a ganar el intercambio inicial. No siempre es el más caro: se penalizan la penetración porcentual, la anti-curación y los objetos acumulativos como primera compra.
-- **Botas**: se eligen según el daño y el control de masas enemigo.
+- **Botas**: se eligen según el daño y el control de masas enemigo, con las botas recomendadas para el campeón como respaldo.
 - **Núcleo**: tres objetos completados que definen tu pico de poder.
 - **Situacionales**: dos objetos para responder a curación, tanques, escudos, CC o daño dominante.
 - **Orden de compra**: numera la secuencia desde el primer completado; las botas aparecen después para no tapar el primer pico de poder.
@@ -156,13 +163,15 @@ La ficha de build se divide en:
 
 La selección de objetos combina:
 
+- Guías de objetos por campeón extraídas de los datos del juego de Riot en CommunityDragon. Cubren 121 campeones del parche actual.
+- Builds curadas por App-LOL para los campeones sin guía publicada, y una reserva por arquetipo para cualquier campeón nuevo.
 - Estadísticas oficiales de Data Dragon.
 - Etiquetas de arquetipo y rol.
 - Bonus por objetos de arranque habituales de cada clase.
 - Amenazas enemigas: curación, tanques, escudos, CC, poke y daño físico o mágico.
 - Penalizaciones para compras tardías o situacionales demasiado pronto.
 
-> Riot no publica una lista completa de builds por campeón en Data Dragon ni en Community Dragon. El orden es una recomendación heurística de App-LOL, no una lista oficial ni un winrate. No se usan APIs de terceros.
+> Las guías de objetos se generan desde los archivos del juego publicados por Riot en CommunityDragon. Cuando Riot no publica una guía para un campeón, App-LOL usa una build curada y la marca en la ficha. El orden final sigue siendo una recomendación, no un winrate ni una lista competitiva. No se usan APIs de terceros.
 
 ## Overlay
 
@@ -247,6 +256,7 @@ npm run dev
 | `npm run build` | Compila la app sin empaquetar. |
 | `npm run build:win` | Genera el instalador NSIS, el portátil y `latest.yml` en `release/`. |
 | `npm run build:linux` | Genera un AppImage para Linux. |
+| `node scripts/generate-champion-items.mjs` | Regenera las guías de objetos por campeón desde CommunityDragon. |
 
 Los artefactos de Windows quedan en `release/`:
 
@@ -343,7 +353,7 @@ Es un binario sin firma digital. Usa **Más información → Ejecutar de todas f
 App-LOL está en desarrollo activo. Algunas limitaciones conocidas:
 
 - El oro exacto de los diez jugadores no está expuesto por la API oficial; se estima y se muestra como aproximado.
-- Riot no publica una lista completa de builds por campeón en Data Dragon. El orden de objetos es una recomendación heurística basada en estadísticas, arquetipo, rol y amenazas enemigas.
+- Las guías de objetos dependen de que Riot publique los datos del campeón en CommunityDragon. Para los que no los publica se usa una build curada; el orden final es una recomendación, no un winrate.
 - No hay OCR ni lectura de pantalla.
 - El overlay puede no funcionar en pantalla completa exclusiva.
 - Los ejecutables no están firmados, por lo que SmartScreen puede advertir.
