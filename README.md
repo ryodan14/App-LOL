@@ -56,7 +56,7 @@ Compañero de escritorio para League of Legends. Reúne builds, counters, runas,
 
 ### Para desarrollar
 
-- Node.js 22 o superior.
+- Node.js 22.22.2 o superior.
 - npm 10 o superior.
 - Git.
 
@@ -261,6 +261,8 @@ npm run dev
 | `npm run build:win` | Genera el instalador NSIS, el portátil y `latest.yml` en `release/`. |
 | `npm run build:linux` | Genera un AppImage para Linux. |
 | `node scripts/generate-champion-items.mjs` | Regenera las guías de objetos por campeón desde CommunityDragon. |
+| `npm run audit` | Falla si npm detecta vulnerabilidades moderadas o superiores. |
+| `npm run verify:release -- --windows --tag=v0.4.0` | Comprueba tag, instalador, hash, tamaño y metadatos del actualizador. |
 
 Los artefactos de Windows quedan en `release/`:
 
@@ -284,7 +286,7 @@ La forma recomendada es dejar que GitHub Actions compile y publique la release:
 git push origin main --follow-tags
 ```
 
-3. La workflow `.github/workflows/release.yml` compila en Windows, ejecuta los tests y publica el instalador, `latest.yml` y el `.blockmap`.
+3. La workflow `.github/workflows/release.yml` compila en Windows, revisa las dependencias, ejecuta los tests y publica el instalador, `latest.yml` y el `.blockmap`.
 
 Si compilas manualmente con `npm run build:win`, sube a la release el instalador, el `.blockmap`, el portátil y `latest.yml`. No publiques el instalador y el portátil por separado: todos los assets deben quedar en la misma release.
 

@@ -18,11 +18,18 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.22.2
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit dependencies
+        run: npm run audit
+
+      - name: Check tag matches package version
+        shell: bash
+        run: node scripts/verify-release.mjs --tag="$GITHUB_REF_NAME"
 
       - name: Run tests
         run: npm test
@@ -32,6 +39,10 @@ jobs:
 
       - name: Build Windows artifacts
         run: npm run build:win
+
+      - name: Verify installer and updater metadata
+        shell: bash
+        run: node scripts/verify-release.mjs --windows --tag="$GITHUB_REF_NAME"
 
       - name: Publish GitHub release
         shell: bash

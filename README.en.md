@@ -56,7 +56,7 @@ Desktop companion for League of Legends. It brings builds, counters, runes, clie
 
 ### To develop
 
-- Node.js 22 or newer.
+- Node.js 22.22.2 or newer.
 - npm 10 or newer.
 - Git.
 
@@ -261,6 +261,8 @@ npm run dev
 | `npm run build:win` | Generates the NSIS installer, the portable executable and `latest.yml` in `release/`. |
 | `npm run build:linux` | Generates an AppImage for Linux. |
 | `node scripts/generate-champion-items.mjs` | Regenerates the per-champion item guides from CommunityDragon. |
+| `npm run audit` | Fails if npm finds moderate or higher vulnerabilities. |
+| `npm run verify:release -- --windows --tag=v0.4.0` | Checks the tag, installer, hash, size and updater metadata. |
 
 The Windows artifacts are placed in `release/`:
 
@@ -284,7 +286,7 @@ The recommended way is to let GitHub Actions build and publish the release:
 git push origin main --follow-tags
 ```
 
-3. The `.github/workflows/release.yml` workflow builds on Windows, runs the tests and publishes the installer, `latest.yml` and the `.blockmap`.
+3. The `.github/workflows/release.yml` workflow builds on Windows, checks dependencies, runs the tests and publishes the installer, `latest.yml` and the `.blockmap`.
 
 If you build manually with `npm run build:win`, upload the installer, the `.blockmap`, the portable executable and `latest.yml` to the release. Do not publish the installer and the portable executable separately: all assets must be in the same release.
 

@@ -25,11 +25,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.22.2
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Audit dependencies
+        run: npm run audit
 
       - name: Typecheck
         run: npm run typecheck
@@ -37,5 +40,73 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Validate champion item guides
+        run: npm run validate:items
+
       - name: Build
         run: npm run build
+
+  windows-package:
+    if: github.event_name == 'push'
+    needs: checks
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows artifacts
+        run: npm run build:win
+
+      - name: Verify installer and updater metadata
+        run: node scripts/verify-release.mjs --windows
+
+      - name: Install NSIS package silently
+        shell: pwsh
+        run: |
+          $installer = (Resolve-Path "release/App-LOL-Setup-x64.exe").Path
+          $process = Start-Process -FilePath $installer -ArgumentList "/S" -Wait -PassThru
+          if ($process.ExitCode -ne 0) {
+            throw "El instalador terminó con código $($process.ExitCode)"
+          }
+          $app = Get-ChildItem -Path "$env:LOCALAPPDATA\Programs" -Filter "App-LOL.exe" -Recurse -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+          if (-not $app) {
+            throw "No se encontró App-LOL.exe tras la instalación"
+          }
+          $updateConfig = Join-Path $app.DirectoryName "resources\app-update.yml"
+          if (-not (Test-Path $updateConfig)) {
+            throw "La instalación no incluye app-update.yml"
+          }
+          "APP_EXE=$($app.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Get-Content $updateConfig
+
+      - name: Run installed app smoke test
+        shell: pwsh
+        run: |
+          $screenshot = Join-Path $env:RUNNER_TEMP "app-lol-smoke.png"
+          $process = Start-Process -FilePath $env:APP_EXE -ArgumentList "--app-lol-screenshot=$screenshot" -PassThru
+          if (-not $process.WaitForExit(90000)) {
+            $process.Kill()
+            throw "La app no terminó a tiempo"
+          }
+          if ($process.ExitCode -ne 0) {
+            throw "La app terminó con código $($process.ExitCode)"
+          }
+          if (-not (Test-Path $screenshot)) {
+            throw "La app no generó la captura de humo"
+          }
+          $size = (Get-Item $screenshot).Length
+          if ($size -lt 10000) {
+            throw "La captura de humo es demasiado pequeña ($size bytes)"
+          }
+          Write-Host "Captura de humo correcta ($size bytes)"
