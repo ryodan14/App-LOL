@@ -48,7 +48,7 @@ export function t(source: string, params?: MessageParams): string {
   return interpolate(table?.[source] ?? source, params)
 }
 
-const EN: Record<string, string> = {
+export const EN: Record<string, string> = {
   " y ": " and ",
   "(probable)": "(likely)",
   "35% deja ver casi todo el juego; 100% es un fondo sólido.": "35% lets you see almost the whole game; 100% is a solid background.",
@@ -65,6 +65,7 @@ const EN: Record<string, string> = {
   "Aceleración de habilidades": "Ability haste",
   "Acerca de": "About",
   "Activo": "Active",
+  "Algo salió mal": "Something went wrong",
   "Actualizaciones": "Updates",
   "Actualización lista": "Update ready",
   "Actualización lista. Reinicia para aplicarla.": "Update ready. Restart to apply it.",
@@ -497,6 +498,7 @@ const EN: Record<string, string> = {
   "Resumen y estado de tu cliente": "Summary and client status",
   "Retador": "Challenger",
   "Revisa tu conexión y vuelve a intentarlo.": "Check your connection and try again.",
+  "Recargar app": "Reload app",
   "Revisar detección del cliente": "Review client detection",
   "Rival": "Enemy",
   "Rival de línea": "Lane opponent",
@@ -729,6 +731,7 @@ const EN: Record<string, string> = {
   "Campeón no válido para exportar.": "Invalid champion for export.",
   "La build no tiene objetos para exportar.": "The build has no items to export.",
   "La página de runas no tiene estilos válidos.": "The rune page has no valid styles.",
+  "La página no se pudo cargar. Puedes reintentar o recargar la aplicación.": "The page could not be loaded. You can retry or reload the application.",
   "La página de runas está incompleta.": "The rune page is incomplete.",
   "Situacional": "Situational",
   "ARAM": "ARAM",
@@ -743,7 +746,7 @@ const EN: Record<string, string> = {
   "Poción para aguantar en ARAM": "Potion for sustain in ARAM",
 }
 
-const PT: Record<string, string> = {
+export const PT: Record<string, string> = {
   " y ": " e ",
   "(probable)": "(provável)",
   "35% deja ver casi todo el juego; 100% es un fondo sólido.": "35% deixa você ver quase todo o jogo; 100% é um fundo sólido.",
@@ -760,6 +763,7 @@ const PT: Record<string, string> = {
   "Aceleración de habilidades": "Aceleração de habilidades",
   "Acerca de": "Sobre",
   "Activo": "Ativo",
+  "Algo salió mal": "Algo deu errado",
   "Actualizaciones": "Atualizações",
   "Actualización lista": "Atualização pronta",
   "Actualización lista. Reinicia para aplicarla.": "Atualização pronta. Reinicie para aplicá-la.",
@@ -1192,6 +1196,7 @@ const PT: Record<string, string> = {
   "Resumen y estado de tu cliente": "Resumo e status do seu cliente",
   "Retador": "Desafiante",
   "Revisa tu conexión y vuelve a intentarlo.": "Verifique sua conexão e tente novamente.",
+  "Recargar app": "Recarregar app",
   "Revisar detección del cliente": "Revisar detecção do cliente",
   "Rival": "Rival",
   "Rival de línea": "Rival de rota",
@@ -1425,6 +1430,7 @@ const PT: Record<string, string> = {
   "Campeón no válido para exportar.": "Campeão inválido para exportar.",
   "La build no tiene objetos para exportar.": "A build não tem itens para exportar.",
   "La página de runas no tiene estilos válidos.": "A página de runas não tem estilos válidos.",
+  "La página no se pudo cargar. Puedes reintentar o recargar la aplicación.": "Não foi possível carregar a página. Você pode tentar novamente ou recarregar o aplicativo.",
   "La página de runas está incompleta.": "A página de runas está incompleta.",
   "Situacional": "Situacional",
   "ARAM": "ARAM",

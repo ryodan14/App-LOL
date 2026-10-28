@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { PageFallback } from '@renderer/components/ui/PageFallback'
+import { ErrorBoundary } from '@renderer/components/ui/ErrorBoundary'
 import { MobileNav } from './MobileNav'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -33,9 +34,11 @@ export function AppShell(): React.JSX.Element {
           className="min-h-0 flex-1 overflow-y-auto pb-[4.6rem] focus:outline-none md:pb-0"
         >
           <div className="mx-auto w-full max-w-[1480px] px-4 py-4 sm:px-6 sm:py-5 lg:px-8 lg:py-7">
-            <Suspense fallback={<PageFallback />}>
-              <Outlet />
-            </Suspense>
+            <ErrorBoundary resetKey={pathname}>
+              <Suspense fallback={<PageFallback />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         </main>
         <MobileNav />
