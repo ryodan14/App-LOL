@@ -1,4 +1,5 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, screen, session, shell } from 'electron'
+import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron'
 import { promises as fs } from 'node:fs'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { getSettings, updateSettings } from './services/settings'
@@ -14,15 +15,17 @@ import {
 } from './overlay'
 import { createPreviewAccount, createPreviewSnapshot } from './preview'
 import { createAppTray, destroyAppTray, updateAppTray } from './tray'
+import {
+  assertTrustedSender,
+  parseBoolean,
+  parseExternalUrl,
+  parseItemSetExport,
+  parseRuneExport,
+  parseSettingsPatch
+} from './ipcValidation'
 import { checkForUpdates, getUpdateState, initUpdater, restartAndInstall } from './services/updater'
 import { setLocale } from '@shared/i18n'
-import type {
-  AppSettings,
-  DataResult,
-  LcuItemSetExport,
-  LcuRuneExport,
-  Snapshot
-} from '@shared/types'
+import type { AppSettings, DataResult, Snapshot } from '@shared/types'
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -106,28 +109,50 @@ async function toggleOverlay(): Promise<void> {
   syncOverlayFromSnapshot(snapshotService?.get() ?? emptySnapshot())
 }
 
-function registerIpc(): void {
-  ipcMain.handle('app:version', () => app.getVersion())
+type InvokeListener<Args extends unknown[]> = (
+  event: IpcMainInvokeEvent,
+  ...args: Args
+) => unknown
 
-  ipcMain.handle('settings:get', () => getSettings())
-  ipcMain.handle('settings:update', async (_event, patch: Partial<AppSettings>) => {
-    const settings = await updateSettings(patch)
+type EventListener<Args extends unknown[]> = (event: IpcMainEvent, ...args: Args) => void
+
+function handleIpc<Args extends unknown[]>(channel: string, listener: InvokeListener<Args>): void {
+  ipcMain.handle(channel, (event, ...args) => {
+    assertTrustedSender(event)
+    return listener(event, ...(args as Args))
+  })
+}
+
+function onIpc<Args extends unknown[]>(channel: string, listener: EventListener<Args>): void {
+  ipcMain.on(channel, (event, ...args) => {
+    assertTrustedSender(event)
+    listener(event, ...(args as Args))
+  })
+}
+
+function registerIpc(): void {
+  handleIpc('app:version', () => app.getVersion())
+
+  handleIpc('settings:get', () => getSettings())
+  handleIpc('settings:update', async (_event, patch: unknown) => {
+    const safePatch = parseSettingsPatch(patch)
+    const settings = await updateSettings(safePatch)
     applySettingsRuntime(settings)
-    if ('language' in patch) {
+    if ('language' in safePatch) {
       void dataService?.setLanguage(settings.language)
     }
-    if ('overlayScale' in patch || 'overlayCorner' in patch) {
+    if ('overlayScale' in safePatch || 'overlayCorner' in safePatch) {
       setOverlayLayout(settings.overlayScale, settings.overlayCorner)
     }
-    if (typeof patch.alwaysOnTop === 'boolean') {
+    if (typeof safePatch.alwaysOnTop === 'boolean') {
       getMainWindow()?.setAlwaysOnTop(settings.alwaysOnTop)
     }
     if (
-      'pollIntervalMs' in patch ||
-      'autoDetectClient' in patch ||
-      'customLcuPath' in patch ||
-      'manualLcuPort' in patch ||
-      'manualLcuToken' in patch
+      'pollIntervalMs' in safePatch ||
+      'autoDetectClient' in safePatch ||
+      'customLcuPath' in safePatch ||
+      'manualLcuPort' in safePatch ||
+      'manualLcuToken' in safePatch
     ) {
       snapshotService?.restart()
     }
@@ -135,53 +160,55 @@ function registerIpc(): void {
     return settings
   })
 
-  ipcMain.handle(
+  handleIpc(
     'static-data:get',
     (): DataResult => dataService?.get() ?? { data: null, status: 'loading' }
   )
-  ipcMain.handle(
+  handleIpc(
     'static-data:refresh',
     async (): Promise<DataResult> =>
       dataService?.refresh(true) ?? { data: null, status: 'error', error: 'Servicio no disponible' }
   )
-  ipcMain.handle('snapshot:get', (): Snapshot => snapshotService?.get() ?? emptySnapshot())
-  ipcMain.handle(
+  handleIpc('snapshot:get', (): Snapshot => snapshotService?.get() ?? emptySnapshot())
+  handleIpc(
     'snapshot:refresh',
     async (): Promise<Snapshot> => snapshotService?.refresh() ?? emptySnapshot()
   )
-  ipcMain.handle(
+  handleIpc(
     'snapshot:reconnect',
     async (): Promise<Snapshot> => snapshotService?.reconnect() ?? emptySnapshot()
   )
-  ipcMain.handle('account:get', async () => {
+  handleIpc('account:get', async () => {
     if (process.argv.includes('--app-lol-account-preview')) return createPreviewAccount()
     return snapshotService?.getAccount() ?? null
   })
-  ipcMain.handle('lcu:export-item-set', async (_event, payload: LcuItemSetExport) => {
+  handleIpc('lcu:export-item-set', async (_event, payload: unknown) => {
+    const safePayload = parseItemSetExport(payload)
     if (!snapshotService) return { ok: false, error: 'Servicio no disponible' }
-    return snapshotService.exportItemSet(payload)
+    return snapshotService.exportItemSet(safePayload)
   })
-  ipcMain.handle('lcu:export-rune-page', async (_event, payload: LcuRuneExport) => {
+  handleIpc('lcu:export-rune-page', async (_event, payload: unknown) => {
+    const safePayload = parseRuneExport(payload)
     if (!snapshotService) return { ok: false, error: 'Servicio no disponible' }
-    return snapshotService.exportRunePage(payload)
+    return snapshotService.exportRunePage(safePayload)
   })
 
-  ipcMain.handle('updates:get', () => getUpdateState())
-  ipcMain.handle('updates:check', () => checkForUpdates())
-  ipcMain.handle('updates:restart', () => restartAndInstall())
+  handleIpc('updates:get', () => getUpdateState())
+  handleIpc('updates:check', () => checkForUpdates())
+  handleIpc('updates:restart', () => restartAndInstall())
 
-  ipcMain.on('window:minimize', () => getMainWindow()?.minimize())
-  ipcMain.on('window:toggle-maximize', () => {
+  onIpc('window:minimize', () => getMainWindow()?.minimize())
+  onIpc('window:toggle-maximize', () => {
     const window = getMainWindow()
     if (!window) return
     if (window.isMaximized()) window.unmaximize()
     else window.maximize()
   })
-  ipcMain.on('window:close', () => getMainWindow()?.close())
-  ipcMain.handle('window:set-always-on-top', (_event, value: boolean) => {
-    getMainWindow()?.setAlwaysOnTop(Boolean(value))
+  onIpc('window:close', () => getMainWindow()?.close())
+  handleIpc('window:set-always-on-top', (_event, value: unknown) => {
+    getMainWindow()?.setAlwaysOnTop(parseBoolean(value))
   })
-  ipcMain.on('window:move-to-secondary', () => {
+  onIpc('window:move-to-secondary', () => {
     const window = getMainWindow()
     if (!window) return
     const current = screen.getDisplayMatching(window.getBounds())
@@ -195,15 +222,8 @@ function registerIpc(): void {
     window.show()
   })
 
-  ipcMain.handle('external:open', async (_event, url: string) => {
-    try {
-      const parsed = new URL(url)
-      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
-        await shell.openExternal(parsed.toString())
-      }
-    } catch {
-      // Ignore malformed URLs.
-    }
+  handleIpc('external:open', async (_event, url: unknown) => {
+    await shell.openExternal(parseExternalUrl(url))
   })
 }
 
