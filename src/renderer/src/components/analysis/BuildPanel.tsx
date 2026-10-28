@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Coins, Info, ShieldCheck, Sparkles, Swords } from 'lucide-react'
 import type { BuildGuide, BuildItem, BuildPlan, CounterNeed, SkillOrder } from '@shared/analysis'
 import { Badge } from '@renderer/components/ui/Badge'
@@ -93,16 +94,17 @@ function GuideSection({ guide }: { guide: BuildGuide }): React.JSX.Element | nul
       <p className="mb-2.5 text-[0.68rem] leading-relaxed text-ink-500">{sourceNote}</p>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
         {guide.items.map((entry) => (
-          <div
+          <Link
             key={entry.item.id}
-            className="flex min-w-0 flex-col items-center gap-1 rounded-lg border border-line/70 bg-base-950/35 p-1.5 text-center"
+            to={`/objetos?buscar=${encodeURIComponent(entry.item.name)}`}
+            className="flex min-w-0 flex-col items-center gap-1 rounded-lg border border-line/70 bg-base-950/35 p-1.5 text-center transition-colors hover:border-gold-400/30 hover:bg-gold-400/[0.04]"
             title={entry.item.name}
           >
             <ItemIcon item={entry.item} size="md" />
             <span className="line-clamp-2 text-[0.58rem] font-medium leading-tight text-ink-300">
               {entry.item.name}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -161,6 +161,7 @@ export interface AnalysisIndex {
   shardById: Map<number, RuneShard>
   recommendationsByChampion: Map<number, RuneRecommendation[]>
   rolesByChampion: Map<number, Role[]>
+  championKeysByItemId: ReadonlyMap<number, number[]>
 }
 
 
