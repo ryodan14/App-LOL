@@ -256,6 +256,8 @@ describe('builds', () => {
     expect(build.skillOrder.note.length).toBeGreaterThan(0)
     expect(build.notes.length).toBeGreaterThan(0)
     expect(build.totalGold).toBeGreaterThan(0)
+    expect(build.guide.items.length).toBeGreaterThan(0)
+    expect(['riot', 'curated', 'heuristic']).toContain(build.guide.source)
   })
 
   it('prioriza el objeto de arranque antes que penetración tardía', () => {
