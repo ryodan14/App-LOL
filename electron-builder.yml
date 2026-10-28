@@ -1,5 +1,14 @@
 appId: com.ryodan14.applol
 productName: App-LOL
+asar: true
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: true
 publish:
   provider: github
   owner: ryodan14
