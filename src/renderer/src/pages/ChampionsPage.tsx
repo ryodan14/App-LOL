@@ -240,6 +240,7 @@ function RoleButton({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         'rounded-lg border px-2.5 py-1.5 text-[0.68rem] font-semibold transition-colors',
         active
