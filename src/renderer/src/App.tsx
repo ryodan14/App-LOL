@@ -7,6 +7,7 @@ import { AppShell } from '@renderer/components/layout/AppShell'
 import { HomePage } from '@renderer/pages/HomePage'
 import { LivePage } from '@renderer/pages/LivePage'
 import { ChampionsPage } from '@renderer/pages/ChampionsPage'
+import { ItemsPage } from '@renderer/pages/ItemsPage'
 import { ChampionDetailPage } from '@renderer/pages/ChampionDetailPage'
 import { AccountPage } from '@renderer/pages/AccountPage'
 import { SettingsPage } from '@renderer/pages/SettingsPage'
@@ -69,6 +70,7 @@ export default function App(): React.JSX.Element {
             <Route path="partida" element={<LivePage />} />
             <Route path="campeones" element={<ChampionsPage />} />
             <Route path="campeones/:id" element={<ChampionDetailPage />} />
+            <Route path="objetos" element={<ItemsPage />} />
             <Route path="cuenta" element={<AccountPage />} />
             <Route path="ajustes" element={<SettingsPage />} />
             <Route path="*" element={<NotFoundPage />} />

@@ -13,6 +13,7 @@ const subtitles: Record<string, string> = {
   '/': 'Resumen y estado de tu cliente',
   '/partida': 'Champ select y partida en vivo',
   '/campeones': 'Builds, runas y counters',
+  '/objetos': 'Catálogo y campeones recomendados',
   '/cuenta': 'Rango, maestría y progreso',
   '/ajustes': 'Personaliza tu experiencia'
 }
@@ -38,7 +39,9 @@ export function Topbar(): React.JSX.Element {
         ? t('Partida en vivo')
         : location.pathname.startsWith('/campeones')
           ? t('Campeones')
-          : location.pathname.startsWith('/cuenta')
+          : location.pathname.startsWith('/objetos')
+            ? t('Objetos')
+            : location.pathname.startsWith('/cuenta')
             ? t('Mi cuenta')
             : location.pathname.startsWith('/ajustes')
               ? t('Ajustes')
