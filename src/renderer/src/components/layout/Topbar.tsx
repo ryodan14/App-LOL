@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { MonitorOff, MonitorUp, Pin, RefreshCw } from 'lucide-react'
 import { useAppStore } from '@renderer/store/useAppStore'
@@ -51,11 +52,18 @@ export function Topbar(): React.JSX.Element {
     ? `${champion.title} · ${champion.tags.join(' / ')}`
     : t(subtitles[location.pathname] ?? 'League of Legends, más claro')
 
+  useEffect(() => {
+    document.title = `${title} · App-LOL`
+  }, [title])
+
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-base-950/70 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4 lg:px-8">
       <div className="mx-auto flex max-w-[1480px] flex-wrap items-center justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="font-display truncate text-[1.15rem] font-semibold tracking-tight text-ink-100">
+          <h1
+            id="page-title"
+            className="font-display truncate text-[1.15rem] font-semibold tracking-tight text-ink-100"
+          >
             {title}
           </h1>
           <p className="mt-0.5 truncate text-[0.72rem] text-ink-500">{subtitle}</p>

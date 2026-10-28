@@ -109,6 +109,7 @@ export function ChampionPicker({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={t('Buscar campeón…')}
+              aria-label={t('Buscar campeón…')}
               className="h-9 flex-1 bg-transparent text-[0.78rem] text-ink-100 outline-none placeholder:text-ink-500"
               autoFocus
             />
